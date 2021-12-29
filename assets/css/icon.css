@@ -1,0 +1,82 @@
+@font-face {
+  font-family: 'icon';
+  src:  url('../fonts/icon.eot?qgro76');
+  src:  url('../fonts/icon.eot?qgro76#iefix') format('embedded-opentype'),
+    url('../fonts/icon.ttf?qgro76') format('truetype'),
+    url('../fonts/icon.woff?qgro76') format('woff'),
+    url('../fonts/icon.svg?qgro76#icon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-jquery:before {
+  content: "\e91b";
+  color: #000;
+}
+.icon-paint:before {
+  content: "\e900";
+}
+.icon-database:before {
+  content: "\e901";
+}
+.icon-earth:before {
+  content: "\e903";
+}
+.icon-skype:before {
+  content: "\e904";
+}
+.icon-youtube:before {
+  content: "\e905";
+}
+.icon-linkedin:before {
+  content: "\e906";
+}
+.icon-instagram:before {
+  content: "\e907";
+}
+.icon-whatsapp:before {
+  content: "\e908";
+}
+.icon-facebook:before {
+  content: "\e909";
+}
+.icon-twitter:before {
+  content: "\e90a";
+}
+.icon-camera:before {
+  content: "\e90b";
+}
+.icon-laptop:before {
+  content: "\e90c";
+}
+.icon-html-five:before {
+  content: "\e90d";
+}
+.icon-drupal:before {
+  content: "\e90e";
+}
+.icon-go:before {
+  content: "\e90f";
+}
+.icon-django:before {
+  content: "\e910";
+}
+.icon-nodejs:before {
+  content: "\e911";
+}
