@@ -33,6 +33,7 @@
   <link rel="stylesheet" type="text/css" href="assets/css/style.css">
   <link rel="stylesheet" type="text/css" href="assets/css/custom-style.css">
   <link rel="stylesheet" type="text/css" href="assets/css/icon.css">
+
   
 </head>
 
@@ -487,13 +488,9 @@
         </div>
         
         <div class="col-lg-7">
-          
-          <form class="form" id="contact-form" method="post" action="">
-            
+          <form class="form" id="contact-form" method="post" action="#">
             <div class="controls">
-              
               <div class="row">
-                
                 <div class="col-md-6">
                   <div class="form-group">
                     <input id="form_name" type="text" name="name" placeholder="Name" required="required">
@@ -516,7 +513,7 @@
                 </div>
                 
                 <div class="col-md-12 text-center">
-                  <button type="submit" class="btn btn-brand disabled" onsubmit="sendEmail()"><span>Send Message</span></button>
+                  <button type="submit" class="btn btn-brand disabled" ><span>Send Message</span></button>
                 </div>
                 
               </div>                             
@@ -563,30 +560,7 @@
   <script type="text/javascript" src="assets/js/jquery.stellar.min.js"></script>
   <script type="text/javascript" src="assets/js/isotope.pkgd.min.js"></script>
   <script type="text/javascript" src="assets/js/validator.js"></script>
-  <script type="text/javascript" src="assets/js/scripts.js"></script>
   <script src="https://smtpjs.com/v3/smtp.js"></script>
-  <script type="text/javascript">
-    function sendEmail() {
-      var mail = $('#form_email').val();
-      var name = $('#form_name').val();
-      var subject = $('#form_subject').val();
-      var message = $('#form_message').val();
-      var host = "smtp.gmail.com";
-      var username = "developerriyas@gmail.com";
-      var credential = "lfhjfsldnfmbhmvd";
-      Email.send({
-        Host: host,
-        Username: username,
-        Password: credential,
-        To: username,
-        From: mail,
-        Subject: subject,
-        Body: message,
-      })
-      .then(function (message) {
-        console.log("mail sent successfully")
-      });
-    }
-  </script>
+  <script type="text/javascript" src="assets/js/scripts.js"></script>
 </body>
 </html>
