@@ -27,5 +27,4 @@ Allow: /assets/*.png
 Allow: /assets/*.svg
 Allow: /assets/*.webp
 
-
-# Sitemap: http://www.riyasac.ml/sitemap.xml
+Sitemap: http://www.riyasac.ml/sitemap.txt
