@@ -1,6 +1,8 @@
 
 jQuery(document).ready(function($){
-	//set animation timing
+  $('#spanYear').html(new Date().getFullYear());
+	
+  //set animation timing
 	var animationDelay = 2500,
 		//loading bar effect
 		barAnimationDelay = 3800,

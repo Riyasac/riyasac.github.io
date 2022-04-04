@@ -6427,3 +6427,6 @@
         transform: rotate(359deg)
     }
 }
+.icon-pinterest:before {
+  content: "\ead1";
+}
