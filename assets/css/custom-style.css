@@ -1601,15 +1601,15 @@ inset -5px -5px 10px #ffffff;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-jquery:before {
-  content: "\e91b";
-  color: #000;
+.icon-bootstrap:before {
+  content: "\e900";
+  color: #563d7c;
 }
 .icon-paint:before {
-  content: "\e900";
+  content: "\e901";
 }
 .icon-database:before {
-  content: "\e901";
+  content: "\e902";
 }
 .icon-earth:before {
   content: "\e903";
@@ -1656,7 +1656,12 @@ inset -5px -5px 10px #ffffff;
 .icon-nodejs:before {
   content: "\e911";
 }
-
+.icon-jquery:before {
+  content: "\e91b";
+}
+.icon-pinterest:before {
+  content: "\ead1";
+}
 
 
 
