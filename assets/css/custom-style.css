@@ -1603,7 +1603,6 @@ inset -5px -5px 10px #ffffff;
 
 .icon-bootstrap:before {
   content: "\e900";
-  color: #563d7c;
 }
 .icon-paint:before {
   content: "\e901";
