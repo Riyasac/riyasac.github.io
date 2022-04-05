@@ -675,7 +675,7 @@ wind.stellar();
 $('.gallery').isotope({
 // options
 itemSelector: '.items',
-percentPosition: true,
+// percentPosition: true,
 masonry: {
 // use element for option
 // columnWidth: '.width2'
