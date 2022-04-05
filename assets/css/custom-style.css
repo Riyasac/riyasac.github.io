@@ -1500,6 +1500,7 @@ inset -5px -5px 10px #ffffff;
  	 	}
  	 }
  	 @media screen and (max-width: 767px) {
+          .about .social{display: none !important;}
  	 	.mb-sm50 {
  	 		margin-bottom: 50px;
  	 	}
