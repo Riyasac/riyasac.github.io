@@ -678,7 +678,7 @@ itemSelector: '.items',
 percentPosition: true,
 masonry: {
 // use element for option
-columnWidth: '.width2'
+// columnWidth: '.width2'
 }
 });
 

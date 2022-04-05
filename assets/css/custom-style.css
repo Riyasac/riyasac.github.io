@@ -830,13 +830,14 @@
      	box-shadow: 0px 10px 30px -4px rgba(0, 0, 0, 0.2);
      }
      .portfolio .items {
-     	padding: 0 30px;
-     	margin-top: 60px;
-     	width: 50%;
+     	padding: 0 0px;
+     	margin-top: 30px;
+     	width: 100%;
+          /* position: relative !important; */
      }
-     .portfolio .items.width2 {
+     /* .portfolio .items.width2 {
      	width: 25%;
-     }
+     } */
      .portfolio .item-img {
      	position: relative;
      	overflow: hidden;
@@ -881,7 +882,12 @@
      	right: 15px;
      	color: #c49b66;
      }
-
+     .portfolio .overlay-info{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+     }
 /* ----------------------------------------------------------------
      [ End Portfolio ]
      -----------------------------------------------------------------*/
