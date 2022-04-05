@@ -511,9 +511,7 @@
      .header {
      	min-height: 100vh;
           /*min-height: 100vh;*/
-          /*background-image: linear-gradient(to right, rgb(0 26 35 / 80%) 0%, rgb(41 177 202 / 80%) 100%),url(../img/banner-bg.jpg);*/
-          /*background-image: linear-gradient(to right, rgb(28 32 88 / 80%) 0%, rgb(0 0 0 / 80%) 100%),url(../img/main/bg.jpg)*/
-          background-image: linear-gradient(to right, rgb(0 0 0 / 80%) 0%, rgb(53 17 17 / 80%) 100%),url(../img/main/bg1.jpg);
+          background-image: linear-gradient(to right, rgb(0 0 0 / 80%) 0%, rgb(53 17 17 / 80%) 100%),url(../img/bg1.jpg);
 
 
      }
