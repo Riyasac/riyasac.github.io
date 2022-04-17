@@ -720,3 +720,13 @@ $('#contact-form').on('submit', function (e) {
 });
 
 });
+
+
+$(document).ready(function(){
+  $('input').on("cut copy paste",function(e) {
+     e.preventDefault();
+  });
+  $('textarea').on("cut copy paste",function(e) {
+     e.preventDefault();
+  });
+});
