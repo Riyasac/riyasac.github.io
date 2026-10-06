@@ -2,635 +2,608 @@
 <html lang="en">
 
 <head>
-	<!-- Meta Tags  -->
-	<meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
-	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="black">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Riyas A C | Senior Backend Developer | Python, Django, PostgreSQL</title>
+	<meta name="description" content="Riyas A C is a Senior Backend Developer with 7+ years of experience building scalable web applications and REST APIs with Python, Django, Django REST Framework, PostgreSQL, and Golang.">
+	<meta name="keywords" content="Riyas A C, Senior Backend Developer, Python Developer, Django Developer, Django REST Framework, REST API, PostgreSQL, Golang, Celery, Redis, Kerala">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<link rel="canonical" href="https://riyasac.github.io/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Site verification -->
 	<meta name="google-site-verification" content="4SvbryOTn9whD1_9GIEmOX5LybkwNzvglIAYa8RnRzw">
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="author" content="Riyas Ac">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="keywords" content="Riyas AC | Senior Software Engineer | Web Developer">
-	<meta name="description" content="Riyas AC | Senior Software Engineer | Web Developer">
-	<meta name="p:domain_verify" content="0b12661ed134e176682f81ecd8f9fdf0"/>
-	<!-- Title -->
-	<title>Riyas AC | Software Engineer | Web Developer</title>
-	
-	
-	<!-- Favicon Logs -->
-	<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon/favicon.ico">
-	<link rel="icon" sizes="48x48" href="assets/img/favicon/favicon.ico">
-	<link rel="icon" sizes="16x16" href="assets/img/favicon/favicon-16x16.png">
-	<link rel="icon" sizes="32x32" href="assets/img/favicon/favicon-32x32.png">
+	<meta name="p:domain_verify" content="0b12661ed134e176682f81ecd8f9fdf0">
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="profile">
+	<meta property="og:url" content="https://riyasac.github.io/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Riyas A C | Senior Backend Developer">
+	<meta property="og:description" content="Senior Backend Developer with 7+ years building scalable web applications and REST APIs with Python, Django, PostgreSQL, and Golang.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/favicon/riyas.jpeg">
+	<meta property="og:image:alt" content="Portrait of Riyas A C">
+	<meta property="og:locale" content="en_IN">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:title" content="Riyas A C | Senior Backend Developer">
+	<meta name="twitter:description" content="Senior Backend Developer with 7+ years building scalable web applications and REST APIs with Python, Django, PostgreSQL, and Golang.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/favicon/riyas.jpeg">
+
+	<!-- Icons -->
+	<link rel="icon" href="assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon/favicon-16x16.png">
 	<link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon/apple-touch-icon.png">
-	<meta name="msapplication-TileColor" content="#ff0000">
-	
-	
-	<!-- Google Fonts -->
+	<link rel="manifest" href="site.webmanifest">
+
+	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Zen+Tokyo+Zoo&family=Roboto+Condensed&family=Roboto&family=Abril+Fatface&family=Alfa+Slab+One&family=Anton&family=Cabin&family=Comfortaa:wght@300;700&family=Dancing+Script&family=Fascinate&family=Fruktur&family=Gravitas+One&family=Great+Vibes&family=Lobster&family=Meie+Script&family=Pacifico&family=Patua+One&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Oswald:wght@200;300;400;500;600;700&family=Playball&family=Titillium+Web:wght@400;600&display=swap" rel="stylesheet">
-	
-	<link rel="stylesheet" type="text/css" href="assets/css/custom-style.css">
-	
-	<!-- Meta Tags -->
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://www.riyasac.ml" />
-	<meta property="og:site_name" content="Riyas AC" />
-	<meta property="og:title" content="Riyas AC | Senior Software Engineer | Web Developer" />
-	<meta property="og:description" content="Iam Riyas Anamchirakkal , experienced in software engineering and web designing, worked as a web developer on the Django framework using the Python language." />
-	<meta property="og:image" content="https://www.riyasac.ml/assets/img/favicon/logo-brand.svg" />
-	<meta property="og:updated_time" content="2022-04-04T16:55:50+05:30" />
-	<meta property="og:image:url" content="https://www.riyasac.ml/assets/img/favicon/logo-brand.svg" />
-	<meta property="og:image:secure_url" content="https://www.riyasac.ml/assets/img/favicon/logo-brand.svg" />
-	<meta property="og:image:type" content="image/png" />
-	<meta property="og:image:width" content="1400" />
-	<meta property="og:image:height" content="730" />
-	<meta property="og:email" content="riyasac6@gmail.com" />
-	<meta property="og:phone_number" content="+916282243132" />
-	
-	<!-- <meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:creator" content="@riyasac" />
-		<meta name="twitter:creator:id" content="@riyasac" />
-		<meta name="twitter:url" content="https://www.riyasac.ml" />
-		<meta name="twitter:title" content="Riyas AC | Senior Software Engineer | Web Developer" /> 
-		<meta property="og:email" content="info.riyasac@gmail.com" />
-		<meta name="twitter:description" content="Iam Riyas Anamchirakkal , experienced in software engineering and web designing, worked as a web developer on the Django framework using the Python language." /> -->
-		
-		<meta itemprop="name" content="Riyas AC | Senior Software Engineer | Web Developer" />
-		<meta itemprop="description" content="Iam Riyas Anamchirakkal , experienced in software engineering and web designing, worked as a web developer on the Django framework using the Python language." />
-		<meta itemprop="image" content="https://www.riyasac.ml/assets/img/favicon/logo-brand.svg" />
-	</head>
-	
-	<body>
-		<!-- Loading -->
-		<div class="loading">
-			<div class="loading-block">
-				<img src="assets/img/progress.gif" class="w-50" />
-			</div>
-		</div>
-		
-		<!-- Navbar -->
-		<nav class="navbar nav-light navbar-expand-lg">
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "Person",
+		"name": "Riyas A C",
+		"alternateName": "Riyas Anamchirakkal",
+		"jobTitle": "Senior Backend Developer",
+		"url": "https://riyasac.github.io/",
+		"image": "https://riyasac.github.io/assets/img/favicon/riyas.jpeg",
+		"email": "mailto:riyasac25@gmail.com",
+		"telephone": "+91-6282243132",
+		"address": {
+			"@type": "PostalAddress",
+			"addressRegion": "Kerala",
+			"addressCountry": "IN"
+		},
+		"worksFor": {
+			"@type": "Organization",
+			"name": "Codelynks Software Solutions Pvt. Ltd."
+		},
+		"alumniOf": {
+			"@type": "CollegeOrUniversity",
+			"name": "AKNM Government Polytechnic College, Thirurangadi"
+		},
+		"knowsAbout": ["Python", "Django", "Django REST Framework", "FastAPI", "Golang", "REST APIs", "PostgreSQL", "Redis", "Celery", "Docker"],
+		"sameAs": [
+			"https://www.linkedin.com/in/riyasac",
+			"https://github.com/Riyasac"
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
 			<div class="container">
-				
-				<!-- Logo -->
-				<a class="logo" href="#">
-					<img src="assets/img/favicon/logo-brand.svg" class="logo" alt="logo">          
+				<a class="brand" href="#home" aria-label="Riyas A C, back to top">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
 				</a>
-				
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
 				</button>
-				
-				<!-- navbar links -->
-				<div class="collapse navbar-collapse" id="navbarSupportedContent">
-					<ul class="navbar-nav ml-auto">
-						<li class="nav-item">
-							<a class="nav-link active" href="#" data-scroll-nav="0">Home</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#" data-scroll-nav="1">About</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#" data-scroll-nav="2">Portfolio</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#" data-scroll-nav="3">Skills</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#" data-scroll-nav="4">Blog</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#" data-scroll-nav="5">Contact</a>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link" href="#education">Education</a></li>
+						<li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
 						</li>
 					</ul>
 				</div>
 			</div>
 		</nav>
-		
-		<!-- Header -->
-		<header class="header valign bg-img position-re" data-scroll-index="0" data-overlay-dark="4" data-stellar-background-ratio="0.5">
+	</header>
+
+	<main id="main">
+
+		<!-- Hero -->
+		<section class="hero" id="home" aria-labelledby="heroTitle">
 			<div class="container">
-				<div class="row">
-					<div class="full-width text-center caption mt-50">
-						<h2>Welcome!, <span class="font-weight-normal">Iam</span></h2>
-						<h1 class="cd-headline push">
-							<!-- <span class="font-weight-normal">I am</span> -->
-							<span class="cd-words-wrapper">
-								<!-- <b class="is-visible">Riyas Anamchirakkal</b> -->
-								<b class="is-visible">Riyas Ac</b>
-								<b>Web Designer</b>
-								<b>Web Developer</b>
-								<b>Software Engineer</b>
-							</span>
-						</h1>
-					</div>
-				</div>
-			</div>
-		</header>
-		
-		<!-- About -->
-		<section class="about section-padding position-re" data-scroll-index="1">
-			<div class="container-fluid">
-				<div class="row">
-					
-					<div class="col-md-6 col-lg-4 offset-lg-2">
-						<div class="content">
-							<h4 class="zen-tokyo-font">About Me</h4>
-							<h6>Who am i</h6>
-							<h5 class="roboto-condensed-font">Professional Web Developer & Web Designer</h5>
-							<p class="mb-10">Iam <b>Riyas Anamchirakkal</b> , experienced in software engineering and web designing, worked as a web developer on the Django framework using the Python language.</p>
-							<p class="mb-40">Also, I know the programming languages like NodeJs, Golang, JavaScript , Jquery and Ajax.I bring a range of skills from front-end design, interaction design, back-end connections. I focus on creating rich seamless experiences between the product and the user. I'm always looking for creative people to vibe with, let's connect through my social channels.</p>
-							
-							<a href="#contactus" class="btn btn-brand" data-scroll-nav="5">
-								<span>Hire Me!</span>
+				<div class="row align-items-center g-5">
+					<div class="col-lg-7 hero-copy" data-stagger>
+						<p class="eyebrow reveal">Senior Backend Developer <span aria-hidden="true">/</span> Kerala, India</p>
+						<h1 class="hero-title reveal" id="heroTitle">Riyas A C</h1>
+						<p class="hero-lead reveal">I build scalable web applications and REST APIs with Python, Django, Django REST Framework, and PostgreSQL.</p>
+						<p class="hero-sub reveal">7+ years and 20+ production projects across POS and inventory, e-commerce, payments, LMS, and enterprise platforms.</p>
+
+						<div class="hero-actions reveal">
+							<a class="btn btn-ink" href="#experience">View my work <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+							<a class="btn btn-outline-ink" href="assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Download resume
 							</a>
-							<!-- <a href="CV.pdf" class="btn btn-light" target="_blank">
-								<span>Download CV</span>
-							</a> -->
+							<a class="btn btn-link-ink" href="#contact">Contact me</a>
 						</div>
+
+						<ul class="social-list reveal" aria-label="Profiles">
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+							<li><a href="mailto:riyasac25@gmail.com" aria-label="Email riyasac25@gmail.com"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+						</ul>
 					</div>
-					<div class="col-md-6 col-lg-3 ">
-						<div class="about-img h-100 d-flex align-items-center my-auto float-right">
-							<img src="assets/img/favicon/riyas.jpeg" class="img-fluid img-thumbnail" alt="Riyas Ac" style="max-height: 35rem;">
-						</div>
+
+					<div class="col-lg-5">
+						<figure class="hero-visual reveal">
+							<div class="portrait-stage">
+								<div class="portrait-ring" aria-hidden="true"></div>
+								<div class="portrait-backdrop" aria-hidden="true"></div>
+								<img src="assets/img/riyas-portrait.webp" width="546" height="803" alt="Portrait of Riyas A C" fetchpriority="high">
+								<span class="float-chip" aria-hidden="true"><i class="bi bi-people"></i> 250,000+ users</span>
+								<span class="float-chip float-chip-left" aria-hidden="true"><i class="bi bi-check2-circle"></i> 20+ projects</span>
+								<span class="float-chip chip-top-right" aria-hidden="true"><i class="bi bi-briefcase"></i> 7+ years</span>
+								<span class="float-chip chip-top-left" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i> 75% more scalable</span>
+								<span class="float-chip chip-mid-right" aria-hidden="true"><i class="bi bi-bug"></i> ~60% fewer bugs</span>
+								<span class="float-chip chip-low-right" aria-hidden="true"><i class="bi bi-rocket-takeoff"></i> 50% faster deploys</span>
+							</div>
+							<figcaption class="stack-card">
+								<span class="stack-card-label">stack.primary</span>
+								<span class="visually-hidden">Python, Django, Django REST Framework, PostgreSQL, Redis, Celery, Golang, Docker</span>
+								<code aria-hidden="true" data-typing="python · django · drf|postgresql · redis · celery|golang · gin · docker">python · django · drf</code>
+							</figcaption>
+						</figure>
 					</div>
-					
-					
 				</div>
+
+				<dl class="hero-facts reveal" data-stagger>
+					<div>
+						<dt data-count="7" data-suffix="+">7+</dt>
+						<dd>years in backend development</dd>
+					</div>
+					<div>
+						<dt data-count="20" data-suffix="+">20+</dt>
+						<dd>production projects delivered</dd>
+					</div>
+					<div>
+						<dt data-count="250000" data-suffix="+">250,000+</dt>
+						<dd>users on an optimized rank calculation system</dd>
+					</div>
+				</dl>
 			</div>
-			
-			<svg class="wave" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 81.717" enable-background="new 0 0 1920 81.717" xml:space="preserve"><path id="wave" style="" d="M1920,0c0,0-109.246,46.107-316.333,67.334C1343.5,94,1137.095,77.238,999.167,67.5C854,57.25,637.662,24.697,541.709,18.834C375.334,8.666,147,11,0,37.875V0H1920L1920,0z"></path></svg>
-			
-			<ul class="social">
-				<li><a href="https://www.facebook.com/riyas.ac.31"><i class="icon icon-facebook"></i></a></li>
-				<!-- <li><a href="#0"><i class="icon icon-twitter"></i></a></li> -->
-				<li><a href="https://www.instagram.com/riyasac6"><i class="icon icon-instagram"></i></a></li>
-				<li><a href="https://www.linkedin.com/in/riyasac"><i class="icon icon-linkedin"></i></a></li>
-				<li><a href="https://www.pinterest.com/riyasac"><i class="icon icon-pinterest"></i></a></li>
-				<li><a href="https://api.whatsapp.com/send?phone=+916282243132&text=Hi"><i class="icon icon-whatsapp"></i></a></li>
-				<li><a href="https://www.youtube.com/channel/UC8vfNCUOcKeB4iN74XO6c0A"><i class="icon icon-youtube"></i></a></li>
-				<li><a href="https://join.skype.com/invite/v16TDPcv9sZ5"><i class="icon icon-skype"></i></a></li>
-			</ul>
 		</section>
-		
-		<!-- Skills -->
-		<section class="portfolio section-padding bg-gray position-re" data-scroll-index="2">
-			<div class="container">
-				<div class="row">
-					
-					<div class="section-head text-center col-lg-8 offset-lg-2 col-md-10 offset-md-1">
-						<h4 class="zen-tokyo-font">Portfolio</h4>
-					</div>
-					
-					<div class="filtering text-center col-sm-12 mb-30 p-sm-0 p-0">
-						<span data-filter='*' class="active">All</span>
-						<!-- <span data-filter='.myphoto'>Myphoto</span> -->
-						<span data-filter='.flower'>Flower</span>
-						<span data-filter='.natural'>Natural</span>
-					</div>
-					<div class="clearfix full-width"></div>
 
-					<div class="gallery w-100">
-						<div class="row w-100 mx-auto">
-							<div class="col-sm-12 col-md-4 mb-2 items flower">
-								<div class="item-img">
-									<img src="assets/img/portfolio/flower-front-view.png" class="img-fluid" alt="Flower Gardan Munnar">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Flower Garden Munnar</h6>
-											<p>A beautiful and well maintained garden with a good collection of flowering plants.The cactus collection is unique.</p>
-										</div>
-										<a href="assets/img/portfolio/flower-front-view.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items flower">
-								<div class="item-img">
-									<img src="assets/img/portfolio/malampuzha-park-top-view.png" class="img-fluid" alt="Palakkad Malampuzha Park Top View">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Malampuzha Flower Garden</h6>
-											<p>Malampuzha Garden in Palakkad district is the only rock-cut garden in South India made by Nek Chand, the renowned artist and winner of the prestigious Padmashree Award.</p>
-										</div>
-										<a href="assets/img/portfolio/malampuzha-park-top-view.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items flower">
-								<div class="item-img">
-									<img src="assets/img/portfolio/flower-top-view.png" class="img-fluid" alt="The vibration of the flowers in Munnar">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Munnar Flower garden</h6>
-											<p>A beautiful and well maintained garden with a good collection of flowering plants.The cactus collection is unique.</p>
-										</div>
-										<a href="assets/img/portfolio/flower-top-view.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items natural">
-								<div class="item-img">
-									<img src="assets/img/portfolio/pothundi-dam.png" class="img-fluid" alt="Pothundi Dam">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Pothundi Dam</h6>
-											<p>Is an irrigation dam near Pothundi village in the Palakkad district of Kerala state, India. Constructed in the 19th century, it is considered one of the oldest dams in India.</p>
-										</div>
-										<a href="assets/img/portfolio/pothundi-dam.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items natural">
-								<div class="item-img">
-									<img src="assets/img/portfolio/tanur-each.png" class="img-fluid" alt="Tanur Beach">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Tanur Beach</h6>
-											<p>Tanur beach is situated in Malappuram district. This beach like other beaches is very beautiful and attracts a large crowd. The fishing town of Tanur lies near to this beach.</p>
-										</div>
-										<a href="assets/img/portfolio/tanur-each.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items natural">
-								<div class="item-img">
-									<img src="assets/img/portfolio/pothundi-dam-view.png" class="img-fluid" alt="Pothundi Dam View">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Pothundi Dam View</h6>
-											<p>Is an irrigation dam near Pothundi village in the Palakkad district of Kerala state, India. Constructed in the 19th century, it is considered one of the oldest dams in India.</p>
-										</div>
-										<a href="assets/img/portfolio/pothundi-dam-view.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items natural">
-								<div class="item-img">
-									<img src="assets/img/portfolio/sky-kottakkal.png" class="img-fluid" alt="sky-kottakkal">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>The sky in Kottakkal town</h6>
-											<p>Is a municipal town in Malappuram district in Kerala.It is a part of Malappuram metropolitan area and a growing city in Kerala. The town is best known for the Arya Vaidya Sala, one of the top Ayurvedic health centres.</p>
-										</div>
-										<a href="assets/img/portfolio/sky-kottakkal.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items natural">
-								<div class="item-img">
-									<img src="assets/img/portfolio/malampuzha-dam.png" class="img-fluid" alt="Malampuzha Dam">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Malampuzha Dam</h6>
-											<p>One of the largest reservoirs of Kerala, Malampuzha Dam is located near Palakkad in South India. It is surrounded by the Western Ghats on all side.</p>
-										</div>
-										<a href="assets/img/portfolio/malampuzha-dam.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items natural">
-								<div class="item-img">
-									<img src="assets/img/portfolio/kava.png" class="img-fluid" alt="Kava">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>Kava</h6>
-											<p>Kava is near Malampuzha and is full of surprizes. One doesn't realise that such amazing beauty lies ahead as one drives along the road.</p>
-										</div>
-										<a href="assets/img/portfolio/kava.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<!-- <div class="col-sm-12 col-md-4 mb-2 items myphoto">
-								<div class="item-img">
-									<img src="assets/img/portfolio/my-photo-malampuzha.png" class="img-fluid" alt="My Photo at Malampuzha Garden">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>My Creative Photo</h6>
-											<p>My Photo at Malampuzha Garden</p>
-										</div>
-										<a href="assets/img/portfolio/my-photo-malampuzha.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items myphoto">
-								<div class="item-img">
-									<img src="assets/img/portfolio/my-photo-munnar.png" class="img-fluid" alt="My Photo at Munnar Garden">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>My Creative Photo</h6>
-											<p>My Photo at Munnar Garden</p>
-										</div>
-										<a href="assets/img/portfolio/my-photo-munnar.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-12 col-md-4 mb-2 items myphoto">
-								<div class="item-img">
-									<img src="assets/img/portfolio/my-photo-palakkad.png" class="img-fluid" alt="My photo at Palakkad">
-									<div class="item-img-overlay valign">
-										<div class="overlay-info full-width vertical-center">
-											<h6>My Creative Photo</h6>
-											<p>My photo at Palakkad</p>
-										</div>
-										<a href="assets/img/portfolio/my-photo-palakkad.png" class="popimg">
-											<i class="icofont icon-camera"></i>
-										</a>
-									</div>
-								</div>							
-							</div> -->
-
-						</div>
-					</div>
-				</div>
+		<!-- Tech strip -->
+		<div class="tech-marquee" aria-hidden="true">
+			<div class="marquee-track">
+				<span>Python</span><span>Django</span><span>Django REST Framework</span><span>PostgreSQL</span><span>Golang</span><span>FastAPI</span><span>Redis</span><span>Celery</span><span>RabbitMQ</span><span>Docker</span><span>WebSockets</span><span>JWT</span><span>Swagger/OpenAPI</span><span>AWS S3</span>
+				<span>Python</span><span>Django</span><span>Django REST Framework</span><span>PostgreSQL</span><span>Golang</span><span>FastAPI</span><span>Redis</span><span>Celery</span><span>RabbitMQ</span><span>Docker</span><span>WebSockets</span><span>JWT</span><span>Swagger/OpenAPI</span><span>AWS S3</span>
 			</div>
 		</div>
 
-		<svg class="wave" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 81.717" enable-background="new 0 0 1920 81.717" xml:space="preserve"><path style="" d="M1920,0c0,0-109.246,46.107-316.333,67.334C1343.5,94,1137.095,77.238,999.167,67.5C854,57.25,637.662,24.697,541.709,18.834C375.334,8.666,147,11,0,37.875V0H1920L1920,0z"></path></svg>
-	</section>
-		
-		<!-- Portfolio -->
-		<section class="skills section-padding position-re" data-scroll-index="3">
+		<!-- About -->
+		<section class="section section-surface" id="about" aria-labelledby="aboutTitle">
 			<div class="container">
-				<div class="row">
-					<div class="section-head text-center col-md-12">
-						<h4 class="zen-tokyo-font">Skills</h4>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item mb-md50 h-100">
-							<i class="icon icon-paint"></i>
-							<h6>Web Design</h6>
-							<p class="text-left">Web design deals with the front-end of a website, concerning itself with appearance and user experience.</p>
-						</div>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item h-100">
-							<i class="icon icon-database"></i>
-							<h6>Database Management</h6>
-							<p class="text-left">A database management system (DBMS) is a software package designed to define, manipulate, retrieve and manage data in a database.</p>
-						</div>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item mb-md50 h-100">
-							<i class="icon icon-laptop"></i>
-							<h6>Web Development</h6>
-							<p class="text-left">Web development, on the other hand, deals with building technical front-end and/or back-end code that informs site function</p>
-						</div>
-					</div>					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item mb-sm50 h-100">
-							<i class="icon icon-django"></i>
-							<h6>Django Framework</h6>
-							<p class="text-left">Django is a Python-based free and open-source web framework that follows the model–template–views architectural pattern.</p>
-						</div>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item h-100">
-							<i class="icon icon-go"></i>
-							<h6>Go Programming</h6>
-							<p class="text-left">Go is an open source programming language that makes it easy to build simple, reliable, and efficient software.</p>
-						</div>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item h-100">
-							<i class="icon icon-nodejs"></i>
-							<h6>Node.js</h6>
-							<p class="text-left">Node.js is an open source development platform for executing JavaScript code server-side.</p>
-						</div>
-					</div>					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item h-100">
-							<i class="icon icon-html-five"></i>
-							<h6>HTML 5</h6>
-							<p class="text-left">HTML 5 is a revision of the Hypertext Markup Language (HTML), the standard programming language for describing the contents and appearance of Web pages.</p>
-						</div>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item h-100">
-							<i class="icon icon-jquery"></i>
-							<h6>JQuery</h6>
-							<p class="text-left">It is a fast, small, and feature-rich JavaScript library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax much simpler with an easy-to-use API that works.</p>
-						</div>
-					</div>
-					
-					<div class="skill-card col-lg-4 col-md-6 col-sm-12 h-auto mb-3">
-						<div class="item h-100">
-							<i class="icon icon-bootstrap"></i>
-							<h6>Bootstrap</h6>
-							<p class="text-left">Bootstrap is the most popular HTML, CSS, and JavaScript framework for developing responsive, mobile-first websites. Bootstrap is completely free to download and use!</p>
-						</div>
-					</div>
-					
-				</div>
-				
-			</div>
-			<svg class="wave gray" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 81.717" enable-background="new 0 0 1920 81.717" xml:space="preserve"><path style="" d="M1920,0c0,0-109.246,46.107-316.333,67.334C1343.5,94,1137.095,77.238,999.167,67.5C854,57.25,637.662,24.697,541.709,18.834C375.334,8.666,147,11,0,37.875V0H1920L1920,0z"></path></svg>
-		</section>
-		
-		
-		<!-- Blog -->
-		
-		<!-- <section class="blog section-padding bg-gray position-re" data-scroll-index="4">
-			<div class="container">
-				<div class="row">
-					
-					<div class="section-head text-center col-lg-8 offset-lg-2 col-md-10 offset-md-1">
-						<h4 class="zen-tokyo-font">Our Blog</h4>
-					</div>
-					<div class="clearfix full-width"></div>
-					<div class="col-lg-4">
-						<div class="item mb-md50">
-							<div class="post-img position-re o-hidden">
-								<img src="assets/img/coming-soon.jpeg" alt="Coming Soon">
-							</div>
-							<div class="content">
-								<span class="data">
-									<a href="https://www.riyasac.ml/" class="undecro">Django</a>
-									<a href="https://www.riyasac.ml/" class="undecro">March 21 - 2018</a>
-								</span>
-								<h5><a href="https://www.riyasac.ml/" class="undecro">Django installation steps for beginners</a></h5>
-								
-								<a href="https://www.riyasac.ml/" class="more mt-30">
-									<span>View Blog</span>
-								</a>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4">
-						<div class="item mb-md50">
-							<div class="post-img position-re o-hidden">
-								<img src="assets/img/coming-soon.jpeg" alt="Coming Soon">
-							</div>
-							<div class="content">
-								<span class="data">
-									<a href="https://www.riyasac.ml/" class="undecro">golang</a>
-									<a href="https://www.riyasac.ml/" class="undecro">March 21 - 2018</a>
-								</span>
-								<h5><a href="https://www.riyasac.ml/" class="undecro">Helo world Program in Golang</a></h5>
-								
-								<a href="https://www.riyasac.ml/" class="more mt-30">
-									<span>View Blog</span>
-								</a>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4">
-						<div class="item">
-							<div class="post-img position-re o-hidden">
-								<img src="assets/img/coming-soon.jpeg" alt="Coming Soon">
-							</div>
-							<div class="content">
-								<span class="data">
-									<a href="https://www.riyasac.ml/" class="undecro">django</a>
-									<a href="https://www.riyasac.ml/" class="undecro">March 21 - 2018</a>
-								</span>
-								<h5><a href="https://www.riyasac.ml/" class="undecro">Django authentication applications</a></h5>
-								
-								<a href="https://www.riyasac.ml/" class="more mt-30">
-									<span>View Blog</span>
-								</a>
-							</div>
-						</div>
-					</div>
-					
-				</div>
-			</div>
-			
-		</section> -->
-		
-		<!-- Contact Us -->
-
-		
-		<section class="contact section-padding position-re" id="contactus" data-scroll-index="5" style="background: #efefef;">
-			<div class="container">
-				<div class="row">
-					
-					<div class="section-head text-center col-lg-8 offset-lg-2 col-md-10 offset-md-1">
-						<h4 class="zen-tokyo-font">Contact Us</h4>
-					</div>
-					
+				<div class="row g-4 g-lg-5">
 					<div class="col-lg-5">
-						<div class="info mb-md50">
-							<div class="item">
-								<div class="cont">
-									<h6>Phone : </h6>
-									<p><a href="tel:+916282243132">+91 62 8224 31 32</a></p>
-									
-								</div>
+						<p class="section-kicker reveal">01 / About</p>
+						<h2 class="section-title" id="aboutTitle">Backend systems for real business workflows</h2>
+					</div>
+					<div class="col-lg-7">
+						<p class="about-lead reveal">I design and build the server side of web products: APIs, data models, background processing, and deployment. My work covers billing and inventory, multi-wallet payments, compensation engines, and internal enterprise tools.</p>
+						<p class="reveal">I work closely with front-end, design, and business stakeholders, from requirement gathering through production support.</p>
+
+						<div class="focus-grid" data-stagger>
+							<div class="focus-item reveal">
+								<i class="bi bi-diagram-3" aria-hidden="true"></i>
+								<h3>Architecture &amp; APIs</h3>
+								<p>Backend architecture, scalable system design, and REST API design with Swagger/OpenAPI documentation.</p>
 							</div>
-							<div class="item">
-								<div class="cont">
-									<h6>Address : </h6>
-									<p>Othukkungal, Malappuram<br> Kerala,India</p>
-								</div>
+							<div class="focus-item reveal">
+								<i class="bi bi-database" aria-hidden="true"></i>
+								<h3>Data &amp; performance</h3>
+								<p>PostgreSQL database design, indexing, and query optimization for high-volume operations.</p>
 							</div>
-							<div class="item">
-								<div class="cont">
-									<h6>Email : </h6>
-									<p>riyasac6@gmail.com</p>
-								</div>
+							<div class="focus-item reveal">
+								<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+								<h3>Async processing</h3>
+								<p>Celery, Redis, and RabbitMQ for background jobs, scheduled tasks, and bulk data migration.</p>
+							</div>
+							<div class="focus-item reveal">
+								<i class="bi bi-shield-lock" aria-hidden="true"></i>
+								<h3>Payments &amp; security</h3>
+								<p>Webhook-based payment gateway integration, JWT and SSO authentication, and secure handling of payment data.</p>
+							</div>
+						</div>
+
+						<div class="domain-list reveal">
+							<span class="domain-label">Domains</span>
+							<ul>
+								<li>POS &amp; inventory</li>
+								<li>E-commerce</li>
+								<li>Payments</li>
+								<li>LMS</li>
+								<li>Enterprise platforms</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Impact -->
+		<section class="section section-ink" id="impact" aria-labelledby="impactTitle">
+			<div class="container">
+				<p class="section-kicker reveal">02 / Impact</p>
+				<h2 class="section-title" id="impactTitle">Measured results</h2>
+
+				<ul class="impact-grid" data-stagger>
+					<li class="impact-item reveal">
+						<span class="impact-value" data-count="75" data-suffix="%">75%</span>
+						<span class="impact-label">improvement in system scalability</span>
+						<span class="impact-note">Rank calculations for 250,000+ users, reworked with in-memory processing.</span>
+					</li>
+					<li class="impact-item reveal">
+						<span class="impact-value" data-count="60" data-prefix="~" data-suffix="%">~60%</span>
+						<span class="impact-label">fewer bugs and errors</span>
+						<span class="impact-note">Pytest unit tests for core POS modules.</span>
+					</li>
+					<li class="impact-item reveal">
+						<span class="impact-value" data-count="50" data-suffix="%">50%</span>
+						<span class="impact-label">shorter deployment time</span>
+						<span class="impact-note">Containerized and standardized deployments with Docker.</span>
+					</li>
+					<li class="impact-item reveal">
+						<span class="impact-value" data-count="30" data-suffix="%">30%</span>
+						<span class="impact-label">faster data processing</span>
+						<span class="impact-note">Bulk CSV import/export and migration pipelines with Celery.</span>
+					</li>
+					<li class="impact-item reveal">
+						<span class="impact-value" data-count="15" data-suffix="%">15%</span>
+						<span class="impact-label">higher transaction completion</span>
+						<span class="impact-note">Webhook-based payment confirmation across four payment methods.</span>
+					</li>
+					<li class="impact-item reveal">
+						<span class="impact-value" data-count="30" data-suffix="%">30%</span>
+						<span class="impact-label">reduction in bugs</span>
+						<span class="impact-note">Legacy refactoring, unit testing, and code review practices.</span>
+					</li>
+				</ul>
+			</div>
+		</section>
+
+		<!-- Experience -->
+		<section class="section" id="experience" aria-labelledby="experienceTitle">
+			<div class="container">
+				<p class="section-kicker reveal">03 / Experience</p>
+				<h2 class="section-title" id="experienceTitle">Where I have worked</h2>
+
+				<ol class="timeline">
+					<li class="timeline-item reveal">
+						<div class="timeline-meta">
+							<span class="timeline-date">May 2025 - Present</span>
+							<span class="timeline-place">Kochi, India</span>
+						</div>
+						<article class="timeline-body">
+							<h3>Codelynks Software Solutions Pvt. Ltd.</h3>
+							<p class="role">Senior Software Engineer</p>
+							<p class="role-overview">Backend development for a multi-store POS and inventory platform and an internal employee and project management platform.</p>
+							<ul class="highlights">
+								<li>Built the POS and inventory backend on Django, DRF, and PostgreSQL: billing, inventory, payments, returns, purchasing, vendors, discounts, and reporting.</li>
+								<li>Optimized REST APIs, queries, indexes, and transactional stock workflows with batch and expiry tracking for high-volume operations.</li>
+								<li>Cut bugs and errors by about 60% with Pytest unit tests for core POS modules.</li>
+								<li>Moved bulk data migration, notifications, expiry alerts, and scheduled operations to Celery and Redis.</li>
+								<li>Shipped services with Docker, Gunicorn, and JWT authentication, with Swagger/OpenAPI docs for front-end and QA teams.</li>
+								<li>Built a real-time employee and project management platform with WebSockets and organization-based access control.</li>
+							</ul>
+						</article>
+					</li>
+
+					<li class="timeline-item reveal">
+						<div class="timeline-meta">
+							<span class="timeline-date">July 2019 - April 2025</span>
+							<span class="timeline-place">Palakkad, India</span>
+						</div>
+						<article class="timeline-body">
+							<h3>Epixel Solutions Pvt. Ltd.</h3>
+							<p class="role">Senior Software Engineer</p>
+							<p class="role-overview">Backend development for an e-commerce platform: compensation engines, payments, data pipelines, and integrations.</p>
+							<ul class="highlights">
+								<li>Improved system scalability by 75% by optimizing rank calculations for 250,000+ users with in-memory processing.</li>
+								<li>Built Golang services for rank and bonus calculations, running compensation processing as dedicated background services.</li>
+								<li>Developed core financial systems: compensation plans, multi-wallet transactions, withdrawals, and financial reporting.</li>
+								<li>Raised transaction completion by 15% with webhook-based confirmation for Razorpay, Hubtel, CoinPayments, and Cash on Delivery.</li>
+								<li>Reduced processing time by 30% with bulk CSV import/export and migration pipelines on Django and Celery.</li>
+								<li>Reduced deployment time by 50% with Docker, and bugs by 30% through refactoring, unit testing, and code review.</li>
+							</ul>
+						</article>
+					</li>
+				</ol>
+			</div>
+		</section>
+
+		<!-- Projects -->
+		<section class="section section-surface" id="projects" aria-labelledby="projectsTitle">
+			<div class="container">
+				<p class="section-kicker reveal">04 / Projects</p>
+				<h2 class="section-title" id="projectsTitle">Selected work</h2>
+
+				<article class="project-featured reveal">
+					<div class="row g-4 g-lg-5">
+						<div class="col-lg-7">
+							<p class="project-meta">Codelynks · Featured</p>
+							<h3>POS &amp; Multi-Store Inventory Platform</h3>
+							<p>A multi-store point-of-sale and inventory platform covering billing, inventory, payments, returns, purchasing, vendors, discounts, and reporting.</p>
+							<ul class="project-points">
+								<li>Transactional stock workflows with batch and expiry tracking for high-volume operations.</li>
+								<li>Asynchronous jobs for bulk data migration, notifications, expiry alerts, and scheduled business operations.</li>
+								<li>JWT-secured APIs documented with Swagger/OpenAPI for front-end and QA teams.</li>
+								<li>Containerized deployment with Docker and Gunicorn.</li>
+							</ul>
+						</div>
+						<div class="col-lg-5">
+							<div class="project-outcome">
+								<span class="impact-value">~60%</span>
+								<span class="impact-label">fewer bugs and errors after Pytest coverage of core POS modules</span>
+							</div>
+							<ul class="tag-list" aria-label="Technologies">
+								<li>Django</li><li>DRF</li><li>PostgreSQL</li><li>Celery</li><li>Redis</li><li>Pytest</li><li>Docker</li><li>Gunicorn</li><li>JWT</li><li>Swagger/OpenAPI</li>
+							</ul>
+						</div>
+					</div>
+				</article>
+
+				<div class="project-grid" data-stagger>
+					<article class="project-card reveal">
+						<p class="project-meta">Codelynks</p>
+						<h3>Employee &amp; Project Management Platform</h3>
+						<p>Internal platform for project allocation, resource management, utilization tracking, certifications, upskilling, and feedback, with real-time updates and organization-based access control.</p>
+						<ul class="tag-list" aria-label="Technologies">
+							<li>Django</li><li>DRF</li><li>WebSockets</li><li>PostgreSQL</li><li>Docker</li>
+						</ul>
+					</article>
+
+					<article class="project-card reveal">
+						<p class="project-meta">Epixel</p>
+						<h3>Rank &amp; Bonus Calculation Services</h3>
+						<p>Rank calculation for 250,000+ users moved to in-memory processing, improving system scalability by 75%. Rank and bonus calculations run as dedicated Golang background services.</p>
+						<ul class="tag-list" aria-label="Technologies">
+							<li>Golang</li><li>In-memory processing</li><li>Background services</li>
+						</ul>
+					</article>
+
+					<article class="project-card reveal">
+						<p class="project-meta">Epixel</p>
+						<h3>Compensation &amp; Payments</h3>
+						<p>Binary, Level, Global Pool, and Rainmaker compensation plans, multi-wallet transactions, withdrawals, and financial reporting. Webhook-based payment confirmation raised transaction completion by 15%.</p>
+						<ul class="tag-list" aria-label="Technologies">
+							<li>Razorpay</li><li>Hubtel</li><li>CoinPayments</li><li>Cash on Delivery</li><li>Webhooks</li>
+						</ul>
+					</article>
+
+					<article class="project-card reveal">
+						<p class="project-meta">Epixel</p>
+						<h3>Bulk Data &amp; Migration Pipelines</h3>
+						<p>Bulk CSV import/export and data migration pipelines with ZIP processing and background jobs, reducing processing time by 30%.</p>
+						<ul class="tag-list" aria-label="Technologies">
+							<li>Django</li><li>Celery</li><li>CSV</li><li>ZIP processing</li>
+						</ul>
+					</article>
+
+					<article class="project-card reveal">
+						<p class="project-meta">Epixel</p>
+						<h3>Platform APIs &amp; Integrations</h3>
+						<p>REST APIs for user registration, order management, user migration, SSO, and mobile applications, plus integrations with third-party platforms such as GoHighLevel.</p>
+						<ul class="tag-list" aria-label="Technologies">
+							<li>REST APIs</li><li>SSO</li><li>GoHighLevel</li>
+						</ul>
+					</article>
+
+					<article class="project-card reveal">
+						<p class="project-meta">Epixel</p>
+						<h3>Engagement Workflows &amp; LMS</h3>
+						<p>Referral, gift voucher, onboarding, and notification workflows supporting 5,000+ users, and an LMS for agent onboarding and training.</p>
+						<ul class="tag-list" aria-label="Features">
+							<li>Referrals</li><li>Gift vouchers</li><li>Notifications</li><li>LMS</li>
+						</ul>
+					</article>
+				</div>
+			</div>
+		</section>
+
+		<!-- Skills -->
+		<section class="section" id="skills" aria-labelledby="skillsTitle">
+			<div class="container">
+				<p class="section-kicker reveal">05 / Skills</p>
+				<h2 class="section-title" id="skillsTitle">Technical skills</h2>
+
+				<div class="core-stack reveal">
+					<span class="core-stack-label">Core stack</span>
+					<ul>
+						<li>Python</li><li>Django</li><li>Django REST Framework</li><li>PostgreSQL</li><li>Golang</li><li>REST APIs</li><li>Redis</li><li>Celery</li><li>Docker</li>
+					</ul>
+				</div>
+
+				<div class="skill-grid" data-stagger>
+					<div class="skill-group reveal">
+						<h3>Languages</h3>
+						<p>Python, Golang, JavaScript, HTML, CSS</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Frameworks</h3>
+						<p>Django, Django REST Framework, FastAPI, Gin</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Databases</h3>
+						<p>PostgreSQL, MySQL, SQLite, Django ORM, database design, indexing, query and performance optimization</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Backend &amp; APIs</h3>
+						<p>REST APIs, API design, backend architecture, scalable system design, WebSockets, webhooks, Swagger/OpenAPI, third-party API integration</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Async &amp; caching</h3>
+						<p>Redis caching, Celery, RabbitMQ, background jobs, scheduled tasks</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Security</h3>
+						<p>Authentication and authorization, JWT, SSO, secure handling of payment data</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Cloud &amp; DevOps</h3>
+						<p>AWS S3, Docker, Gunicorn, containerized deployment</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Testing &amp; quality</h3>
+						<p>Pytest, unit testing, debugging, production troubleshooting, code review, refactoring</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>Tools &amp; practices</h3>
+						<p>Git, Bitbucket, JIRA, Postman, Agile, requirement gathering, cross-functional collaboration</p>
+					</div>
+					<div class="skill-group reveal">
+						<h3>AI-assisted development</h3>
+						<p>Claude Code, GitHub Copilot, OpenAI Codex, Gemini</p>
+					</div>
+				</div>
+
+				<dl class="learning reveal">
+					<div>
+						<dt>Currently learning</dt>
+						<dd>React.js, React Native with Expo (mobile apps)</dd>
+					</div>
+					<div>
+						<dt>Next</dt>
+						<dd>AWS, CI/CD pipelines with Jenkins, Kubernetes, Nginx</dd>
+					</div>
+				</dl>
+			</div>
+		</section>
+
+		<!-- Education -->
+		<section class="section section-surface section-compact" id="education" aria-labelledby="educationTitle">
+			<div class="container">
+				<div class="row g-4 g-lg-5">
+					<div class="col-lg-7">
+						<p class="section-kicker reveal">06 / Education</p>
+						<h2 class="section-title" id="educationTitle">Education</h2>
+						<ul class="edu-list">
+							<li class="reveal">
+								<h3>Diploma in Computer Engineering</h3>
+								<p>AKNM Government Polytechnic College, Thirurangadi</p>
+								<p class="edu-meta">July 2016 - July 2019 · First Class with Distinction · CGPA 9.22/10</p>
+							</li>
+							<li class="reveal">
+								<h3>Higher Secondary Education (Science)</h3>
+								<p>GHSS Othukkungal</p>
+								<p class="edu-meta">June 2014 - March 2016 · 85.83%</p>
+							</li>
+							<li class="reveal">
+								<h3>SSLC (Secondary School Education)</h3>
+								<p>GHSS Othukkungal</p>
+								<p class="edu-meta">March 2014 · 96%</p>
+							</li>
+						</ul>
+					</div>
+					<div class="col-lg-5">
+						<p class="section-kicker reveal">Recognition</p>
+						<h2 class="section-title section-title-sm">Awards</h2>
+						<div class="award reveal">
+							<i class="bi bi-trophy" aria-hidden="true"></i>
+							<div>
+								<h3>Outstanding Performer of the Month</h3>
+								<p>Epixel Solutions Pvt. Ltd. · July 2022</p>
 							</div>
 						</div>
 					</div>
-					
-					<div class="col-lg-7">
-						<form class="form" id="contact-form" method="post" action="#">
-							<div class="controls">
-								<div class="row">
-									<div class="col-md-6">
-										<div class="form-group">
-											<input id="form_name" type="text" name="name" placeholder="Name" required="required">
-										</div>
-									</div>
-									<div class="col-md-6">
-										<div class="form-group">
-											<input id="form_email" type="email" name="email" placeholder="Email" required="required">
-										</div>
-									</div>
-									<div class="col-md-12">
-										<div class="form-group">
-											<input id="form_subject" type="text" name="subject" placeholder="Subject">
-										</div>
-									</div>
-									<div class="col-md-12">
-										<div class="form-group">
-											<textarea id="form_message" name="message" placeholder="Message" rows="4" required="required"></textarea>
-										</div>
-									</div>
-									
-									<div class="col-md-12 text-center">
-										<button type="submit" class="btn btn-brand disabled" ><span>Send Message</span></button>
-									</div>
-									
-								</div>                             
-							</div>
-						</form>
-					</div>
-					
 				</div>
 			</div>
-			
-			<svg class="wave" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 81.717" enable-background="new 0 0 1920 81.717" xml:space="preserve"><path style="" d="M1920,0c0,0-109.246,46.107-316.333,67.334C1343.5,94,1137.095,77.238,999.167,67.5C854,57.25,637.662,24.697,541.709,18.834C375.334,8.666,147,11,0,37.875V0H1920L1920,0z" ></path></svg>
 		</section>
-		
-		<!-- Footer -->
-		<footer class="text-center position-re">
+
+		<!-- Contact -->
+		<section class="section section-ink" id="contact" aria-labelledby="contactTitle">
 			<div class="container">
-				
-				<!-- Logo -->
-				<a class="logo" href="#">
-					<img src="assets/img/favicon/logo-dark.svg" class="logo" alt="logo">          
-				</a>
-				<div class="social">
-					<a href="https://www.facebook.com/riyas.ac.31"><i class="icon icon-facebook"></i></a>
-					<!-- <a href="#0"><i class="icon icon-twitter"></i></a> -->
-					<a href="https://www.instagram.com/riyasac6"><i class="icon icon-instagram"></i></a>
-					<a href="https://www.linkedin.com/in/riyasac"><i class="icon icon-linkedin"></i></a>
-					<a href="https://www.pinterest.com/riyasac"><i class="icon icon-pinterest"></i></a>
-					<a href="https://wa.me/916282243132"><i class="icon icon-whatsapp"></i></a>
-					<a href="https://www.youtube.com/channel/UC8vfNCUOcKeB4iN74XO6c0A"><i class="icon icon-youtube"></i></a>
-					<a href="https://join.skype.com/invite/v16TDPcv9sZ5"><i class="icon icon-skype"></i></a>
+				<div class="row g-4 g-lg-5 align-items-end">
+					<div class="col-lg-7">
+						<p class="section-kicker reveal">07 / Contact</p>
+						<h2 class="section-title contact-title" id="contactTitle">Let's build something useful.</h2>
+						<p class="contact-lead">For backend engineering work in Python, Django, or Golang, email is the fastest way to reach me.</p>
+						<a class="contact-email" href="mailto:riyasac25@gmail.com">riyasac25@gmail.com <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+						<div class="contact-actions">
+							<a class="btn btn-sage" href="assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf"><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i> Download resume (PDF)</a>
+						</div>
+					</div>
+					<div class="col-lg-5">
+						<ul class="contact-list">
+							<li><i class="bi bi-telephone" aria-hidden="true"></i><a href="tel:+916282243132">+91 62822 43132</a></li>
+							<li><i class="bi bi-whatsapp" aria-hidden="true"></i><a href="https://wa.me/916282243132" target="_blank" rel="noopener">WhatsApp</a></li>
+							<li><i class="bi bi-linkedin" aria-hidden="true"></i><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener">linkedin.com/in/riyasac</a></li>
+							<li><i class="bi bi-github" aria-hidden="true"></i><a href="https://github.com/Riyasac" target="_blank" rel="noopener">github.com/Riyasac</a></li>
+							<li><i class="bi bi-geo-alt" aria-hidden="true"></i><span>Kerala, India</span></li>
+						</ul>
+					</div>
 				</div>
-				
-				<p>&copy; <span id="spanYear"></span> <a href="https://www.riyasac.ml/" class="font-weight-bold">Riyas Ac</a>. All Rights Reserved.</p>
-				
 			</div>
-			
-			<svg class="wave" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1920 81.717" enable-background="new 0 0 1920 81.717" xml:space="preserve"><path style="" d="M1920,0c0,0-109.246,46.107-316.333,67.334C1343.5,94,1137.095,77.238,999.167,67.5C854,57.25,637.662,24.697,541.709,18.834C375.334,8.666,147,11,0,37.875V0H1920L1920,0z" fill="#efefef"></path></svg>
-		</footer>
-		<script type="text/javascript" src="assets/js/jquery.min.js"></script>
-		<script src="https://smtpjs.com/v3/smtp.js"></script>
-		<script type="text/javascript" src="assets/js/scripts.js"></script>
-	</body>
-	</html>
+		</section>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+					<li><a href="https://wa.me/916282243132" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="bi bi-whatsapp" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#home" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="assets/js/scripts.js" defer></script>
+</body>
+
+</html>
