@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Django Middleware Explained: The Complete Guide with Real-World Examples | Riyas A C</title>
+	<meta name="description" content="Learn how Django processes every request and response, how the built-in middleware stack works, how to write custom middleware, and the best practices for production.">
+	<meta name="keywords" content="Django middleware, custom middleware, Django request lifecycle, Python, Django REST Framework, backend">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- First published on Medium; the canonical tells search engines which copy is the original -->
+	<link rel="canonical" href="https://medium.com/@riyasac6/django-middleware-explained-the-complete-guide-with-real-world-examples-c0e041afd43b">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/django-middleware-explained/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Django Middleware Explained: The Complete Guide with Real-World Examples">
+	<meta property="og:description" content="How Django processes every request and response, the built-in middleware stack, custom middleware, and production best practices.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg">
+	<meta property="og:image:alt" content="Django Middleware: the hidden layer behind every request">
+	<meta property="article:published_time" content="2026-07-28T11:42:34Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Django">
+	<meta property="article:tag" content="Python">
+	<meta property="article:tag" content="Middleware">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Django Middleware Explained: The Complete Guide with Real-World Examples">
+	<meta name="twitter:description" content="How Django processes every request and response, the built-in middleware stack, custom middleware, and production best practices.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"headline": "Django Middleware Explained: The Complete Guide with Real-World Examples",
+		"description": "Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.",
+		"image": "https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg",
+		"datePublished": "2026-07-28T11:42:34Z",
+		"author": {
+			"@type": "Person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"keywords": ["Django", "Python", "Middleware"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/django-middleware-explained/",
+		"isBasedOn": "https://medium.com/@riyasac6/django-middleware-explained-the-complete-guide-with-real-world-examples-c0e041afd43b"
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Django</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Django Middleware Explained: The Complete Guide with Real-World Examples</h1>
+					<p class="post-lead">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-07-28">28 Jul 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 16 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner to Intermediate</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Python, Django</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Django</li><li>Python</li><li>Middleware</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/django-middleware-explained/cover.webp" width="1024" height="535" alt="Django Middleware, the hidden layer behind every request: an HTTP request passes through security, authentication and session middleware to the Django views, then through performance, logging and common middleware, with the database behind.">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+					<p>When I first started learning Django, I focused mainly on models, views, URLs, and templates. Everything worked well until I wondered:</p>
+					<ul>
+						<li>How does Django know whether a user is logged in?</li>
+						<li>How are security headers automatically added to every response?</li>
+						<li>Where does Django validate CSRF tokens?</li>
+						<li>How can every request be logged without writing code in every view?</li>
+					</ul>
+					<p>The answer to all of these questions is <strong>Middleware</strong>.</p>
+					<p>Middleware is one of Django’s most powerful features, yet many developers overlook it because it works silently in the background. Every request that enters your Django application and every response that leaves it passes through middleware.</p>
+					<p>Think of middleware as a <strong>security checkpoint at an airport</strong>.</p>
+					<p>Before passengers reach their boarding gate, they pass through several security checks. Each checkpoint has a specific responsibility:</p>
+					<ul>
+						<li>Verify identity</li>
+						<li>Scan baggage</li>
+						<li>Check boarding passes</li>
+						<li>Ensure safety rules are followed</li>
+					</ul>
+					<p>Similarly, every HTTP request in Django passes through a series of middleware components before reaching your view. After the view generates a response, that response travels back through the same middleware layers before being sent to the user’s browser.</p>
+					<p>This design allows Django to keep your application clean, secure, and maintainable without repeating the same logic in every view.</p>
+
+					<h2 id="what-youll-learn">What You’ll Learn</h2>
+					<p>By the end of this guide, you’ll understand:</p>
+					<ul class="list-check">
+						<li>What Django Middleware is</li>
+						<li>Why middleware is important</li>
+						<li>How Django processes requests and responses</li>
+						<li>How middleware execution works</li>
+						<li>How to build custom middleware</li>
+						<li>Real-world middleware examples</li>
+						<li>Best practices for production applications</li>
+						<li>Common mistakes to avoid</li>
+					</ul>
+					<p>Whether you’re just starting with Django or preparing for backend interviews, understanding middleware will help you write cleaner and more scalable applications.</p>
+
+					<h2 id="why-learn-middleware">Why Should You Learn Middleware?</h2>
+					<p>Most web applications need to perform common tasks on every request, such as:</p>
+					<ul>
+						<li>Authenticating users</li>
+						<li>Managing sessions</li>
+						<li>Protecting against CSRF attacks</li>
+						<li>Logging requests</li>
+						<li>Measuring response times</li>
+						<li>Adding security headers</li>
+						<li>Restricting access based on IP addresses</li>
+					</ul>
+					<p>Without middleware, you would need to duplicate this logic in every view, making your code difficult to maintain.</p>
+					<p>Middleware solves this problem by providing a centralized place to handle request and response processing.</p>
+
+					<h2 id="quick-preview">A Quick Preview</h2>
+					<p>In the next section, we’ll explore exactly <strong>how an HTTP request travels through Django</strong>, from the browser to your view and back to the browser, using clear diagrams and real-world examples.</p>
+					<aside class="callout">
+						<p class="callout-title">Key takeaway</p>
+						<p>Middleware is the invisible layer that powers authentication, security, logging, sessions, and many other features in every Django application.</p>
+					</aside>
+
+					<h2 id="request-lifecycle">Understanding the Django Request Lifecycle</h2>
+					<blockquote class="pull-quote">Every HTTP request follows a predictable journey inside Django. Understanding this journey makes middleware much easier to understand.</blockquote>
+
+					<h3>The Journey of Every HTTP Request</h3>
+					<p>Whenever a user visits your Django application, a complete request-response cycle begins.</p>
+					<p>For example, imagine a user opens the following URL in their browser:</p>
+					<pre class="diagram">https://example.com/products/</pre>
+					<p>When they press <strong>Enter</strong>, the browser sends an <strong>HTTP Request</strong> to your Django server.</p>
+					<p>But before that request reaches your view, it passes through several Django components.</p>
+					<p>The same happens when Django sends the response back.</p>
+					<figure class="post-figure post-figure-narrow">
+						<img src="/assets/img/blog/django-middleware-explained/request-lifecycle.webp" width="1024" height="1536" loading="lazy" alt="Request lifecycle overview. Request phase, top to bottom: Browser, web server (Nginx or Apache), Django application, middleware, URL resolver, view, business logic. Then the database, the view returns a response, the response passes back through middleware, and reaches the browser.">
+						<figcaption>Request lifecycle overview</figcaption>
+					</figure>
+					<p>Notice that <strong>Middleware appears twice</strong>:</p>
+					<ul>
+						<li>Before the request reaches the view</li>
+						<li>Before the response reaches the browser</li>
+					</ul>
+					<p>This is why middleware is often described as a <strong>bridge between the client and your application</strong>.</p>
+
+					<h3>Step 1: Browser Sends a Request</h3>
+					<p>Everything begins with the user’s browser.</p>
+					<p>For example:</p>
+					<pre class="diagram">GET /products/</pre>
+					<p>The request contains information such as:</p>
+					<ul>
+						<li>URL</li>
+						<li>HTTP method (GET, POST, PUT, DELETE)</li>
+						<li>Headers</li>
+						<li>Cookies</li>
+						<li>Authentication tokens</li>
+						<li>User IP address</li>
+					</ul>
+					<p>The browser sends this information to your Django application.</p>
+
+					<h3>Step 2: Middleware Receives the Request</h3>
+					<p>This is where middleware starts working.</p>
+					<p>Each middleware component gets an opportunity to inspect or modify the request.</p>
+					<p>For example, middleware can:</p>
+					<ul>
+						<li>Authenticate users</li>
+						<li>Check CSRF tokens</li>
+						<li>Load session data</li>
+						<li>Add request IDs</li>
+						<li>Log request details</li>
+						<li>Reject malicious traffic</li>
+					</ul>
+					<p>A middleware can even stop the request before it reaches the view.</p>
+					<p>Example:</p>
+<pre class="diagram">Browser
+     │
+     ▼
+Authentication Middleware
+
+User Logged In?
+
+YES → Continue
+
+NO → Return 401 Unauthorized</pre>
+					<p>The view is never executed if middleware decides to return a response early.</p>
+
+					<h3>Step 3: URL Resolver</h3>
+					<p>If the request passes all middleware checks, Django looks for the correct URL.</p>
+					<p>Example:</p>
+<pre><code class="language-python">urlpatterns = [
+    path("products/", views.products),
+]</code></pre>
+					<p>Django compares the requested URL with every URL pattern until it finds a match.</p>
+<pre class="diagram">GET /products/
+↓
+products()</pre>
+
+					<h3>Step 4: Django View Executes</h3>
+					<p>The view contains your application’s business logic.</p>
+					<p>Example:</p>
+<pre><code class="language-python">def products(request):
+    products = Product.objects.all()
+
+    return render(
+        request,
+        "products.html",
+        {"products": products}
+    )</code></pre>
+					<p>The view may:</p>
+					<ul>
+						<li>Read data</li>
+						<li>Validate input</li>
+						<li>Call external APIs</li>
+						<li>Save records</li>
+						<li>Query the database</li>
+						<li>Generate HTML or JSON</li>
+					</ul>
+
+					<h3>Step 5: Database Interaction</h3>
+					<p>Many views communicate with the database.</p>
+					<p>Example:</p>
+<pre><code class="language-sql">SELECT * FROM products;</code></pre>
+					<p>Django converts ORM queries into SQL behind the scenes.</p>
+					<p>The retrieved data is then returned to the view.</p>
+
+					<h3>Step 6: Response is Created</h3>
+					<p>The view returns an HTTP response.</p>
+					<p>Example:</p>
+<pre><code class="language-python">return JsonResponse({
+    "status": "success"
+})</code></pre>
+					<p>At this point, the response is <strong>not sent to the browser immediately</strong>.</p>
+					<p>Instead, it travels back through the middleware chain.</p>
+
+					<h3>Step 7: Middleware Processes the Response</h3>
+					<p>Now each middleware component can modify the outgoing response.</p>
+					<p>Examples include:</p>
+					<ul>
+						<li>Adding security headers</li>
+						<li>Compressing content</li>
+						<li>Logging response times</li>
+						<li>Setting cookies</li>
+						<li>Adding cache headers</li>
+						<li>Modifying response headers</li>
+					</ul>
+					<p>This makes middleware useful for both incoming requests and outgoing responses.</p>
+
+					<h3>Real-World Example</h3>
+					<p>Imagine a user logs into an e-commerce website.</p>
+					<p>The request flows like this:</p>
+					<figure class="post-figure">
+						<img src="/assets/img/blog/django-middleware-explained/login-flow.webp" width="1024" height="559" loading="lazy" alt="Login flow: the browser request passes through security, session and authentication middleware to the login view, which queries the database. On success the view sets the user context and cookies, and the response with session data travels back through the middleware to the browser as the final HTML response.">
+						<figcaption>A login request flowing through the middleware stack</figcaption>
+					</figure>
+					<p>Each middleware performs one specific responsibility, making the application easier to maintain and extend.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Key takeaways</p>
+						<ul>
+							<li>Every request enters Django through the middleware chain.</li>
+							<li>Middleware runs <strong>before</strong> the view processes the request.</li>
+							<li>After the view returns a response, middleware runs <strong>again</strong>.</li>
+							<li>Middleware can inspect, modify, or even stop requests and responses.</li>
+							<li>Understanding the request lifecycle is the foundation for building custom middleware.</li>
+						</ul>
+					</aside>
+
+					<h2 id="built-in-middleware">Built-in Django Middleware Explained</h2>
+					<blockquote class="pull-quote">Django comes with several built-in middleware components that solve common problems like security, authentication, session management, and protection against web attacks.</blockquote>
+
+					<h3>Why Does Django Include Built-in Middleware?</h3>
+					<p>Imagine building every feature yourself:</p>
+					<ul>
+						<li>User authentication</li>
+						<li>Session handling</li>
+						<li>CSRF protection</li>
+						<li>Security headers</li>
+						<li>Clickjacking protection</li>
+						<li>URL normalization</li>
+					</ul>
+					<p>It would take a lot of time and increase the chance of bugs.</p>
+					<p>Instead, Django provides these features out of the box through middleware.</p>
+					<p>Simply enabling them in <code>settings.py</code> gives your application production-ready capabilities.</p>
+
+					<h3>Where Are They Configured?</h3>
+					<p>Open your <code>settings.py</code> file.</p>
+					<p>You’ll find a list like this:</p>
+<pre><code class="language-python">MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]</code></pre>
+					<p>Each middleware has a specific responsibility.</p>
+					<p>Django executes them <strong>from top to bottom</strong> during the request phase and <strong>from bottom to top</strong> during the response phase.</p>
+
+					<h3>1. SecurityMiddleware</h3>
+					<p>This middleware helps protect your application against common security threats.</p>
+					<h4>What it does</h4>
+					<ul>
+						<li>Redirects HTTP → HTTPS</li>
+						<li>Adds Strict Transport Security (HSTS)</li>
+						<li>Prevents insecure requests</li>
+						<li>Improves browser security</li>
+					</ul>
+					<h4>Example</h4>
+					<p>Without SecurityMiddleware:</p>
+					<pre class="diagram">http://example.com</pre>
+					<p>With SecurityMiddleware enabled:</p>
+					<pre class="diagram">https://example.com</pre>
+					<p>Your users are automatically redirected to the secure version of your website.</p>
+					<h4>Real-world use case</h4>
+					<p>Suppose your application processes online payments.</p>
+					<p>Using HTTPS ensures that:</p>
+					<ul>
+						<li>Passwords remain encrypted</li>
+						<li>Payment information is protected</li>
+						<li>Sensitive data isn’t exposed</li>
+					</ul>
+
+					<h3>2. SessionMiddleware</h3>
+					<p>HTTP is <strong>stateless</strong>, meaning every request is treated as new.</p>
+					<p>SessionMiddleware allows Django to remember information across multiple requests.</p>
+					<h4>Examples</h4>
+					<ul>
+						<li>Logged-in user</li>
+						<li>Shopping cart</li>
+						<li>User preferences</li>
+						<li>Language selection</li>
+					</ul>
+					<p>Without sessions:</p>
+<pre class="diagram">Request 1 → User logs in
+
+Request 2 → Django forgets the user</pre>
+					<p>With sessions:</p>
+<pre class="diagram">Request 1 → Login
+↓
+Session Created
+↓
+Future Requests
+↓
+User remains logged in</pre>
+
+					<h3>3. CommonMiddleware</h3>
+					<p>This middleware performs several useful tasks automatically.</p>
+					<h4>Features</h4>
+					<ul>
+						<li>Appends missing trailing slashes</li>
+						<li>Blocks disallowed user agents</li>
+						<li>Normalizes URLs</li>
+						<li>Handles common HTTP improvements</li>
+					</ul>
+					<p>Example: a user visits</p>
+					<pre class="diagram">/products</pre>
+					<p>which automatically becomes:</p>
+					<pre class="diagram">/products/</pre>
+					<p>This improves consistency across your application.</p>
+
+					<h3>4. CsrfViewMiddleware</h3>
+					<p>One of Django’s most important security features.</p>
+					<p>CSRF stands for <strong><em>Cross-Site Request Forgery</em></strong>.</p>
+					<p>It prevents attackers from submitting malicious forms on behalf of your users.</p>
+					<p>Without CSRF protection:</p>
+<pre class="diagram">Attacker Website
+↓
+Hidden Form
+↓
+Bank Website
+↓
+Money Transfer</pre>
+					<p>With CSRF protection:</p>
+<pre class="diagram">Missing CSRF Token
+↓
+Request Rejected (403 Forbidden)</pre>
+					<p>For HTML forms, Django automatically generates a CSRF token:</p>
+<pre><code class="language-html">&lt;form method="post"&gt;
+    {% csrf_token %}
+&lt;/form&gt;</code></pre>
+					<p>This simple tag provides a strong layer of protection.</p>
+
+					<h3>5. AuthenticationMiddleware</h3>
+					<p>This middleware identifies the currently logged-in user.</p>
+					<p>Once enabled, every request has access to:</p>
+<pre><code class="language-python">request.user</code></pre>
+					<p>Example:</p>
+<pre><code class="language-python">def dashboard(request):
+    if request.user.is_authenticated:
+        return render(request, "dashboard.html")</code></pre>
+					<p>Without this middleware, Django wouldn’t know who is making the request.</p>
+
+					<h3>6. MessageMiddleware</h3>
+					<p>MessageMiddleware lets you display temporary notifications to users.</p>
+					<p>Example:</p>
+<pre><code class="language-python">from django.contrib import messages
+
+messages.success(
+    request,
+    "Profile updated successfully."
+)</code></pre>
+					<p>The message is displayed once and then automatically removed.</p>
+					<p>Common examples:</p>
+					<ul>
+						<li>Login successful</li>
+						<li>Password changed</li>
+						<li>Item added to cart</li>
+						<li>Profile updated</li>
+					</ul>
+
+					<h3>7. XFrameOptionsMiddleware</h3>
+					<p>This middleware protects your application against <strong>Clickjacking attacks</strong>.</p>
+					<p>A clickjacking attack tricks users into clicking invisible buttons embedded in another website.</p>
+					<p>With XFrameOptionsMiddleware enabled, Django sends security headers like:</p>
+					<pre class="diagram">X-Frame-Options: DENY</pre>
+					<p>This prevents your pages from being embedded inside malicious iframes.</p>
+
+					<h3>Built-in Middleware Summary</h3>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Middleware</th><th scope="col">Purpose</th></tr></thead>
+							<tbody>
+								<tr><td><code>SecurityMiddleware</code></td><td>Adds security headers and HTTPS support</td></tr>
+								<tr><td><code>SessionMiddleware</code></td><td>Maintains user sessions</td></tr>
+								<tr><td><code>CommonMiddleware</code></td><td>Handles common HTTP improvements</td></tr>
+								<tr><td><code>CsrfViewMiddleware</code></td><td>Protects against CSRF attacks</td></tr>
+								<tr><td><code>AuthenticationMiddleware</code></td><td>Identifies logged-in users</td></tr>
+								<tr><td><code>MessageMiddleware</code></td><td>Displays temporary messages</td></tr>
+								<tr><td><code>XFrameOptionsMiddleware</code></td><td>Prevents clickjacking</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<figure class="post-figure post-figure-narrow">
+						<img src="/assets/img/blog/django-middleware-explained/builtin-order.webp" width="1024" height="1536" loading="lazy" alt="Middleware execution order. The incoming request passes top to bottom through Security, Sessions, Common, CSRF, Authentication and Messages to the view. The response travels back bottom to top through Messages, Authentication, CSRF, Common, Sessions and Security to the outgoing response.">
+						<figcaption>Built-in middleware execution order</figcaption>
+					</figure>
+					<p>The order matters because each middleware depends on the previous one.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Key takeaways</p>
+						<ul>
+							<li>Django provides several powerful middleware components by default.</li>
+							<li>Each middleware has a single, well-defined responsibility.</li>
+							<li>Middleware runs automatically on every request and response.</li>
+							<li>Using Django’s built-in middleware helps you build secure and maintainable applications with minimal effort.</li>
+						</ul>
+					</aside>
+
+					<h2 id="custom-middleware">Building Your First Custom Middleware</h2>
+					<blockquote class="pull-quote">Built-in middleware is powerful, but there are times when your application needs custom behavior. That’s where custom middleware comes in.</blockquote>
+
+					<h3>Why Create Custom Middleware?</h3>
+					<p>Every application has unique requirements.</p>
+					<p>For example, you might want to:</p>
+					<ul>
+						<li>Log every incoming request</li>
+						<li>Measure API response time</li>
+						<li>Restrict access based on IP address</li>
+						<li>Put the application into maintenance mode</li>
+						<li>Add a unique Request ID</li>
+						<li>Track API usage</li>
+						<li>Validate custom headers</li>
+					</ul>
+					<p>Instead of writing this logic in every view, you can write it once as middleware.</p>
+					<p>This keeps your code <strong>clean, reusable, and easy to maintain</strong>.</p>
+
+					<h3>How Custom Middleware Works</h3>
+					<p>Every middleware sits between the <strong>client</strong> and your <strong>Django views</strong>.</p>
+<pre class="diagram">Browser
+    │
+    ▼
+Custom Middleware
+    │
+    ▼
+URL Resolver
+    │
+    ▼
+View
+    │
+    ▼
+Response
+    │
+    ▼
+Custom Middleware
+    │
+    ▼
+Browser</pre>
+					<p>Notice that your middleware is executed <strong>twice</strong>:</p>
+					<ul>
+						<li>Before the request reaches the view</li>
+						<li>After the view returns a response</li>
+					</ul>
+
+					<h3>Project Structure</h3>
+					<p>Create a file named <code>middleware.py</code> inside your application.</p>
+					<p>Example project structure:</p>
+<pre class="diagram">myproject/
+│
+├── manage.py
+├── myproject/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+│
+└── blog/
+    ├── models.py
+    ├── views.py
+    ├── urls.py
+    ├── middleware.py   ← Create here
+    └── apps.py</pre>
+					<p>You can organize multiple middleware classes inside the same file or split them into separate modules for larger projects.</p>
+
+					<h3>Creating Your First Middleware</h3>
+					<p>Let’s build a simple middleware that logs every requested URL.</p>
+<pre><code class="language-python">class RequestLoggerMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        print(f"Request: {request.method} {request.path}")
+        response = self.get_response(request)
+        return response</code></pre>
+					<p>Although this class is small, it demonstrates the basic structure of every Django middleware.</p>
+
+					<h3>Understanding the Code</h3>
+					<h4>1. <code>__init__()</code></h4>
+<pre><code class="language-python">def __init__(self, get_response):
+    self.get_response = get_response</code></pre>
+					<p>This method runs <strong>only once</strong> when Django starts.</p>
+					<p>It stores the next callable in the middleware chain.</p>
+					<h4>2. <code>__call__()</code></h4>
+<pre><code class="language-python">def __call__(self, request):</code></pre>
+					<p>This method runs <strong>for every incoming request</strong>.</p>
+					<p>Here you can:</p>
+					<ul>
+						<li>Inspect the request</li>
+						<li>Modify the request</li>
+						<li>Block the request</li>
+						<li>Add custom attributes</li>
+					</ul>
+					<h4>3. Continue the request</h4>
+<pre><code class="language-python">response = self.get_response(request)</code></pre>
+					<p>This line passes the request to the next middleware or the Django view.</p>
+					<p>If you don’t call <code>get_response()</code>, the request stops here and never reaches your view.</p>
+					<h4>4. Return the response</h4>
+<pre><code class="language-python">return response</code></pre>
+					<p>After the view finishes processing, the response returns through your middleware.</p>
+					<p>Before returning it, you can:</p>
+					<ul>
+						<li>Add headers</li>
+						<li>Modify cookies</li>
+						<li>Log execution time</li>
+						<li>Compress the response</li>
+					</ul>
+
+					<h3>Registering Middleware</h3>
+					<p>Creating the middleware isn’t enough; you also need to register it.</p>
+					<p>Open <code>settings.py</code>:</p>
+<pre><code class="language-python">MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "blog.middleware.RequestLoggerMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    ...
+]</code></pre>
+					<p>Once added to the <code>MIDDLEWARE</code> list, Django automatically executes it for every request.</p>
+					<figure class="post-figure post-figure-narrow">
+						<img src="/assets/img/blog/django-middleware-explained/custom-middleware-flow.webp" width="1024" height="1536" loading="lazy" alt="Request flow with custom middleware. Request phase, top to bottom: Browser, SecurityMiddleware, RequestLoggerMiddleware, SessionMiddleware, AuthenticationMiddleware, then the Django view. Response phase, bottom to top: AuthenticationMiddleware, SessionMiddleware, RequestLoggerMiddleware, SecurityMiddleware, Browser.">
+						<figcaption>Request flow with a custom middleware registered</figcaption>
+					</figure>
+					<p>Middleware execution follows the same top-to-bottom (request) and bottom-to-top (response) pattern.</p>
+
+					<h3>Real-World Example</h3>
+					<p>Suppose a user visits:</p>
+					<pre class="diagram">https://example.com/products/</pre>
+					<p>Your middleware logs:</p>
+					<pre class="diagram">Request: GET /products/</pre>
+					<p>Then Django processes the request and returns the page.</p>
+					<p>You didn’t modify a single view, yet every request is now logged automatically.</p>
+
+					<h3>Best Practices</h3>
+					<ul class="list-check">
+						<li>Keep middleware focused on one responsibility.</li>
+						<li>Keep it lightweight and fast.</li>
+						<li>Avoid heavy database queries.</li>
+						<li>Don’t put business logic inside middleware.</li>
+						<li>Reuse middleware across projects whenever possible.</li>
+						<li>Place middleware in the correct order.</li>
+					</ul>
+
+					<h3>Common Beginner Mistakes</h3>
+					<ul class="list-cross">
+						<li>Forgetting to register middleware in <code>settings.py</code></li>
+						<li>Not calling <code>get_response(request)</code></li>
+						<li>Performing slow database operations on every request</li>
+						<li>Mixing business logic with middleware</li>
+						<li>Using middleware when a view decorator would be more appropriate</li>
+					</ul>
+
+					<aside class="callout">
+						<p class="callout-title">Key takeaways</p>
+						<ul>
+							<li>A custom middleware is simply a Python class.</li>
+							<li>Every middleware implements <code>__init__()</code> and <code>__call__()</code>.</li>
+							<li>Middleware runs for <strong>every request</strong> and <strong>every response</strong>.</li>
+							<li>Register your middleware in <code>settings.py</code>.</li>
+							<li>Keep middleware reusable, lightweight, and focused on cross-cutting concerns.</li>
+						</ul>
+					</aside>
+
+					<h2 id="real-world-examples">Real-World Middleware Examples</h2>
+					<blockquote class="pull-quote">Middleware becomes truly valuable when it solves real problems that every request passes through. Let’s look at some practical examples used in production Django applications.</blockquote>
+
+					<h3>Why Use Middleware in Real Projects?</h3>
+					<p>Instead of writing the same code in every view, middleware allows you to implement it once and automatically apply it to every request.</p>
+					<p>Some common use cases include:</p>
+					<ul>
+						<li>Logging incoming requests</li>
+						<li>Measuring response time</li>
+						<li>Restricting access</li>
+						<li>Adding request IDs</li>
+						<li>Enabling maintenance mode</li>
+						<li>Monitoring API usage</li>
+					</ul>
+					<p>Let’s explore each one.</p>
+
+					<h3>1. Request Logger Middleware</h3>
+					<p>Every production application should keep a log of incoming requests.</p>
+					<p>This helps you:</p>
+					<ul>
+						<li>Debug issues</li>
+						<li>Monitor traffic</li>
+						<li>Audit user activity</li>
+					</ul>
+<pre><code class="language-python">import logging
+
+logger = logging.getLogger(__name__)
+
+class RequestLoggerMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        logger.info(
+            "%s %s",
+            request.method,
+            request.path
+        )
+
+        return self.get_response(request)</code></pre>
+					<h4>Sample output</h4>
+<pre class="diagram">GET /products/
+POST /login/
+GET /dashboard/</pre>
+
+					<h3>2. Response Time Middleware</h3>
+					<p>Slow applications create a poor user experience.</p>
+					<p>This middleware measures how long each request takes.</p>
+<pre><code class="language-python">import time
+
+class ResponseTimeMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        start = time.perf_counter()
+        response = self.get_response(request)
+        duration = (
+            time.perf_counter() - start
+        )
+        print(
+            f"Response Time: {duration:.3f}s"
+        )
+        return response</code></pre>
+					<h4>Example output</h4>
+<pre class="diagram">Response Time: 0.042s
+Response Time: 0.156s</pre>
+					<p>This is especially useful for performance monitoring.</p>
+
+					<h3>3. Request ID Middleware</h3>
+					<p>In large applications, multiple requests are processed simultaneously.</p>
+					<p>Adding a unique Request ID makes it easier to trace logs.</p>
+<pre><code class="language-python">import uuid
+
+class RequestIDMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.request_id = str(uuid.uuid4())
+
+        return self.get_response(request)</code></pre>
+					<h4>Example</h4>
+<pre class="diagram">Request ID:
+f8b12d19-2c8e-47ef</pre>
+					<p>You can include this ID in logs for easier debugging.</p>
+
+					<h3>4. Maintenance Mode Middleware</h3>
+					<p>Sometimes your application needs temporary maintenance.</p>
+					<p>Instead of stopping the server, middleware can return a friendly message.</p>
+<pre><code class="language-python">from django.http import HttpResponse
+
+MAINTENANCE_MODE = True
+
+class MaintenanceMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if MAINTENANCE_MODE:
+            return HttpResponse(
+                "We'll be back soon!",
+                status=503
+            )
+
+        return self.get_response(request)</code></pre>
+					<h4>Result</h4>
+<pre class="diagram">503 Service Unavailable
+We'll be back soon!</pre>
+					<p>This approach provides a better experience than showing server errors.</p>
+
+					<h3>5. IP Address Logger</h3>
+					<p>Knowing where requests come from is useful for analytics and security.</p>
+<pre><code class="language-python">class IPLoggerMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        ip = request.META.get(
+            "REMOTE_ADDR"
+        )
+        print(ip)
+        return self.get_response(request)</code></pre>
+					<h4>Example output</h4>
+					<pre class="diagram">192.168.1.25</pre>
+					<p>You can also store IP addresses in a database or send them to a monitoring system.</p>
+
+					<h3>6. Simple Rate Limiter</h3>
+					<p>Protect your application from excessive requests.</p>
+					<p>This example limits repeated requests from the same IP.</p>
+<pre><code class="language-python">from django.core.cache import cache
+from django.http import HttpResponse
+
+class RateLimitMiddleware:
+    LIMIT = 100
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        ip = request.META.get("REMOTE_ADDR")
+        key = f"rate:{ip}"
+        count = cache.get(key, 0)
+
+        if count &gt;= self.LIMIT:
+            return HttpResponse(
+                "Too Many Requests",
+                status=429
+            )
+        cache.set(key, count + 1, timeout=60)
+
+        return self.get_response(request)</code></pre>
+					<p>This middleware allows up to <strong>100 requests per minute</strong> from a single IP address.</p>
+
+					<h3>Which Middleware Should You Build?</h3>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Middleware</th><th scope="col">Common use case</th></tr></thead>
+							<tbody>
+								<tr><td>Request Logger</td><td>Debugging &amp; monitoring</td></tr>
+								<tr><td>Response Timer</td><td>Performance optimization</td></tr>
+								<tr><td>Request ID</td><td>Log tracing</td></tr>
+								<tr><td>Maintenance Mode</td><td>Scheduled updates</td></tr>
+								<tr><td>IP Logger</td><td>Security &amp; analytics</td></tr>
+								<tr><td>Rate Limiter</td><td>Prevent abuse &amp; API protection</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Production Tips</h3>
+					<p>When building middleware for production:</p>
+					<ul class="list-check">
+						<li>Keep it fast.</li>
+						<li>Avoid unnecessary database queries.</li>
+						<li>Use caching where possible.</li>
+						<li>Handle exceptions gracefully.</li>
+						<li>Write clear logs.</li>
+						<li>Test middleware independently.</li>
+					</ul>
+
+					<aside class="callout">
+						<p class="callout-title">Key takeaways</p>
+						<ul>
+							<li>Middleware is ideal for functionality that should run on <strong>every request</strong>.</li>
+							<li>Logging, security, monitoring, and performance tracking are common use cases.</li>
+							<li>Keep middleware simple and focused on a single responsibility.</li>
+							<li>Production middleware should be lightweight and efficient.</li>
+						</ul>
+					</aside>
+
+					<h2 id="execution-order">Middleware Execution Order &amp; Best Practices</h2>
+					<blockquote class="pull-quote">Middleware order isn’t random. The position of each middleware determines how requests and responses are processed.</blockquote>
+
+					<h3>Why Middleware Order Matters</h3>
+					<p>When Django receives a request, it doesn’t execute middleware randomly.</p>
+					<p>It follows the exact order defined in your <code>settings.py</code> file.</p>
+					<p>Likewise, when returning a response, Django executes the middleware in the <strong>reverse order</strong>.</p>
+					<p>Understanding this flow is essential because some middleware depends on others.</p>
+					<p>For example:</p>
+					<ul>
+						<li><strong>AuthenticationMiddleware</strong> requires <strong>SessionMiddleware</strong> to run first.</li>
+						<li><strong>CsrfViewMiddleware</strong> should execute before the view processes POST requests.</li>
+						<li><strong>SecurityMiddleware</strong> should be one of the first middleware to protect every request.</li>
+					</ul>
+
+					<h3>Middleware Execution Flow</h3>
+					<figure class="post-figure post-figure-narrow">
+						<img src="/assets/img/blog/django-middleware-explained/execution-flow.webp" width="716" height="1080" loading="lazy" alt="Execution flow: the incoming request passes through Security, Session, Common, CSRF and Authentication middleware, then a custom middleware, to the Django view. The response passes back through the custom middleware, Authentication, CSRF, Common, Session and Security middleware to the browser.">
+						<figcaption>Where a custom middleware sits in the full stack</figcaption>
+					</figure>
+					<aside class="callout">
+						<p class="callout-title">Remember</p>
+						<p><strong>Request:</strong> Top → Bottom<br><strong>Response:</strong> Bottom → Top</p>
+					</aside>
+
+					<h3>Example Execution</h3>
+					<p>Suppose your project has the following middleware configuration:</p>
+<pre><code class="language-python">MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "blog.middleware.RequestLoggerMiddleware",
+]</code></pre>
+					<p>When a user opens:</p>
+					<pre class="diagram">https://example.com/products/</pre>
+					<p>Django executes them in this order.</p>
+					<div class="flow-pair">
+						<div>
+							<h4>Request phase</h4>
+<pre class="diagram">SecurityMiddleware
+↓
+SessionMiddleware
+↓
+RequestLoggerMiddleware
+↓
+View</pre>
+						</div>
+						<div>
+							<h4>Response phase</h4>
+<pre class="diagram">View
+↓
+RequestLoggerMiddleware
+↓
+SessionMiddleware
+↓
+SecurityMiddleware</pre>
+						</div>
+					</div>
+					<p>Notice how the response travels back through the middleware in reverse.</p>
+
+					<h3>Why Is This Important?</h3>
+					<p>Imagine your custom middleware needs the logged-in user.</p>
+					<p>If you place it <strong>before</strong> AuthenticationMiddleware, then <code>request.user</code> may not be available.</p>
+					<p>Instead, place your middleware <strong>after</strong> AuthenticationMiddleware if it depends on authenticated users.</p>
+					<p>Choosing the correct order prevents unexpected bugs.</p>
+
+					<h3>Middleware Order Best Practices</h3>
+					<h4>1. Keep security first</h4>
+					<p>Always place security-related middleware near the top, such as <code>SecurityMiddleware</code>.</p>
+					<p>This ensures every request is protected as early as possible.</p>
+					<h4>2. Authentication depends on sessions</h4>
+					<p>The authentication system needs session information.</p>
+					<div class="flow-pair">
+						<div>
+							<p class="flow-label flow-good">Correct order</p>
+<pre class="diagram">SessionMiddleware
+↓
+AuthenticationMiddleware</pre>
+						</div>
+						<div>
+							<p class="flow-label flow-bad">Incorrect order</p>
+<pre class="diagram">AuthenticationMiddleware
+↓
+SessionMiddleware</pre>
+						</div>
+					</div>
+					<p>The incorrect order can lead to authentication issues.</p>
+					<h4>3. Keep middleware lightweight</h4>
+					<p>Middleware runs on <strong>every request</strong>.</p>
+					<div class="flow-pair">
+						<div>
+							<p class="flow-label flow-bad">Avoid</p>
+							<ul class="list-cross">
+								<li>Heavy database queries</li>
+								<li>Large file operations</li>
+								<li>External API calls</li>
+							</ul>
+						</div>
+						<div>
+							<p class="flow-label flow-good">Instead</p>
+							<ul class="list-check">
+								<li>Read headers</li>
+								<li>Add logging</li>
+								<li>Validate requests</li>
+								<li>Attach metadata</li>
+							</ul>
+						</div>
+					</div>
+					<h4>4. One responsibility per middleware</h4>
+					<p>Good middleware:</p>
+<pre class="diagram">Logging Middleware
+↓
+Authentication Middleware
+↓
+Rate Limiter</pre>
+					<p>Avoid creating one middleware that performs multiple unrelated tasks.</p>
+					<p>Keeping each middleware focused makes it easier to test, maintain, and reuse.</p>
+					<h4>5. Return responses early when needed</h4>
+					<p>Middleware can stop a request before it reaches the view.</p>
+<pre><code class="language-python">if not request.user.is_authenticated:
+    return HttpResponse(
+        "Unauthorized",
+        status=401
+    )</code></pre>
+					<p>This improves performance because Django skips unnecessary processing.</p>
+
+					<h3>Common Mistakes</h3>
+					<h4 class="heading-cross">Running database queries on every request</h4>
+<pre><code class="language-python">Product.objects.count()</code></pre>
+					<p>Doing this inside middleware means the query runs for <strong>every page</strong>, even when it isn’t needed.</p>
+					<h4 class="heading-cross">Putting business logic in middleware</h4>
+					<p>Middleware is <strong>not</strong> the place for order processing, payment calculations, or report generation.</p>
+					<p>Business logic belongs in:</p>
+					<ul>
+						<li>Views</li>
+						<li>Services</li>
+						<li>Models</li>
+					</ul>
+					<p>Middleware should only handle request/response concerns.</p>
+					<h4 class="heading-cross">Forgetting to call <code>get_response()</code></h4>
+<pre><code class="language-python">response = self.get_response(request)</code></pre>
+					<p>Without this line, Django never reaches your view.</p>
+					<h4 class="heading-cross">Ignoring performance</h4>
+					<p>Even an extra <strong>20 milliseconds</strong> per request becomes significant under heavy traffic.</p>
+					<p>For example:</p>
+<pre class="diagram">20 ms × 10,000 requests
+=
+200 seconds of extra processing</pre>
+					<p>Small inefficiencies can have a big impact at scale.</p>
+
+					<h3>Production Tips</h3>
+					<p>For production applications:</p>
+					<ul class="list-check">
+						<li>Use structured logging.</li>
+						<li>Keep middleware stateless whenever possible.</li>
+						<li>Cache frequently used data.</li>
+						<li>Handle exceptions gracefully.</li>
+						<li>Write unit tests for custom middleware.</li>
+						<li>Document the purpose of each middleware.</li>
+					</ul>
+
+					<h3>Quick Checklist</h3>
+					<p>Before deploying custom middleware, ask yourself:</p>
+					<ul class="list-check">
+						<li>Does it have one clear responsibility?</li>
+						<li>Is it lightweight?</li>
+						<li>Is it placed in the correct order?</li>
+						<li>Does it call <code>get_response()</code>?</li>
+						<li>Has it been tested?</li>
+						<li>Does it avoid unnecessary database queries?</li>
+					</ul>
+					<p>If the answer is <strong>yes</strong>, your middleware is ready for production.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Key takeaways</p>
+						<ul>
+							<li>Middleware order directly affects application behavior.</li>
+							<li>Requests move <strong>top to bottom</strong>, while responses move <strong>bottom to top</strong>.</li>
+							<li>Place middleware according to its dependencies.</li>
+							<li>Keep middleware lightweight, reusable, and focused.</li>
+							<li>Proper ordering improves both performance and maintainability.</li>
+						</ul>
+					</aside>
+
+					<h2 id="conclusion">Conclusion &amp; Key Takeaways</h2>
+					<blockquote class="pull-quote">Middleware is one of Django’s most powerful features. Mastering it will help you build cleaner, more secure, and more maintainable web applications.</blockquote>
+
+					<h3>What We’ve Learned</h3>
+					<p>Throughout this guide, we’ve explored how Django Middleware works and why it’s an essential part of every Django application.</p>
+					<p>Here’s a quick recap:</p>
+					<h4>Middleware processes every request</h4>
+					<p>Before a request reaches your Django view, it passes through the middleware chain where it can be inspected, modified, or even blocked.</p>
+					<h4>Middleware also processes every response</h4>
+					<p>After the view generates a response, it travels back through the middleware before being sent to the user’s browser.</p>
+					<h4>Django includes powerful built-in middleware</h4>
+					<p>Out of the box, Django provides middleware for:</p>
+					<ul>
+						<li>Security</li>
+						<li>Authentication</li>
+						<li>Sessions</li>
+						<li>CSRF Protection</li>
+						<li>Messages</li>
+						<li>Clickjacking Protection</li>
+					</ul>
+					<p>These components help you build secure applications with minimal configuration.</p>
+					<h4>Custom middleware makes applications cleaner</h4>
+					<p>Instead of repeating the same code in multiple views, middleware allows you to centralize common functionality such as:</p>
+					<ul>
+						<li>Request logging</li>
+						<li>Response timing</li>
+						<li>Maintenance mode</li>
+						<li>Request IDs</li>
+						<li>IP filtering</li>
+						<li>Rate limiting</li>
+					</ul>
+
+					<h3>Middleware in One Diagram</h3>
+					<figure class="post-figure post-figure-narrow">
+						<img src="/assets/img/blog/django-middleware-explained/middleware-overview.webp" width="628" height="881" loading="lazy" alt="Middleware in one diagram: the browser sends a request through middleware, URL routing, the view and the database; during processing, custom middleware and the Django view produce a response that passes back through middleware, authentication and CSRF middleware to the browser.">
+						<figcaption>Middleware in one diagram</figcaption>
+					</figure>
+					<p><strong>Remember:</strong> Middleware runs <strong>before</strong> the view on incoming requests and <strong>after</strong> the view on outgoing responses.</p>
+
+					<h3>Best Practices Checklist</h3>
+					<p>Before adding a middleware to your project, ask yourself:</p>
+					<ul class="list-check">
+						<li>Does it solve a common problem across the application?</li>
+						<li>Is it lightweight and efficient?</li>
+						<li>Does it have a single responsibility?</li>
+						<li>Is it registered in the correct order?</li>
+						<li>Does it call <code>get_response(request)</code>?</li>
+						<li>Has it been tested?</li>
+					</ul>
+					<p>Following these practices will keep your application fast, maintainable, and scalable.</p>
+
+					<h3>Final Thoughts</h3>
+					<p>Django Middleware is more than just another framework feature. It’s the backbone of many core functionalities that make Django secure and developer-friendly.</p>
+					<p>As you build larger applications, you’ll find middleware invaluable for handling cross-cutting concerns without cluttering your views.</p>
+					<p>Whether you’re implementing authentication, logging, performance monitoring, or custom request processing, middleware provides a clean and reusable solution.</p>
+					<p>Start with Django’s built-in middleware, then gradually create your own as your application’s requirements grow.</p>
+
+					<h3>What’s Next?</h3>
+					<p>Now that you understand middleware, consider exploring these Django topics next:</p>
+					<ul class="tag-list post-next">
+						<li>Django Signals</li>
+						<li>Class-Based Views (CBVs)</li>
+						<li>Django REST Framework (DRF)</li>
+						<li>Authentication &amp; Permissions</li>
+						<li>Caching</li>
+						<li>Celery for Background Tasks</li>
+					</ul>
+					<p>These concepts build naturally on what you’ve learned about middleware.</p>
+
+					<h3>Thank You</h3>
+					<p>Thank you for reading!</p>
+					<p>I hope this guide helped you understand Django Middleware in a simple and practical way. If you found it useful, feel free to share it with other developers or leave your thoughts in the comments on Medium.</p>
+					<p>Happy coding!</p>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<p class="post-origin">
+					<i class="bi bi-medium" aria-hidden="true"></i>
+					Originally published on Medium.
+					<a href="https://medium.com/@riyasac6/django-middleware-explained-the-complete-guide-with-real-world-examples-c0e041afd43b" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+				</p>
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="django-middleware-explained" hidden>
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list></div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

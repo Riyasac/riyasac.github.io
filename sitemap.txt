@@ -1,1 +1,3 @@
 https://riyasac.github.io/
+https://riyasac.github.io/blog/
+https://riyasac.github.io/blog/django-middleware-explained/

@@ -1,13 +1,16 @@
-/* Portfolio interactions: header state, scroll progress, active nav,
-   reveal and stagger, count-up, typing stack card, card spotlight,
-   mobile menu, back-to-top and footer year. */
+/* Site interactions: header state, scroll progress, active nav,
+   blog cards, reveal and stagger, count-up, typing stack card, card spotlight,
+   article contents and code copy, mobile menu, theme, back-to-top and footer year.
+   Shared by the homepage and blog pages; every feature checks its elements exist. */
 (function () {
 	'use strict';
 
 	const header = document.getElementById('siteHeader');
 	const progress = document.getElementById('scrollProgress');
 	const backToTop = document.getElementById('backToTop');
-	const navLinks = Array.from(document.querySelectorAll('#mainNav .nav-link'));
+	// Only same-page links (#about) drive the scroll highlight; blog pages link to /#about
+	const navLinks = Array.from(document.querySelectorAll('#mainNav .nav-link'))
+		.filter(function (link) { return (link.getAttribute('href') || '').charAt(0) === '#'; });
 	const mainNav = document.getElementById('mainNav');
 	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const canObserve = 'IntersectionObserver' in window;
@@ -16,8 +19,8 @@
 	function onScroll() {
 		const y = window.scrollY;
 		const max = document.documentElement.scrollHeight - window.innerHeight;
-		header.classList.toggle('is-scrolled', y > 24);
-		backToTop.classList.toggle('is-visible', y > 600);
+		if (header) header.classList.toggle('is-scrolled', y > 24);
+		if (backToTop) backToTop.classList.toggle('is-visible', y > 600);
 		if (progress) progress.style.transform = 'scaleX(' + (max > 0 ? y / max : 0) + ')';
 	}
 
@@ -45,7 +48,7 @@
 		});
 	}
 
-	if (canObserve) {
+	if (canObserve && navLinks.length) {
 		const sections = navLinks
 			.map(function (link) { return document.querySelector(link.getAttribute('href')); })
 			.filter(Boolean);
@@ -62,10 +65,92 @@
 
 		sections.forEach(function (section) { sectionObserver.observe(section); });
 
-		new IntersectionObserver(function (entries) {
-			if (entries[0].isIntersecting) setActive('');
-		}, { rootMargin: '-45% 0px -50% 0px' }).observe(document.getElementById('home'));
+		const home = document.getElementById('home');
+		if (home) {
+			new IntersectionObserver(function (entries) {
+				if (entries[0].isIntersecting) setActive('');
+			}, { rootMargin: '-45% 0px -50% 0px' }).observe(home);
+		}
 	}
+
+	// Blog cards, rendered from window.BLOG_POSTS (assets/js/posts.js)
+	const posts = Array.isArray(window.BLOG_POSTS) ? window.BLOG_POSTS : [];
+
+	function formatDate(iso) {
+		return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+	}
+
+	function make(tag, className, text) {
+		const node = document.createElement(tag);
+		if (className) node.className = className;
+		if (text) node.textContent = text;
+		return node;
+	}
+
+	function postCard(post) {
+		const card = make('article', 'post-card reveal');
+		if (post.cover) {
+			const cover = make('div', 'post-card-cover');
+			const img = make('img');
+			img.src = post.cover;
+			img.alt = '';
+			img.loading = 'lazy';
+			img.width = 1024;
+			img.height = 535;
+			cover.appendChild(img);
+			card.appendChild(cover);
+		}
+		const body = make('div', 'post-card-body');
+		const meta = make('p', 'post-card-meta');
+		const time = make('time', '', formatDate(post.date));
+		time.dateTime = post.date;
+		meta.append(time, ' · ' + post.readingTime + ' min read');
+		const title = make('h3');
+		const link = make('a', '', post.title);
+		link.href = post.url;
+		title.appendChild(link);
+		body.append(meta, title, make('p', 'post-card-desc', post.description));
+		if (post.tags && post.tags.length) {
+			const tags = make('ul', 'tag-list');
+			tags.setAttribute('aria-label', 'Tags');
+			post.tags.forEach(function (tag) { tags.appendChild(make('li', '', tag)); });
+			body.appendChild(tags);
+		}
+		card.appendChild(body);
+		return card;
+	}
+
+	function renderPosts(list, items) {
+		list.replaceChildren.apply(list, items.map(postCard));
+	}
+
+	document.querySelectorAll('[data-post-list]').forEach(function (list) {
+		const limit = Number(list.dataset.limit) || posts.length;
+		const wrapper = list.closest('[data-more-posts]');
+		let items = posts;
+		if (wrapper) {
+			items = posts.filter(function (post) { return post.slug !== wrapper.dataset.current; });
+			wrapper.hidden = items.length === 0;
+		}
+		renderPosts(list, items.slice(0, limit));
+
+		// Tag filter on the blog index, once there is more than one post to filter
+		const filter = document.getElementById('tagFilter');
+		if (!('filterable' in list.dataset) || !filter || posts.length < 2) return;
+		const tags = Array.from(new Set(posts.reduce(function (all, post) { return all.concat(post.tags || []); }, []))).sort();
+		['All'].concat(tags).forEach(function (tag) {
+			const button = make('button', '', tag);
+			button.type = 'button';
+			button.setAttribute('aria-pressed', String(tag === 'All'));
+			button.addEventListener('click', function () {
+				filter.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b === button)); });
+				renderPosts(list, tag === 'All' ? posts : posts.filter(function (post) { return (post.tags || []).indexOf(tag) !== -1; }));
+				list.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
+			});
+			filter.appendChild(button);
+		});
+		filter.hidden = false;
+	});
 
 	// Count-up for real figures already printed in the markup
 	function countUp(el) {
@@ -140,6 +225,54 @@
 			}
 			window.setTimeout(tick, delay);
 		})();
+	}
+
+	// Article: "On this page" list from h2s, with the current section highlighted
+	const toc = document.getElementById('toc');
+	const postBody = document.getElementById('postBody');
+	if (toc && postBody) {
+		const headings = Array.from(postBody.querySelectorAll('h2[id]'));
+		const tocLinks = headings.map(function (h) {
+			const li = make('li');
+			const a = make('a', '', h.textContent);
+			a.href = '#' + h.id;
+			li.appendChild(a);
+			toc.appendChild(li);
+			return a;
+		});
+		if (canObserve && headings.length) {
+			const tocObserver = new IntersectionObserver(function (entries) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) return;
+					tocLinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id); });
+				});
+			}, { rootMargin: '-15% 0px -75% 0px' });
+			headings.forEach(function (h) { tocObserver.observe(h); });
+		}
+	}
+
+	// Article: copy button on code blocks (not on plain text diagrams)
+	if (postBody && navigator.clipboard) {
+		postBody.querySelectorAll('pre > code').forEach(function (code) {
+			const pre = code.parentElement;
+			const wrap = make('div', 'code-wrap');
+			pre.parentNode.insertBefore(wrap, pre);
+			wrap.appendChild(pre);
+			const button = make('button', 'code-copy', 'Copy');
+			button.type = 'button';
+			button.setAttribute('aria-label', 'Copy code to clipboard');
+			button.addEventListener('click', function () {
+				navigator.clipboard.writeText(code.textContent).then(function () {
+					button.textContent = 'Copied';
+					button.classList.add('is-done');
+					window.setTimeout(function () {
+						button.textContent = 'Copy';
+						button.classList.remove('is-done');
+					}, 1600);
+				});
+			});
+			wrap.appendChild(button);
+		});
 	}
 
 	// Cursor spotlight on project cards
