@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>API Fundamentals: Architectures, Authentication, REST Design and Security | Riyas A C</title>
+	<meta name="description" content="A practical guide to APIs: REST, GraphQL, SOAP, gRPC, WebSocket and event-driven architectures, authentication methods, REST design and security.">
+	<meta name="keywords" content="API, REST API, GraphQL, gRPC, SOAP, WebSocket, event-driven architecture, API authentication, JWT, OAuth 2.0, API key, API security, CORS, rate limiting, API versioning, HTTP status codes">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<link rel="canonical" href="https://riyasac.github.io/blog/api-fundamentals/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/api-fundamentals/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="API Fundamentals: Architectures, Authentication, REST Design and Security">
+	<meta property="og:description" content="How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/api-fundamentals/cover.jpg">
+	<meta property="og:image:alt" content="Four slide covers from the API series: architectures, authentication, REST best practices and security">
+	<meta property="article:published_time" content="2026-10-07T10:00:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="APIs">
+	<meta property="article:tag" content="REST">
+	<meta property="article:tag" content="Security">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="API Fundamentals: Architectures, Authentication, REST Design and Security">
+	<meta name="twitter:description" content="How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/api-fundamentals/cover.jpg">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"headline": "API Fundamentals: Architectures, Authentication, REST Design and Security",
+		"description": "A practical guide to APIs: REST, GraphQL, SOAP, gRPC, WebSocket and event-driven architectures, authentication methods, REST design and security.",
+		"image": "https://riyasac.github.io/assets/img/blog/api-fundamentals/cover.jpg",
+		"datePublished": "2026-10-07T10:00:00Z",
+		"author": {
+			"@type": "Person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"keywords": ["APIs", "REST", "GraphQL", "gRPC", "Authentication", "JWT", "OAuth 2.0", "Security"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/api-fundamentals/"
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">APIs</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">API Fundamentals: Architectures, Authentication, REST Design and Security</h1>
+					<p class="post-lead">How applications talk to each other, how an API knows who is calling, how to design endpoints other developers can read at a glance, and how to keep all of it safe.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-07">7 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 20 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner to Intermediate</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> HTTP, JSON</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>APIs</li><li>REST</li><li>Security</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/api-fundamentals/cover.webp" width="1024" height="535" alt="Four slide covers from the API series: common types of API architectures, API authentication explained simply, REST API best practices, and API security explained simply">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+					<p>Every modern application is a set of systems talking to each other. A mobile app asks a server for your orders. A payment service tells an inventory service that stock needs to drop. A dashboard streams live prices from an exchange.</p>
+					<p>All of that conversation runs through <strong>APIs</strong>.</p>
+					<p>Building an API that works is the easy part. Building one that other developers can understand, that scales, and that does not leak data is where the real engineering happens. This guide covers the four areas that decide whether an API is good:</p>
+					<ul class="list-check">
+						<li><strong>Architecture</strong>: how systems exchange data (REST, GraphQL, SOAP, gRPC, WebSocket, event-driven)</li>
+						<li><strong>Authentication</strong>: how an API knows who is calling (API keys, Basic Auth, JWT, OAuth 2.0)</li>
+						<li><strong>REST design</strong>: URLs, HTTP methods, status codes, pagination, errors and versioning</li>
+						<li><strong>Security</strong>: HTTPS, CORS, rate limiting, input validation and secrets</li>
+					</ul>
+					<p>Each section stands on its own, so skip to whatever you need. If you are preparing for backend interviews, read it top to bottom.</p>
+
+					<h2 id="what-is-api-architecture">What Is API Architecture?</h2>
+					<p>API architecture defines how applications exchange data and how the API itself is designed and organised. Think of it as the blueprint for communication between software systems.</p>
+					<p>The choice affects more than syntax. It decides:</p>
+					<ul>
+						<li>How well the system scales</li>
+						<li>How fast clients get their data</li>
+						<li>How easy the API is to maintain and change</li>
+						<li>How pleasant it is for other developers to use</li>
+					</ul>
+					<p>There are six architectures you will meet in practice. Each solves a different problem.</p>
+
+					<h2 id="architecture-types">The Six Common API Architectures</h2>
+
+					<h3>1. REST (Representational State Transfer)</h3>
+					<p>REST is the most widely used API style. It treats everything as a <strong>resource</strong> with its own URL, and uses standard HTTP methods to act on it.</p>
+					<p>Key characteristics:</p>
+					<ul>
+						<li><strong>HTTP methods</strong> describe the action: <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code></li>
+						<li><strong>Resource-based URLs</strong> such as <code>/users/15</code> or <code>/products/120</code></li>
+						<li><strong>Stateless</strong>: each request carries everything the server needs; the server keeps no client session between requests</li>
+						<li><strong>JSON responses</strong> in most modern APIs, which are light and easy to parse</li>
+					</ul>
+<pre><code class="language-http">GET /users/15 HTTP/1.1
+Host: api.example.com</code></pre>
+<pre><code class="language-json">{
+  "id": 15,
+  "name": "Riyas"
+}</code></pre>
+					<p><strong>Best for:</strong> web applications, mobile apps, public APIs and CRUD operations.</p>
+
+					<h3>2. GraphQL</h3>
+					<p>GraphQL was built to fix two problems REST clients run into:</p>
+					<ul>
+						<li><strong>Over-fetching</strong>: the endpoint returns more data than the screen needs</li>
+						<li><strong>Under-fetching</strong>: the screen needs data from <code>/users</code>, <code>/orders</code> and <code>/products</code>, so the client makes three requests</li>
+					</ul>
+					<p>GraphQL exposes a <strong>single endpoint</strong>, usually <code>/graphql</code>. The client describes exactly the shape of data it wants, and the server returns that shape and nothing more.</p>
+<pre><code class="language-graphql">{
+  user(id: 15) {
+    id
+    name
+    email
+    orders {
+      id
+      total
+    }
+  }
+}</code></pre>
+<pre><code class="language-json">{
+  "data": {
+    "user": {
+      "id": 15,
+      "name": "Riyas",
+      "email": "riyas@example.com",
+      "orders": [
+        { "id": 101, "total": 2500 }
+      ]
+    }
+  }
+}</code></pre>
+					<p>One request replaced what would have been two or three REST calls. The schema is typed and self-documenting, which gives GraphQL excellent tooling.</p>
+					<p><strong>Best for:</strong> complex frontends, mobile apps on slow networks, and gateways that aggregate several backend services.</p>
+					<p><strong>Watch out for:</strong> HTTP caching is harder because everything goes through one URL with <code>POST</code>, and a careless query can ask for a huge nested graph. Limit query depth and cost on the server.</p>
+
+					<h3>3. SOAP (Simple Object Access Protocol)</h3>
+					<p>SOAP is an XML-based protocol with a formal, strict specification. It predates REST and is still common in banking, healthcare, government and telecom systems.</p>
+<pre><code class="language-markup">&lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+  &lt;soap:Header&gt;
+    &lt;AuthToken&gt;abc123&lt;/AuthToken&gt;
+  &lt;/soap:Header&gt;
+  &lt;soap:Body&gt;
+    &lt;GetUserRequest&gt;
+      &lt;UserID&gt;15&lt;/UserID&gt;
+    &lt;/GetUserRequest&gt;
+  &lt;/soap:Body&gt;
+&lt;/soap:Envelope&gt;</code></pre>
+					<p>What it offers:</p>
+					<ul>
+						<li><strong>Strict contracts</strong> defined in a WSDL file, so both sides agree on every field and type</li>
+						<li><strong>WS-Security</strong> for message-level signing and encryption</li>
+						<li><strong>Extensions</strong> for reliable messaging and distributed transactions (WS-ReliableMessaging, WS-AtomicTransaction)</li>
+					</ul>
+					<p>The cost is verbosity. XML envelopes are heavy, tooling is older, and development is slower than with REST.</p>
+					<p><strong>Best for:</strong> enterprise and regulated systems where formal contracts, security and compliance matter more than speed of development. Most new public APIs no longer choose SOAP, but you will integrate with it.</p>
+
+					<h3>4. gRPC</h3>
+					<p>gRPC is a high-performance RPC framework created by Google. Instead of JSON, it serialises data with <strong>Protocol Buffers (Protobuf)</strong>, a compact binary format, and runs over HTTP/2.</p>
+					<p>You define the contract first in a <code>.proto</code> file, then generate client and server code for your language:</p>
+<pre><code class="language-protobuf">syntax = "proto3";
+
+service UserService {
+  rpc GetUser (UserRequest) returns (UserResponse);
+  rpc CreateUser (CreateUserRequest) returns (UserResponse);
+}
+
+message UserRequest {
+  int32 id = 1;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+}</code></pre>
+					<p>Why teams pick it:</p>
+					<ul>
+						<li><strong>Fast</strong>: binary payloads are smaller and quicker to parse than JSON</li>
+						<li><strong>Strong typing</strong>: the <code>.proto</code> file is the single source of truth</li>
+						<li><strong>Streaming</strong>: client, server and bi-directional streams are built in</li>
+					</ul>
+					<p><strong>Best for:</strong> service-to-service calls inside a microservice system, high-throughput internal APIs and real-time pipelines.</p>
+					<p><strong>Watch out for:</strong> browsers cannot call gRPC directly. You need gRPC-Web and a proxy, which is why most teams keep gRPC internal and put REST or GraphQL in front of web clients.</p>
+
+					<h3>5. WebSocket</h3>
+					<p>REST follows request and response: the client asks, the server answers, done. A WebSocket opens a <strong>persistent, two-way connection</strong>. Once it is open, either side can send a message at any time.</p>
+<pre class="diagram">Client                                  Server
+  │  1. HTTP request with Upgrade header  │
+  │ ────────────────────────────────────▶ │
+  │      101 Switching Protocols          │
+  │ ◀──────────────────────────────────── │
+  │                                       │
+  │  2. Connection stays open             │
+  │ ◀──────── messages both ways ───────▶ │
+  │                                       │
+  │  3. Either side closes                │</pre>
+<pre><code class="language-javascript">const socket = new WebSocket("wss://example.com/socket");
+
+socket.onopen = () => console.log("Connection opened");
+socket.onmessage = (event) => console.log("Message:", event.data);
+socket.onclose = () => console.log("Connection closed");</code></pre>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">WebSocket</th><th scope="col">REST</th></tr></thead>
+							<tbody>
+								<tr><td>Real-time, both directions</td><td>Client asks, server answers</td></tr>
+								<tr><td>One long-lived connection</td><td>Independent requests</td></tr>
+								<tr><td>Server can push instantly</td><td>Client must poll for updates</td></tr>
+								<tr><td>Best for live updates</td><td>Best for standard CRUD</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p><strong>Best for:</strong> chat, live dashboards, multiplayer games, stock tickers and live notifications.</p>
+					<p><strong>Watch out for:</strong> long-lived connections are stateful. Load balancing, reconnection and scaling across many servers all need more thought than stateless REST.</p>
+
+					<h3>6. Event-Driven APIs</h3>
+					<p>In an event-driven system, services do not call each other directly. A service <strong>publishes an event</strong> when something happens, and any interested service <strong>reacts</strong> to it.</p>
+					<p>Take an e-commerce order:</p>
+					<ol>
+						<li>The customer places an order. The order service publishes <code>OrderCreated</code>.</li>
+						<li>The payment service charges the card and publishes <code>PaymentSucceeded</code>.</li>
+						<li>The inventory service hears it and reduces stock.</li>
+						<li>The email service hears it and sends a confirmation.</li>
+						<li>The shipping service hears it and starts delivery.</li>
+					</ol>
+					<p>The order service knows nothing about email or shipping. You can add a new consumer, say a loyalty-points service, without touching any existing code.</p>
+<pre><code class="language-json">{
+  "event": "OrderCreated",
+  "event_id": "evt_9867ab",
+  "timestamp": "2026-10-07T10:30:45Z",
+  "data": {
+    "order_id": 10123,
+    "customer_id": 501,
+    "total": 2500.00,
+    "currency": "INR"
+  },
+  "source": "order-service"
+}</code></pre>
+					<p>Events travel through a message broker such as <strong>Kafka</strong>, <strong>RabbitMQ</strong> or <strong>AWS EventBridge</strong>.</p>
+					<ul class="list-check">
+						<li>Loose coupling between services</li>
+						<li>Scale by adding more consumers</li>
+						<li>Asynchronous work keeps user-facing requests fast</li>
+						<li>Events can be retried or replayed after a failure</li>
+					</ul>
+					<p><strong>Watch out for:</strong> more moving parts, harder debugging across services, and eventual consistency. The email might go out a second after the order is saved, not at the same instant.</p>
+
+					<h2 id="choosing-architecture">Which Architecture Should You Choose?</h2>
+					<p>There is no single best architecture. Pick based on the type of application, performance needs, data shape, real-time requirements, and what your team already knows.</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Architecture</th><th scope="col">Best for</th><th scope="col">Strengths</th><th scope="col">Trade-offs</th></tr></thead>
+							<tbody>
+								<tr><td><strong>REST</strong></td><td>General web and mobile apps, public APIs</td><td>Simple, widely adopted, cacheable, great tooling</td><td>Over-fetching; many calls for complex screens</td></tr>
+								<tr><td><strong>GraphQL</strong></td><td>Complex frontends, API aggregation</td><td>Fetch exactly what you need; one endpoint; typed schema</td><td>Caching is harder; overkill for simple apps</td></tr>
+								<tr><td><strong>SOAP</strong></td><td>Enterprise and regulated systems</td><td>Strict contracts, WS-Security, transaction support</td><td>Heavy XML; slower development</td></tr>
+								<tr><td><strong>gRPC</strong></td><td>Internal microservices</td><td>Very fast, compact, strongly typed, streaming</td><td>Not browser-friendly; steeper learning curve</td></tr>
+								<tr><td><strong>WebSocket</strong></td><td>Real-time apps</td><td>Two-way, low latency, persistent</td><td>Stateful connections are harder to scale</td></tr>
+								<tr><td><strong>Event-driven</strong></td><td>Distributed, asynchronous systems</td><td>Loose coupling, scalable, resilient</td><td>Complex setup; harder to debug; eventual consistency</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Real systems mix them. A common setup is REST or GraphQL for web and mobile clients, gRPC between internal services, and an event bus for anything that can happen in the background.</p>
+<pre class="diagram">Web / Mobile ──▶ REST API ──▶ Event Bus (Kafka / RabbitMQ) ──▶ Microservices
+                                                                  │
+                                                         gRPC between services</pre>
+					<figure class="post-figure">
+						<img src="/assets/img/blog/api-fundamentals/architecture-comparison.webp" width="942" height="1428" loading="lazy" alt="Comparison table of REST, GraphQL, SOAP, gRPC, WebSocket and event-driven architectures with best-fit use, strengths, considerations and use cases for each, ending with an example of REST, an event bus and gRPC combined in one system.">
+						<figcaption>Architecture comparison at a glance</figcaption>
+					</figure>
+					<aside class="callout">
+						<p class="callout-title">Key takeaway</p>
+						<p>Default to REST. Reach for GraphQL when clients need flexible data, gRPC when internal calls need speed, WebSocket when the server must push, and events when services should not wait on each other.</p>
+					</aside>
+
+					<h2 id="authentication-vs-authorization">Authentication vs Authorization</h2>
+					<p>Walk into a bank and say “show me my account balance.” The teller will not answer until they have checked your ID. APIs work the same way. Before sharing data, they ask: <em>who are you?</em></p>
+					<p>Two separate questions get mixed up all the time:</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Authentication</th><th scope="col">Authorization</th></tr></thead>
+							<tbody>
+								<tr><th scope="row">Question</th><td>Who are you?</td><td>What are you allowed to do?</td></tr>
+								<tr><th scope="row">Checks</th><td>Identity</td><td>Permissions</td></tr>
+								<tr><th scope="row">Example</th><td>Logging into Gmail with your password</td><td>A manager can view salaries; an intern cannot</td></tr>
+								<tr><th scope="row">Failure status</th><td><code>401 Unauthorized</code></td><td><code>403 Forbidden</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Authentication always comes first. You cannot decide what someone may do until you know who they are.</p>
+					<aside class="callout">
+						<p class="callout-title">Remember</p>
+						<p>Authentication verifies who you are. Authorization decides what you can do.</p>
+					</aside>
+
+					<h2 id="authentication-methods">Four Common Authentication Methods</h2>
+
+					<h3>1. API Key</h3>
+					<p>An API key works like a movie ticket. Show a valid ticket and you get in. No ticket, no entry.</p>
+					<p>The client sends a unique key with every request, usually in a header:</p>
+<pre><code class="language-http">GET /weather HTTP/1.1
+Host: api.weatherapp.com
+x-api-key: abc123xyz</code></pre>
+					<p>The server looks up the key and allows the request if it is valid.</p>
+					<ul class="list-check">
+						<li>Easy to generate and use</li>
+						<li>Works well for server-to-server calls and simple public APIs</li>
+						<li>Light and fast</li>
+					</ul>
+					<ul class="list-cross">
+						<li>Identifies an application, not a user</li>
+						<li>Anyone who sees the key can use it until you revoke it</li>
+						<li>Not suitable on its own for sensitive data</li>
+					</ul>
+					<p>Never put an API key in frontend code or a URL query string. Browsers, logs and proxies all record URLs.</p>
+
+					<h3>2. Basic Authentication</h3>
+					<p>The client sends a username and password with <strong>every request</strong>. They are joined with a colon and Base64-encoded into the <code>Authorization</code> header:</p>
+<pre><code class="language-http">GET /users/15 HTTP/1.1
+Host: api.example.com
+Authorization: Basic cml5YXM6cGFzc3dvcmQ=</code></pre>
+					<p>That header decodes to <code>riyas:password</code>. <strong>Base64 is encoding, not encryption.</strong> Anyone who intercepts the request can read the password, so Basic Auth is only acceptable over HTTPS.</p>
+					<ul class="list-check">
+						<li>Very easy to implement</li>
+						<li>Supported by almost every tool and HTTP client</li>
+						<li>Fine for internal tools and low-risk systems</li>
+					</ul>
+					<ul class="list-cross">
+						<li>Real credentials travel with every request</li>
+						<li>No expiry; a leaked password works until it is changed</li>
+						<li>Not recommended for public APIs or sensitive data</li>
+					</ul>
+
+					<h3>3. Bearer Token (JWT)</h3>
+					<p>Think of entering an office building. Security checks your ID once and hands you a visitor pass. For the rest of the day you show the pass, not your passport.</p>
+					<p>JWT (JSON Web Token) works the same way:</p>
+					<ol>
+						<li><strong>Login</strong>: the client sends a username and password once.</li>
+						<li><strong>Token issued</strong>: the server verifies them and returns a signed JWT.</li>
+						<li><strong>Send token</strong>: the client includes the token on every request.</li>
+						<li><strong>Access granted</strong>: the server checks the signature and serves the data.</li>
+					</ol>
+<pre><code class="language-http">GET /api/profile HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+					<p>A JWT has three parts separated by dots: a header, a payload of claims (user ID, roles, expiry), and a signature. Because the signature proves the token has not been altered, the server can trust the claims without a database lookup.</p>
+					<ul class="list-check">
+						<li><strong>Stateless</strong>: no server-side session store</li>
+						<li><strong>Fast</strong>: no database hit to identify the user on each request</li>
+						<li><strong>Tamper-evident</strong>: changing any claim breaks the signature</li>
+					</ul>
+					<p>Rules that keep JWTs safe:</p>
+					<ul>
+						<li>The payload is <strong>signed, not encrypted</strong>. Anyone can decode it, so never put secrets in it.</li>
+						<li>Keep access tokens short-lived (minutes, not days) and use <strong>refresh tokens</strong> to get new ones.</li>
+						<li>Revoking a JWT before expiry needs extra work, such as a deny-list. Short expiry limits the damage.</li>
+						<li>Store tokens in <strong>HttpOnly cookies</strong> or secure platform storage, not <code>localStorage</code>, where any injected script can read them.</li>
+						<li>Always use HTTPS.</li>
+					</ul>
+					<figure class="post-figure">
+						<img src="/assets/img/blog/api-fundamentals/jwt-flow.webp" width="1021" height="1276" loading="lazy" alt="Bearer token flow in four steps: login with username and password, server issues a JWT, client sends the token in the Authorization header, server verifies the token and returns data. Also lists where JWT is used and reminders about expiry, refresh tokens, secure storage and HTTPS.">
+						<figcaption>How JWT authentication works</figcaption>
+					</figure>
+
+					<h3>4. OAuth 2.0</h3>
+					<p>You have seen “Continue with Google”, “Continue with GitHub” and “Continue with Facebook.” That is OAuth 2.0.</p>
+					<ol>
+						<li>You click “Continue with Google” in an app.</li>
+						<li>The app redirects you to Google to sign in.</li>
+						<li>Google verifies you and asks whether to grant the app access to your profile.</li>
+						<li>Google sends the app an access token.</li>
+						<li>The app uses that token to call Google’s APIs on your behalf.</li>
+					</ol>
+					<p>The app never sees your Google password. It only gets a token with the limited access you approved, and you can revoke it later.</p>
+					<p>Strictly, OAuth 2.0 is an <strong>authorization</strong> framework: it grants access to data. The “sign in with” part is handled by <strong>OpenID Connect</strong>, a thin identity layer on top of OAuth 2.0. In practice the two arrive together.</p>
+					<p><strong>Common uses:</strong> social login, apps that call third-party APIs for a user, enterprise single sign-on, and mobile apps.</p>
+					<p>OAuth is easy to get subtly wrong. Use a well-maintained library, validate the <code>state</code> parameter, use PKCE for mobile and single-page apps, and register exact redirect URIs.</p>
+					<figure class="post-figure">
+						<img src="/assets/img/blog/api-fundamentals/oauth-flow.webp" width="1017" height="1276" loading="lazy" alt="OAuth 2.0 flow in five steps: the user clicks Continue with Google, is redirected to Google to sign in, Google asks for permission, Google sends an access token to the app, and the app uses the token to access Google data.">
+						<figcaption>OAuth 2.0: login without sharing a password</figcaption>
+					</figure>
+
+					<h2 id="choosing-authentication">Which Authentication Should You Use?</h2>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Method</th><th scope="col">Best for</th><th scope="col">How it works</th><th scope="col">Security</th><th scope="col">Ease of use</th></tr></thead>
+							<tbody>
+								<tr><td><strong>API key</strong></td><td>Server-to-server, simple public APIs</td><td>Client sends a unique key on each request</td><td>Medium</td><td>Very easy</td></tr>
+								<tr><td><strong>Basic Auth</strong></td><td>Internal tools, low-risk apps</td><td>Base64 username and password on each request</td><td>Low</td><td>Easy</td></tr>
+								<tr><td><strong>JWT</strong></td><td>Web and mobile apps, SPAs, microservices</td><td>Signed token verified without a session store</td><td>High</td><td>Moderate</td></tr>
+								<tr><td><strong>OAuth 2.0</strong></td><td>Third-party login, delegated access</td><td>User signs in with a provider; app gets a scoped token</td><td>Very high</td><td>Moderate</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Ask these questions before choosing:</p>
+					<ol>
+						<li>Who is calling the API: internal services, the public, or third-party users?</li>
+						<li>How sensitive is the data?</li>
+						<li>Where is it consumed: web, mobile or server-to-server?</li>
+						<li>Do you need the identity of a user, or only of an application?</li>
+					</ol>
+					<p>Then pick the simplest method that keeps the data safe. Methods also combine well. A common pattern is OAuth 2.0 for login, after which your own backend issues a short-lived JWT for API access.</p>
+
+					<h3>Common Authentication Mistakes</h3>
+					<ul class="list-cross">
+						<li><strong>Secrets in frontend code.</strong> Anyone can open dev tools and read them.</li>
+						<li><strong>No HTTPS.</strong> Credentials over HTTP are a password written on a postcard.</li>
+						<li><strong>Keys in public repos or docs.</strong> Bots scan GitHub for leaked keys within minutes.</li>
+						<li><strong>Tokens that never expire.</strong> A stolen token stays useful forever.</li>
+						<li><strong>Tokens in <code>localStorage</code>.</strong> One XSS bug exposes every session.</li>
+						<li><strong>Skipping input validation.</strong> Authentication does not make input safe.</li>
+						<li><strong>Over-permissive tokens.</strong> Grant only the scopes the client needs.</li>
+					</ul>
+
+					<h2 id="requests-and-responses">Anatomy of a Request and Response</h2>
+					<p>Every API call is a conversation. The client sends a request; the server processes it and sends a response.</p>
+<pre><code class="language-http">GET /api/users/15 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+Accept: application/json</code></pre>
+<pre><code class="language-http">HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": 15,
+  "name": "Riyas AC",
+  "email": "riyas@example.com",
+  "role": "Developer",
+  "status": "Active"
+}</code></pre>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Request part</th><th scope="col">Purpose</th><th scope="col">Response part</th><th scope="col">Purpose</th></tr></thead>
+							<tbody>
+								<tr><td>Method</td><td>The action (<code>GET</code>, <code>POST</code>, ...)</td><td>Status code</td><td>Whether it worked (200, 404, 500)</td></tr>
+								<tr><td>URL</td><td>The resource</td><td>Headers</td><td>Metadata (<code>Content-Type</code>, <code>Cache-Control</code>)</td></tr>
+								<tr><td>Headers</td><td>Metadata (<code>Authorization</code>, <code>Content-Type</code>)</td><td>Body</td><td>The returned data, usually JSON</td></tr>
+								<tr><td>Body</td><td>Data sent with <code>POST</code>, <code>PUT</code>, <code>PATCH</code></td><td></td><td></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="rest-design">REST API Design Best Practices</h2>
+					<p>Picture two apps. One is clear and predictable. The other has a different naming style on every screen. Developers feel the same difference between a well-designed API and a careless one. A good API is easy to understand, consistent, predictable, well documented and easy to maintain. That does not happen by chance.</p>
+
+					<h3>Use Nouns, Not Verbs</h3>
+					<p>URLs name <strong>resources</strong>. HTTP methods name <strong>actions</strong>. Do not put the action in the URL.</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Avoid</th><th scope="col">Use</th></tr></thead>
+							<tbody>
+								<tr><td><code>GET /getUsers</code></td><td><code>GET /users</code></td></tr>
+								<tr><td><code>POST /createUser</code></td><td><code>POST /users</code></td></tr>
+								<tr><td><code>POST /updateUser</code></td><td><code>PUT /users/15</code> or <code>PATCH /users/15</code></td></tr>
+								<tr><td><code>POST /deleteUser</code></td><td><code>DELETE /users/15</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Keep URLs Consistent</h3>
+					<ul class="list-check">
+						<li>Lowercase letters</li>
+						<li>Plural nouns: <code>/users</code>, <code>/orders</code>, <code>/products</code></li>
+						<li>Hyphens between words, not underscores: <code>/order-items</code></li>
+						<li>Short paths; nest only for real ownership, such as <code>/users/15/orders</code></li>
+						<li>The same pattern everywhere in the API</li>
+					</ul>
+					<ul class="list-cross">
+						<li><code>/get_user</code>, <code>/userList</code>, <code>/ProductData</code>, <code>/allProductsList</code>, <code>/Create-New-User</code></li>
+					</ul>
+
+					<h3>Use the Right HTTP Method</h3>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Method</th><th scope="col">CRUD</th><th scope="col">Example</th><th scope="col">Idempotent</th><th scope="col">Safe</th></tr></thead>
+							<tbody>
+								<tr><td><code>GET</code></td><td>Read</td><td><code>GET /users/15</code></td><td>Yes</td><td>Yes</td></tr>
+								<tr><td><code>POST</code></td><td>Create</td><td><code>POST /users</code></td><td>No</td><td>No</td></tr>
+								<tr><td><code>PUT</code></td><td>Replace</td><td><code>PUT /users/15</code></td><td>Yes</td><td>No</td></tr>
+								<tr><td><code>PATCH</code></td><td>Partial update</td><td><code>PATCH /users/15</code></td><td>Depends</td><td>No</td></tr>
+								<tr><td><code>DELETE</code></td><td>Delete</td><td><code>DELETE /users/15</code></td><td>Yes</td><td>No</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<ul>
+						<li><strong>Safe</strong> means the request does not change server data.</li>
+						<li><strong>Idempotent</strong> means sending the same request many times has the same effect as sending it once. This matters for retries: a client can safely retry a timed-out <code>PUT</code>, but retrying a <code>POST</code> may create a duplicate.</li>
+						<li><code>PATCH</code> depends on the payload. <code>{"price": 499}</code> is idempotent; <code>{"stock": "+1"}</code> is not.</li>
+					</ul>
+					<p>Do not use <code>POST</code> for everything. The method tells clients, caches and proxies how to treat the request.</p>
+
+					<h2 id="status-codes">Return Meaningful Status Codes</h2>
+					<p>Do not return <code>200 OK</code> with <code>{"error": "not found"}</code> in the body. The status code is the first thing a client checks.</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Range</th><th scope="col">Meaning</th><th scope="col">Common codes</th></tr></thead>
+							<tbody>
+								<tr><td>2xx</td><td>Success</td><td><code>200 OK</code>, <code>201 Created</code>, <code>204 No Content</code></td></tr>
+								<tr><td>3xx</td><td>Redirection</td><td><code>301 Moved Permanently</code>, <code>304 Not Modified</code></td></tr>
+								<tr><td>4xx</td><td>Client error</td><td><code>400 Bad Request</code>, <code>401 Unauthorized</code>, <code>403 Forbidden</code>, <code>404 Not Found</code>, <code>429 Too Many Requests</code></td></tr>
+								<tr><td>5xx</td><td>Server error</td><td><code>500 Internal Server Error</code>, <code>502 Bad Gateway</code>, <code>503 Service Unavailable</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>In practice:</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Request</th><th scope="col">Situation</th><th scope="col">Status</th></tr></thead>
+							<tbody>
+								<tr><td><code>GET /users/15</code></td><td>User found</td><td><code>200 OK</code></td></tr>
+								<tr><td><code>POST /users</code></td><td>User created</td><td><code>201 Created</code></td></tr>
+								<tr><td><code>DELETE /users/15</code></td><td>Deleted, nothing to return</td><td><code>204 No Content</code></td></tr>
+								<tr><td><code>GET /users/999</code></td><td>No such user</td><td><code>404 Not Found</code></td></tr>
+								<tr><td><code>POST /users</code></td><td>Invalid data</td><td><code>400 Bad Request</code></td></tr>
+								<tr><td><code>GET /users/15</code></td><td>No valid credentials</td><td><code>401 Unauthorized</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Use the most specific code that fits, use it the same way across the API, and document every code an endpoint can return.</p>
+					<figure class="post-figure">
+						<img src="/assets/img/blog/api-fundamentals/status-codes.webp" width="961" height="1467" loading="lazy" alt="Status code reference: 2xx success, 3xx redirection, 4xx client error and 5xx server error with examples, followed by real-life examples mapping requests like GET /users/15 and POST /users to 200, 201, 204, 404, 400 and 401.">
+						<figcaption>Status codes with real examples</figcaption>
+					</figure>
+
+					<h2 id="filtering-and-pagination">Support Filtering and Pagination</h2>
+					<p>A <code>/products</code> endpoint backed by 10,000 rows should never return all of them. Let the client ask for what it needs through query parameters:</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Parameter</th><th scope="col">Purpose</th><th scope="col">Example</th></tr></thead>
+							<tbody>
+								<tr><td><code>page</code></td><td>Which page</td><td><code>?page=2</code></td></tr>
+								<tr><td><code>limit</code></td><td>Items per page</td><td><code>?limit=20</code></td></tr>
+								<tr><td>filter field</td><td>Narrow results</td><td><code>?category=books</code></td></tr>
+								<tr><td><code>sort</code></td><td>Sort field</td><td><code>?sort=price</code></td></tr>
+								<tr><td><code>order</code></td><td>Direction</td><td><code>?order=desc</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+<pre class="diagram">GET /products?page=1&amp;limit=10
+GET /products?category=electronics
+GET /products?sort=price&amp;order=desc
+GET /products?category=books&amp;sort=name</pre>
+					<p>Return the data with pagination metadata and navigation links, so clients do not have to build URLs themselves:</p>
+<pre><code class="language-json">{
+  "data": [
+    { "id": 1, "name": "Product 1", "price": 120 },
+    { "id": 2, "name": "Product 2", "price": 150 }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 2,
+    "total": 45,
+    "total_pages": 23
+  },
+  "links": {
+    "next": "/products?page=2&limit=2",
+    "prev": null
+  }
+}</code></pre>
+					<ul class="list-check">
+						<li>Set a sensible default limit (10 or 20) when the client sends none</li>
+						<li>Enforce a maximum limit so <code>?limit=100000</code> cannot load the whole table</li>
+						<li>For large or fast-changing data, prefer cursor pagination (<code>?after=evt_9867ab</code>) over page numbers; offsets get slow and skip rows when data shifts</li>
+					</ul>
+
+					<h2 id="error-messages">Make Error Messages Helpful</h2>
+					<p>This tells the developer nothing:</p>
+<pre><code class="language-json">{ "error": "Something went wrong" }</code></pre>
+					<p>This tells them what failed, which field, and how to fix it:</p>
+<pre><code class="language-json">{
+  "status": 400,
+  "error": "Validation Failed",
+  "code": "VALIDATION_ERROR",
+  "message": "One or more fields are invalid.",
+  "details": [
+    { "field": "email", "issue": "Invalid email format" },
+    { "field": "password", "issue": "Password is too short" }
+  ],
+  "timestamp": "2026-10-07T10:30:45Z"
+}</code></pre>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Field</th><th scope="col">Purpose</th></tr></thead>
+							<tbody>
+								<tr><td><code>status</code></td><td>The HTTP status code, repeated for convenience</td></tr>
+								<tr><td><code>error</code></td><td>Short summary</td></tr>
+								<tr><td><code>code</code></td><td>Machine-readable code clients can branch on</td></tr>
+								<tr><td><code>message</code></td><td>Human-readable explanation</td></tr>
+								<tr><td><code>details</code></td><td>Field-level problems</td></tr>
+								<tr><td><code>timestamp</code></td><td>When it happened, for matching against logs</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<ul class="list-check">
+						<li>Use one error format across the whole API</li>
+						<li>Make messages specific and actionable</li>
+						<li>Log stack traces and internals on the server, never in the response</li>
+						<li>Never expose sensitive data, such as whether an email exists on a login form</li>
+					</ul>
+
+					<h2 id="versioning">Version Your APIs</h2>
+					<p>APIs change. Versioning lets you improve them without breaking clients that already depend on the old behaviour.</p>
+<pre class="diagram">GET /api/v1/users  →  { id, name, email }
+GET /api/v2/users  →  { id, name, email, phone, created_at }</pre>
+					<p>Version 1 keeps working while new clients move to version 2. Never change the behaviour of a published version; release a new one.</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Strategy</th><th scope="col">Example</th><th scope="col">Pros</th><th scope="col">Cons</th></tr></thead>
+							<tbody>
+								<tr><td>URI path</td><td><code>/api/v1/users</code></td><td>Clear, widely adopted, easy to test</td><td>Longer URLs</td></tr>
+								<tr><td>Query parameter</td><td><code>/api/users?version=1</code></td><td>Simple to add</td><td>Easy for clients to forget</td></tr>
+								<tr><td>Header</td><td><code>API-Version: 1</code></td><td>Clean URLs</td><td>Harder to test in a browser</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Create a new version when you:</p>
+					<ul>
+						<li>Remove or rename a field</li>
+						<li>Change a field’s type or meaning</li>
+						<li>Change business logic in a way clients can see</li>
+						<li>Make a security change that old clients cannot follow</li>
+					</ul>
+					<p>Adding a new optional field is not a breaking change and does not need a new version.</p>
+					<p>When you do release one: document each version, publish a migration guide, announce deprecation dates, and keep the old version running long enough for clients to move.</p>
+
+					<h2 id="api-security">API Security Essentials</h2>
+					<p>Every API on the internet is a target. Without proper security, attackers can steal data, take over user accounts, abuse your endpoints, overload your servers and take your application down. A working API is good. A secure one is the only kind worth shipping.</p>
+
+					<h3>Always Use HTTPS</h3>
+					<p>HTTP sends data as plain text that anyone on the network path can read or modify. HTTPS encrypts traffic between client and server with TLS.</p>
+					<ul class="list-check">
+						<li>Serve every endpoint over HTTPS, including internal ones where possible</li>
+						<li>Redirect or reject plain HTTP</li>
+						<li>Send the <code>Strict-Transport-Security</code> header so browsers never downgrade</li>
+					</ul>
+
+					<h3>Configure CORS Carefully</h3>
+					<p>CORS (Cross-Origin Resource Sharing) controls which websites may call your API <strong>from a browser</strong>.</p>
+<pre class="diagram">Allowed:      Access-Control-Allow-Origin: https://yourapp.com
+Avoid:        Access-Control-Allow-Origin: *</pre>
+					<ul class="list-check">
+						<li>Allow only the domains you trust</li>
+						<li>Never use <code>*</code> for APIs that handle sensitive data or cookies</li>
+						<li>Review the allowed list whenever frontends change</li>
+					</ul>
+					<p>One common misunderstanding: CORS is enforced by browsers. It does not stop <code>curl</code>, a script, or another server from calling your API. It protects your users’ browsers from malicious sites; authentication protects your API.</p>
+
+					<h3>Apply Rate Limiting</h3>
+					<p>Without limits, one user or bot can send thousands of requests a second. Rate limiting caps how many requests a client can make in a time window. Typical limits:</p>
+					<ul>
+						<li>100 requests per minute per user</li>
+						<li>1,000 requests per hour per API key</li>
+						<li>10 login attempts per minute per IP or account</li>
+					</ul>
+					<p>When a client goes over, return <code>429 Too Many Requests</code> with a <code>Retry-After</code> header so well-behaved clients know when to try again.</p>
+<pre><code class="language-http">HTTP/1.1 429 Too Many Requests
+Retry-After: 30</code></pre>
+					<p>Rate limiting prevents abuse, slows brute-force attacks, reduces server load, and keeps the API available for everyone. API gateways such as Nginx, Kong or AWS API Gateway can enforce it before requests reach your code.</p>
+
+					<h3>Validate Every Input</h3>
+					<p>Never trust client input. Validate and sanitise it on the server, even if the frontend already did. Frontend validation is for user experience; anyone can bypass it with a direct HTTP call.</p>
+<pre><code class="language-json">{
+  "email": "user@@example",
+  "id": "abc123",
+  "amount": "-1000",
+  "role": "admin"
+}</code></pre>
+					<p>Every field above should be rejected. The email is malformed, the ID has the wrong type, the amount is negative, and <code>role</code> should never be accepted from the client at all.</p>
+					<p>Validate emails, phone numbers, IDs, query parameters, request bodies, dates and formats. Use parameterised queries or your ORM so input can never become part of a SQL or NoSQL query. Validation blocks injection attacks, keeps bad data out of the database, and stops malformed input from crashing your application.</p>
+
+					<h3>Protect Your Secrets</h3>
+					<p>Secrets include API keys, database passwords, tokens and private keys. If one leaks, attackers get into your systems.</p>
+<pre><code class="language-python"># Bad: hardcoded in source
+SECRET_KEY = "my-secret-key"
+DB_PASSWORD = "password123"
+
+# Better: read from the environment
+import os
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+DB_PASSWORD = os.getenv("DB_PASSWORD")</code></pre>
+					<p>Where to keep secrets:</p>
+					<ul>
+						<li><strong>Environment variables</strong> for most applications</li>
+						<li><strong>Secret managers</strong> such as AWS Secrets Manager or HashiCorp Vault</li>
+						<li><strong>CI/CD secret stores</strong> for pipelines</li>
+						<li><strong>Key management services</strong> such as AWS KMS or GCP KMS for encryption keys</li>
+					</ul>
+					<p>Never commit secrets to Git. Keep local values in a <code>.env</code> file and add it to <code>.gitignore</code>. If a secret does reach a repository, rotate it immediately; deleting the commit is not enough.</p>
+
+					<h2 id="common-security-mistakes">Common API Security Mistakes</h2>
+					<ul class="list-cross">
+						<li><strong>Exposing API keys</strong> in code, URLs or client-side apps</li>
+						<li><strong>Weak or missing authentication</strong> on endpoints assumed to be “internal”</li>
+						<li><strong>Missing authorization checks.</strong> Verify the user may access <em>this</em> record, not only that they are logged in. Changing <code>/orders/101</code> to <code>/orders/102</code> must not show someone else’s order.</li>
+						<li><strong>Returning sensitive data</strong> such as password hashes, tokens or internal fields the client does not need</li>
+						<li><strong>Disabling HTTPS</strong>, even “just for testing”</li>
+						<li><strong>Trusting client input</strong> instead of validating on the server</li>
+						<li><strong>Overly permissive CORS</strong> with <code>*</code></li>
+						<li><strong>No rate limiting</strong>, which invites abuse, overload and downtime</li>
+					</ul>
+					<p>Small mistakes today become large breaches later. Missing authorization checks in particular are behind many real API incidents; the OWASP API Security Top 10 lists broken object-level authorization first.</p>
+
+					<h2 id="security-checklist">Security Checklist Before You Deploy</h2>
+					<p>Answer each of these before an API goes live:</p>
+					<ul class="list-check">
+						<li>HTTPS enabled</li>
+						<li>Authentication implemented</li>
+						<li>Authorization verified on every endpoint and every record</li>
+						<li>Input validated on the server</li>
+						<li>Rate limiting configured</li>
+						<li>Secrets stored outside the code</li>
+						<li>CORS restricted to trusted origins</li>
+						<li>Tokens short-lived, with refresh tokens</li>
+						<li>Logging and monitoring for suspicious activity</li>
+						<li>Dependencies up to date</li>
+					</ul>
+					<p>If every answer is yes, you are on the right track. Security is not a one-time setup: check, improve, repeat.</p>
+					<figure class="post-figure">
+						<img src="/assets/img/blog/api-fundamentals/security-checklist.webp" width="985" height="1226" loading="lazy" alt="API security checklist: HTTPS enabled, authentication implemented, authorization verified, input validated, rate limiting configured, secrets secured, CORS configured correctly. Below it, what the checklist protects: data, users, infrastructure, applications and reputation.">
+						<figcaption>API security checklist</figcaption>
+					</figure>
+
+					<h2 id="conclusion">Conclusion</h2>
+					<p>A good API comes down to four decisions made well:</p>
+					<ul>
+						<li><strong>Architecture</strong>: REST by default; GraphQL, gRPC, WebSocket or events when the problem calls for them. Combining them is normal.</li>
+						<li><strong>Authentication</strong>: the simplest method that protects the data. API keys for services, JWT for your own apps, OAuth 2.0 for third-party access.</li>
+						<li><strong>Design</strong>: nouns in URLs, the right HTTP method, honest status codes, pagination, useful errors and versioning.</li>
+						<li><strong>Security</strong>: HTTPS, strict CORS, rate limits, server-side validation, protected secrets and authorization on every record.</li>
+					</ul>
+					<aside class="callout">
+						<p class="callout-title">Final thought</p>
+						<p>The best API is not only fast and functional. It is predictable for the developers who use it and safe for the users whose data it carries.</p>
+					</aside>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="api-fundamentals" hidden>
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list></div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-http.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-graphql.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-protobuf.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>
