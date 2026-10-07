@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Django Optimization: Techniques for Projects with Millions of Records | Riyas A C</title>
+	<meta name="description" content="Practical Django ORM optimization with examples: N+1 queries, indexes, pagination, bulk operations, caching, replicas and partitioning for tables with millions of rows.">
+	<meta name="keywords" content="Django optimization, Django performance, Django ORM, select_related, prefetch_related, N+1 queries, database indexing, PostgreSQL, keyset pagination, cursor pagination, bulk_create, iterator, Redis cache, read replicas, table partitioning, Django at scale">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<link rel="canonical" href="https://riyasac.github.io/blog/django-optimization-at-scale/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/django-optimization-at-scale/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Django Optimization: Techniques for Projects with Millions of Records">
+	<meta property="og:description" content="How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg">
+	<meta property="og:image:alt" content="Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows">
+	<meta property="article:published_time" content="2026-10-07T12:00:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Django">
+	<meta property="article:tag" content="Performance">
+	<meta property="article:tag" content="PostgreSQL">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Django Optimization: Techniques for Projects with Millions of Records">
+	<meta name="twitter:description" content="How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"headline": "Django Optimization: Techniques for Projects with Millions of Records",
+		"description": "Practical Django ORM optimization with examples: N+1 queries, indexes, pagination, bulk operations, caching, replicas and partitioning for tables with millions of rows.",
+		"image": "https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg",
+		"datePublished": "2026-10-07T12:00:00Z",
+		"author": {
+			"@type": "Person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"keywords": ["Django", "Performance", "PostgreSQL", "ORM", "Indexing", "Pagination", "Caching", "Scalability"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/django-optimization-at-scale/"
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Django</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Django Optimization: Techniques for Projects with Millions of Records</h1>
+					<p class="post-lead">How to find the queries that make a Django app slow, fix them with the ORM you already know, and keep the project fast when tables grow from thousands of rows to hundreds of millions.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-07">7 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 24 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Intermediate to Advanced</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Python, Django, PostgreSQL</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Django</li><li>Performance</li><li>PostgreSQL</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/django-optimization-at-scale/cover.webp" width="1024" height="535" alt="Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+					<p>Django is fast enough for almost any project. Slow Django apps are rarely slow because of Django. They are slow because of <strong>how the code talks to the database</strong>.</p>
+					<p>With 5,000 rows, a careless query takes 20 milliseconds and nobody notices. With 50 million rows, the same query takes 40 seconds, holds a database connection the whole time, and takes the site down at peak traffic.</p>
+					<p>This guide covers the techniques that matter, in the order you will usually need them:</p>
+					<ul class="list-check">
+						<li><strong>Measure</strong>: find the slow queries before you change anything</li>
+						<li><strong>Query fixes</strong>: N+1 queries, fetching less data, pushing work into the database</li>
+						<li><strong>Indexes</strong>: the right index turns a full table scan into a lookup</li>
+						<li><strong>Large data</strong>: pagination, bulk writes, batching and memory-safe iteration</li>
+						<li><strong>Architecture</strong>: caching, connection pooling, read replicas, background jobs and partitioning</li>
+					</ul>
+					<p>All examples use PostgreSQL and recent Django (5.x). Most of the ORM techniques work on any database; the PostgreSQL-specific parts are marked.</p>
+
+					<h2 id="example-models">The Example Models</h2>
+					<p>Every example in this post uses a small e-commerce schema. Picture <code>Order</code> with 30 million rows and <code>OrderItem</code> with 120 million.</p>
+<pre><code class="language-python"># shop/models.py
+from django.db import models
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Product(models.Model):
+    sku = models.CharField(max_length=40, unique=True)
+    name = models.CharField(max_length=300)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
+
+
+class Order(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending"
+        PAID = "paid"
+        SHIPPED = "shipped"
+        CANCELLED = "cancelled"
+
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name="orders")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    total = models.DecimalField(max_digits=12, decimal_places=2)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
+    quantity = models.PositiveIntegerField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)</code></pre>
+
+					<h2 id="measure-first">Measure First, Then Optimize</h2>
+					<p>Guessing where the time goes is usually wrong. Measure, change one thing, measure again.</p>
+
+					<h3>See every query in development</h3>
+					<p><strong>django-debug-toolbar</strong> shows each SQL query a page runs, how long it took, and which line of Python triggered it. Duplicate queries are highlighted, which makes N+1 problems obvious.</p>
+<pre><code class="language-bash">pip install django-debug-toolbar</code></pre>
+					<p>For API views and management commands, log every query to the console instead:</p>
+<pre><code class="language-python"># settings/dev.py
+LOGGING = {
+    "version": 1,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {
+        "django.db.backends": {"handlers": ["console"], "level": "DEBUG"},
+    },
+}</code></pre>
+					<p>SQL logging only works when <code>DEBUG = True</code>. Never turn it on in production.</p>
+
+					<h3>Read the query plan</h3>
+					<p><code>QuerySet.explain()</code> asks the database how it will run a query. On PostgreSQL, <code>analyze=True</code> actually runs it and reports real timings.</p>
+<pre><code class="language-python">qs = Order.objects.filter(customer_id=42).order_by("-created_at")[:20]
+print(qs.explain(analyze=True))</code></pre>
+<pre class="diagram">Limit  (actual time=3812.4..3812.5 rows=20)
+  ->  Sort  (Sort Key: created_at DESC)
+        ->  Seq Scan on shop_order
+              Filter: (customer_id = 42)
+              Rows Removed by Filter: 29999812</pre>
+					<p><code>Seq Scan</code> with millions of <code>Rows Removed by Filter</code> means PostgreSQL read the entire table to find a handful of rows. That is the signal you need an index, covered later in this post.</p>
+
+					<h3>Find the worst queries in production</h3>
+					<p>On PostgreSQL, enable the <code>pg_stat_statements</code> extension. It records every query shape with call counts and timings. Sort by total time, not average time: a 5 ms query called a million times an hour costs more than a 3 second report run once a day.</p>
+<pre><code class="language-sql">SELECT query,
+       calls,
+       round(mean_exec_time::numeric, 2)  AS avg_ms,
+       round(total_exec_time::numeric, 0) AS total_ms
+FROM pg_stat_statements
+ORDER BY total_exec_time DESC
+LIMIT 10;</code></pre>
+					<p>Pair it with an APM tool such as Sentry, New Relic or Datadog to map slow queries back to the endpoints that run them.</p>
+
+					<h3>Lock in query counts with tests</h3>
+					<p>Once an endpoint is fast, keep it fast. <code>assertNumQueries</code> fails the test if someone reintroduces an N+1 query:</p>
+<pre><code class="language-python">from django.test import TestCase
+
+
+class OrderListTests(TestCase):
+    def test_query_count_does_not_grow_with_orders(self):
+        make_orders(count=50)  # your factory helper
+        self.client.force_login(self.user)
+        with self.assertNumQueries(4):
+            self.client.get("/api/orders/")</code></pre>
+					<p>The number includes session and authentication queries. What matters is that it stays the same whether there are 5 orders or 500.</p>
+
+					<h2 id="n-plus-one">Fix N+1 Queries</h2>
+					<p>The N+1 problem is the most common performance bug in Django. One query loads a list, then one more query runs for <em>each item</em> in that list.</p>
+<pre><code class="language-python">orders = Order.objects.all()[:100]          # 1 query
+
+for order in orders:
+    print(order.customer.name)               # +1 query per order</code></pre>
+					<p>That loop runs <strong>101 queries</strong>. In a template or a serializer, the same thing happens silently.</p>
+
+					<h3>select_related for ForeignKey and OneToOne</h3>
+					<p><code>select_related</code> follows forward foreign keys with a SQL <code>JOIN</code>, so the related object arrives in the same query.</p>
+<pre><code class="language-python">orders = Order.objects.select_related("customer")[:100]   # 1 query
+
+for order in orders:
+    print(order.customer.name)                            # no extra queries</code></pre>
+
+					<h3>prefetch_related for reverse and many-to-many relations</h3>
+					<p>A JOIN cannot fetch "all items of each order" without multiplying rows. <code>prefetch_related</code> runs one extra query per relation and joins the results in Python.</p>
+<pre><code class="language-python">orders = (
+    Order.objects
+    .select_related("customer")
+    .prefetch_related("items__product")
+)[:100]
+# 3 queries: orders + customers, items, products</code></pre>
+
+					<h3>Prefetch objects for control</h3>
+					<p>Use <code>Prefetch</code> when the related queryset needs its own filter, ordering or <code>select_related</code>. This version fetches items and their products in one query instead of two:</p>
+<pre><code class="language-python">from django.db.models import Prefetch
+
+orders = (
+    Order.objects
+    .select_related("customer")
+    .prefetch_related(
+        Prefetch("items", queryset=OrderItem.objects.select_related("product"))
+    )
+)[:100]
+# 2 queries</code></pre>
+					<p>With <code>to_attr</code>, you can attach a filtered subset under its own name:</p>
+<pre><code class="language-python">customers = Customer.objects.prefetch_related(
+    Prefetch(
+        "orders",
+        queryset=Order.objects.filter(status=Order.Status.PAID).order_by("-created_at"),
+        to_attr="paid_orders",
+    )
+)
+
+for customer in customers:
+    for order in customer.paid_orders:   # a plain list, already loaded
+        ...</code></pre>
+					<aside class="callout">
+						<p class="callout-title">Watch out</p>
+						<p>Calling <code>.filter()</code>, <code>.order_by()</code> or <code>.exclude()</code> on a prefetched relation inside a loop ignores the prefetch and queries again. Filter inside the <code>Prefetch</code> instead.</p>
+					</aside>
+
+					<h2 id="fetch-less">Fetch Only What You Need</h2>
+					<p><code>Order.objects.all()</code> runs <code>SELECT *</code>. If <code>notes</code> holds large text, every list page drags it across the network and into memory for nothing.</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Method</th><th scope="col">Returns</th><th scope="col">Use when</th></tr></thead>
+							<tbody>
+								<tr><td><code>only("id", "status")</code></td><td>Model instances with only those fields loaded</td><td>You need model methods but few columns</td></tr>
+								<tr><td><code>defer("notes")</code></td><td>Model instances without the heavy fields</td><td>You need most fields except one or two large ones</td></tr>
+								<tr><td><code>values("id", "total")</code></td><td>Dictionaries</td><td>Reports, exports, JSON responses</td></tr>
+								<tr><td><code>values_list("id", flat=True)</code></td><td>Plain values</td><td>Collecting IDs for another query</td></tr>
+							</tbody>
+						</table>
+					</div>
+<pre><code class="language-python"># Dashboard list: three columns, no model overhead
+rows = (
+    Order.objects
+    .filter(status=Order.Status.PAID)
+    .values("id", "total", "customer__name")[:50]
+)
+
+# IDs to feed another query
+pending_ids = list(
+    Order.objects.filter(status=Order.Status.PENDING).values_list("id", flat=True)[:1000]
+)</code></pre>
+					<p>A deferred field still loads if you touch it, with <strong>one extra query per object</strong>. Using <code>only()</code> and then accessing a missing field in a loop creates a new N+1 problem.</p>
+
+					<h3>Ask the database the right question</h3>
+<pre><code class="language-python"># Bad: loads every matching row to check if any exist
+if Order.objects.filter(customer=customer, status="pending"):
+    ...
+
+# Good: SELECT 1 ... LIMIT 1
+if Order.objects.filter(customer=customer, status="pending").exists():
+    ...
+
+# Bad: loads every row into Python, then counts
+total = len(Order.objects.filter(status="paid"))
+
+# Good: SELECT COUNT(*)
+total = Order.objects.filter(status="paid").count()</code></pre>
+					<p>The exception: if you will loop over the rows anyway, evaluate the queryset once and use <code>len()</code> on the result. Calling <code>.count()</code> and then iterating runs two queries.</p>
+
+					<h2 id="database-work">Let the Database Do the Work</h2>
+					<p>PostgreSQL can sum, count, group and compare millions of rows far faster than a Python loop, and without shipping those rows to your app server.</p>
+
+					<h3>Aggregate and annotate</h3>
+<pre><code class="language-python">from django.db.models import Count, Q, Sum
+
+# Bad: one query per customer, totals summed in Python
+for customer in Customer.objects.all():
+    paid = sum(o.total for o in customer.orders.filter(status="paid"))
+
+# Good: one query, grouped in SQL
+customers = Customer.objects.annotate(
+    order_count=Count("orders"),
+    paid_total=Sum("orders__total", filter=Q(orders__status="paid")),
+)</code></pre>
+					<p>Be careful when annotating across <strong>two different</strong> multi-valued relations in one query, such as <code>Count("orders")</code> and <code>Count("reviews")</code>. The JOINs multiply rows and inflate both numbers. Use <code>Count(..., distinct=True)</code> or subqueries for that case.</p>
+
+					<h3>F expressions for safe, fast updates</h3>
+					<p>Reading a value into Python, changing it and saving it back takes two queries and has a race condition. Two requests can read the same stock level and both write back the wrong number.</p>
+<pre><code class="language-python">from django.db.models import F
+
+# Bad: read, modify, write. Races under load.
+product = Product.objects.get(pk=pid)
+product.stock -= qty
+product.save()
+
+# Good: one atomic UPDATE stock = stock - qty
+Product.objects.filter(pk=pid, stock__gte=qty).update(stock=F("stock") - qty)</code></pre>
+					<p>The same applies to bulk changes. One <code>update()</code> call replaces a loop of thousands of <code>save()</code> calls:</p>
+<pre><code class="language-python">Order.objects.filter(
+    status=Order.Status.PENDING,
+    created_at__lt=timezone.now() - timedelta(days=7),
+).update(status=Order.Status.CANCELLED)</code></pre>
+					<p>When you do call <code>save()</code> on an existing row, pass <code>update_fields</code> so Django writes only the columns you changed:</p>
+<pre><code class="language-python">order.status = Order.Status.SHIPPED
+order.save(update_fields=["status"])</code></pre>
+
+					<h3>Subquery and Exists</h3>
+					<p>Need each customer's latest order date? Do not loop. Use a correlated subquery:</p>
+<pre><code class="language-python">from django.db.models import Exists, OuterRef, Subquery
+
+latest_order = (
+    Order.objects
+    .filter(customer=OuterRef("pk"))
+    .order_by("-created_at")
+    .values("created_at")[:1]
+)
+
+customers = Customer.objects.annotate(last_order_at=Subquery(latest_order))
+
+# Customers with at least one pending order
+has_pending = Order.objects.filter(customer=OuterRef("pk"), status="pending")
+customers = Customer.objects.filter(Exists(has_pending))</code></pre>
+					<p><code>Exists</code> stops at the first match. On large tables it is usually faster than <code>filter(orders__status="pending").distinct()</code>, which joins every order and then removes duplicates.</p>
+
+					<h2 id="indexing">Index for Your Queries</h2>
+					<p>Without an index, PostgreSQL reads every row to answer a filter. With the right index, it jumps straight to the matching rows. On a 30 million row table, that is the difference between seconds and milliseconds.</p>
+					<p>Django creates indexes for primary keys, <code>ForeignKey</code> columns and <code>unique=True</code> fields automatically. Everything else you filter or sort on, you index yourself.</p>
+
+					<h3>Composite indexes match real queries</h3>
+					<p>Index the columns your hot queries actually use together. The query "a customer's latest orders" filters on <code>customer</code> and sorts on <code>created_at</code>, so the index covers both:</p>
+<pre><code class="language-python">from django.db.models import Q
+
+
+class Order(models.Model):
+    ...
+
+    class Meta:
+        indexes = [
+            # Customer order history: WHERE customer_id = ? ORDER BY created_at DESC
+            models.Index(fields=["customer", "-created_at"], name="order_customer_created_idx"),
+
+            # Partial index: only pending orders, a small slice of the table
+            models.Index(
+                fields=["created_at"],
+                name="order_pending_created_idx",
+                condition=Q(status="pending"),
+            ),
+        ]</code></pre>
+					<p>Rules for composite indexes:</p>
+					<ul>
+						<li>Put columns compared with <strong>equality</strong> first, then columns used for <strong>ranges or sorting</strong>.</li>
+						<li>An index on <code>(customer, created_at)</code> also serves queries on <code>customer</code> alone, but not on <code>created_at</code> alone.</li>
+						<li>A <strong>partial index</strong> with <code>condition</code> stays small when you only ever query a subset, such as pending orders or rows where <code>deleted_at</code> is null.</li>
+					</ul>
+
+					<h3>PostgreSQL index types worth knowing</h3>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Index</th><th scope="col">Good for</th><th scope="col">Django</th></tr></thead>
+							<tbody>
+								<tr><td>B-tree</td><td>Equality, ranges, sorting. The default.</td><td><code>models.Index</code></td></tr>
+								<tr><td>Covering (<code>INCLUDE</code>)</td><td>Answering a query from the index alone, without reading the table</td><td><code>models.Index(..., include=[...])</code></td></tr>
+								<tr><td>BRIN</td><td>Huge append-only tables ordered by time, such as logs and events. Tiny on disk.</td><td><code>BrinIndex</code></td></tr>
+								<tr><td>GIN</td><td><code>JSONField</code> lookups, arrays, full-text search, trigram search</td><td><code>GinIndex</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+<pre><code class="language-python">from django.contrib.postgres.indexes import BrinIndex
+
+class Event(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    payload = models.JSONField()
+
+    class Meta:
+        indexes = [BrinIndex(fields=["created_at"], name="event_created_brin")]</code></pre>
+
+					<h3>Searching text with icontains</h3>
+					<p><code>name__icontains="phone"</code> becomes <code>UPPER(name) LIKE UPPER('%phone%')</code>. A normal B-tree index cannot help with a leading wildcard, so every search scans the table. A trigram index on the same expression can:</p>
+<pre><code class="language-python">from django.contrib.postgres.indexes import GinIndex, OpClass
+from django.db.models.functions import Upper
+
+
+class Product(models.Model):
+    ...
+
+    class Meta:
+        indexes = [
+            GinIndex(
+                OpClass(Upper("name"), name="gin_trgm_ops"),
+                name="product_name_trgm_idx",
+            ),
+        ]</code></pre>
+					<p>This needs the <code>pg_trgm</code> extension. Add <code>TrigramExtension()</code> from <code>django.contrib.postgres.operations</code> to a migration before the index. For ranked, language-aware search, use PostgreSQL full-text search or a dedicated engine such as Elasticsearch or OpenSearch.</p>
+
+					<h3>Indexes are not free</h3>
+					<ul class="list-cross">
+						<li>Every index slows down <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> on that table</li>
+						<li>Every index takes disk and memory</li>
+						<li>Unused indexes cost you on every write and help nothing</li>
+					</ul>
+					<p>Add indexes for queries you have measured. Check <code>pg_stat_user_indexes</code> periodically and drop indexes with zero scans.</p>
+
+					<h2 id="pagination">Pagination at Scale</h2>
+					<p>Django's <code>Paginator</code> and DRF's <code>PageNumberPagination</code> use two queries per page: a <code>COUNT(*)</code> and an <code>OFFSET</code>. Both break down on large tables.</p>
+<pre class="diagram">Page 1:       SELECT ... ORDER BY id DESC LIMIT 50 OFFSET 0        fast
+Page 20,000:  SELECT ... ORDER BY id DESC LIMIT 50 OFFSET 999950   reads and discards ~1M rows
+Every page:   SELECT COUNT(*) FROM shop_order                     scans the whole table</pre>
+					<p><code>OFFSET</code> does not skip rows for free. The database still walks through every skipped row. Deep pages get slower in a straight line, and rows inserted between page loads shift results so users see duplicates or miss records.</p>
+
+					<h3>Keyset (cursor) pagination</h3>
+					<p>Instead of "skip 999,950 rows," say "give me 50 rows older than the last one I saw." With an index on the sort column, every page costs the same, whether it is page 1 or page 20,000.</p>
+<pre><code class="language-python">from django.db.models import Q
+
+
+def orders_page(customer_id, after=None, size=50):
+    """`after` is the (created_at, id) of the last row on the previous page."""
+    qs = Order.objects.filter(customer_id=customer_id).order_by("-created_at", "-id")
+    if after:
+        created_at, pk = after
+        qs = qs.filter(Q(created_at__lt=created_at) | Q(created_at=created_at, id__lt=pk))
+    return list(qs[:size])</code></pre>
+					<p>The <code>id</code> tiebreaker matters. Two orders can share a timestamp, and without a unique sort key, rows get skipped or repeated at page boundaries.</p>
+					<p>In Django REST Framework, <code>CursorPagination</code> does this for you:</p>
+<pre><code class="language-python">from rest_framework.pagination import CursorPagination
+
+
+class OrderCursorPagination(CursorPagination):
+    page_size = 50
+    ordering = "-created_at"</code></pre>
+					<p>The trade-off: no "jump to page 400" and no total count. For feeds, timelines, logs and infinite scroll, users never needed those anyway.</p>
+
+					<h3>Cheap counts when you need them</h3>
+					<p>If the UI must show a total, PostgreSQL keeps an estimate of each table's row count in its statistics. Reading it is instant:</p>
+<pre><code class="language-python">from django.core.paginator import Paginator
+from django.db import connection
+from django.utils.functional import cached_property
+
+
+def estimated_count(model):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT reltuples::bigint FROM pg_class WHERE oid = %s::regclass",
+            [model._meta.db_table],
+        )
+        return cursor.fetchone()[0]
+
+
+class EstimatedCountPaginator(Paginator):
+    @cached_property
+    def count(self):
+        # Filtered querysets still need a real count
+        if self.object_list.query.where:
+            return super().count
+        estimate = estimated_count(self.object_list.model)
+        return estimate if estimate &gt; 0 else super().count</code></pre>
+					<p>The estimate refreshes when autovacuum analyzes the table, so it can be off by a small percentage. "About 30,412,000 orders" is fine for a dashboard. It is not fine for billing.</p>
+
+					<h2 id="bulk-operations">Bulk Writes</h2>
+					<p>Saving 100,000 objects one at a time means 100,000 round trips to the database. Batch them.</p>
+<pre><code class="language-python"># Bad: 100,000 INSERT statements
+for row in rows:
+    Product.objects.create(sku=row["sku"], name=row["name"], price=row["price"])
+
+# Good: 100 INSERT statements of 1,000 rows each
+Product.objects.bulk_create(
+    [Product(sku=r["sku"], name=r["name"], price=r["price"]) for r in rows],
+    batch_size=1000,
+)</code></pre>
+
+					<h3>Upserts</h3>
+					<p>Imports often mix new and existing records. <code>bulk_create</code> can insert or update in one statement with <code>INSERT ... ON CONFLICT</code>:</p>
+<pre><code class="language-python">Product.objects.bulk_create(
+    products,
+    batch_size=1000,
+    update_conflicts=True,
+    unique_fields=["sku"],
+    update_fields=["name", "price", "stock"],
+)</code></pre>
+
+					<h3>bulk_update and its limits</h3>
+<pre><code class="language-python">for p in products:
+    p.price = new_prices[p.sku]
+
+Product.objects.bulk_update(products, ["price"], batch_size=500)</code></pre>
+					<p><code>bulk_update</code> builds a large <code>CASE WHEN</code> statement per batch. It works, but it gets slow with many rows or many fields. When every row gets the same value or the same expression, a single <code>queryset.update()</code> is much faster.</p>
+					<aside class="callout">
+						<p class="callout-title">Remember</p>
+						<p><code>bulk_create</code>, <code>bulk_update</code> and <code>queryset.update()</code> skip <code>save()</code> and do not send <code>pre_save</code> or <code>post_save</code> signals. If business logic lives in those, it will not run. Move it somewhere explicit.</p>
+					</aside>
+
+					<h2 id="processing-millions">Processing Millions of Rows Without Running Out of Memory</h2>
+					<p>This looks harmless:</p>
+<pre><code class="language-python">for order in Order.objects.all():
+    export(order)</code></pre>
+					<p>Django loads <strong>every row</strong> into memory and caches all of them on the queryset before the loop starts. With 30 million orders, the worker runs out of memory and gets killed.</p>
+
+					<h3>iterator()</h3>
+					<p><code>iterator()</code> streams rows in chunks and skips the queryset cache. On PostgreSQL it uses a server-side cursor, so memory stays flat no matter how big the table is.</p>
+<pre><code class="language-python">qs = Order.objects.filter(status="paid").only("id", "total", "created_at")
+
+for order in qs.iterator(chunk_size=2000):
+    export(order)</code></pre>
+					<p>Two things to know:</p>
+					<ul>
+						<li><code>prefetch_related</code> works with <code>iterator()</code> only when you pass <code>chunk_size</code>. Prefetching then happens per chunk.</li>
+						<li>Server-side cursors do not work behind PgBouncer in transaction pooling mode. Set <code>"DISABLE_SERVER_SIDE_CURSORS": True</code> on that database, and use the batching pattern below instead.</li>
+					</ul>
+
+					<h3>Batch by primary key</h3>
+					<p>For long jobs, process the table in primary key ranges. Each batch is a short, independent query, so the job can stop and resume, and it never holds a transaction open for an hour.</p>
+<pre><code class="language-python">def in_batches(queryset, size=5000):
+    last_pk = 0
+    while True:
+        batch = list(queryset.filter(pk__gt=last_pk).order_by("pk")[:size])
+        if not batch:
+            return
+        yield batch
+        last_pk = batch[-1].pk</code></pre>
+					<p>Do not use <code>OFFSET</code> for batching. Batch 6,000 of an offset-based loop re-reads 30 million rows to find its starting point. A <code>pk__gt</code> filter uses the primary key index and starts in the right place instantly.</p>
+
+					<h3>A safe backfill command</h3>
+					<p>Backfilling a new column on a large table is a common real-world job. Doing it in one <code>UPDATE</code> locks millions of rows and can stall replication. Say you added <code>item_count = models.PositiveIntegerField(null=True)</code> to <code>Order</code> and need to fill it for 30 million existing rows. Do it in batches:</p>
+<pre><code class="language-python"># shop/management/commands/backfill_order_item_count.py
+import time
+
+from django.core.management.base import BaseCommand
+from django.db.models import Count, OuterRef, Subquery
+
+from shop.models import Order, OrderItem
+
+
+class Command(BaseCommand):
+    help = "Backfill Order.item_count in batches"
+
+    def add_arguments(self, parser):
+        parser.add_argument("--batch-size", type=int, default=5000)
+        parser.add_argument("--sleep", type=float, default=0.1)
+
+    def handle(self, *args, batch_size, sleep, **options):
+        item_count = (
+            OrderItem.objects
+            .filter(order=OuterRef("pk"))
+            .order_by()
+            .values("order")
+            .annotate(c=Count("id"))
+            .values("c")
+        )
+        last_pk, done = 0, 0
+        while True:
+            ids = list(
+                Order.objects
+                .filter(pk__gt=last_pk, item_count__isnull=True)
+                .order_by("pk")
+                .values_list("pk", flat=True)[:batch_size]
+            )
+            if not ids:
+                break
+            Order.objects.filter(pk__in=ids).update(item_count=Subquery(item_count))
+            last_pk, done = ids[-1], done + len(ids)
+            self.stdout.write(f"Updated {done} orders (last id {last_pk})")
+            time.sleep(sleep)  # give replicas and other traffic room to breathe</code></pre>
+					<p>The same pattern works for deletes. <code>queryset.delete()</code> on millions of rows may load objects into memory to handle cascades and signals. Deleting by batches of primary keys keeps each transaction short.</p>
+
+					<h2 id="caching">Caching</h2>
+					<p>The fastest query is the one you never run. If a result is expensive to compute and does not change on every request, cache it.</p>
+
+					<h3>Set up Redis</h3>
+					<p>Django ships a Redis backend since version 4.0:</p>
+<pre><code class="language-python">CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}</code></pre>
+
+					<h3>Cache expensive results</h3>
+<pre><code class="language-python">from django.core.cache import cache
+from django.db.models import Sum
+
+
+def top_products():
+    return cache.get_or_set(
+        "top_products:v1",
+        lambda: list(
+            Product.objects
+            .annotate(sold=Sum("order_items__quantity"))
+            .order_by("-sold")
+            .values("id", "name", "sold")[:10]
+        ),
+        timeout=600,
+    )</code></pre>
+					<p>Wrap the queryset in <code>list()</code>. A queryset is lazy, and caching a lazy object either fails or caches nothing useful.</p>
+
+					<h3>Invalidate on change</h3>
+					<p>Time-based expiry is the simplest strategy. When stale data is not acceptable, delete the key when the source data changes, after the transaction commits:</p>
+<pre><code class="language-python">from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
+@receiver(post_save, sender=Product)
+def clear_product_cache(sender, instance, **kwargs):
+    transaction.on_commit(lambda: cache.delete(f"product:{instance.pk}"))</code></pre>
+					<p>Deleting before commit opens a race: another request can repopulate the cache with old data before your write lands.</p>
+
+					<h3>Other levels of caching</h3>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Level</th><th scope="col">Tool</th><th scope="col">Use for</th></tr></thead>
+							<tbody>
+								<tr><td>Whole view</td><td><code>@cache_page(60)</code></td><td>Public pages that look the same for everyone</td></tr>
+								<tr><td>Template fragment</td><td><code>{% cache 300 sidebar %}</code></td><td>An expensive block inside an otherwise dynamic page</td></tr>
+								<tr><td>Single value</td><td><code>cache.get_or_set()</code></td><td>Aggregates, counts, API responses from other services</td></tr>
+								<tr><td>Per instance</td><td><code>@cached_property</code></td><td>A computed property used several times in one request</td></tr>
+								<tr><td>HTTP</td><td>CDN, <code>Cache-Control</code>, ETags</td><td>Static assets and public API responses</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="connections">Database Connections</h2>
+					<p>By default, Django opens a new database connection for every request and closes it at the end. Opening a PostgreSQL connection costs a few milliseconds and some server memory. At thousands of requests per second, that adds up fast.</p>
+
+					<h3>Persistent connections</h3>
+<pre><code class="language-python">DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "shop",
+        # ...
+        "CONN_MAX_AGE": 60,          # reuse connections for up to 60 seconds
+        "CONN_HEALTH_CHECKS": True,  # drop broken connections before use
+    }
+}</code></pre>
+
+					<h3>Connection pooling</h3>
+					<p>Django 5.1 added native connection pooling for PostgreSQL through psycopg 3. Install <code>psycopg[pool]</code> and enable it in <code>OPTIONS</code>. It replaces persistent connections, so leave <code>CONN_MAX_AGE</code> at 0.</p>
+<pre><code class="language-python">DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        # ...
+        "OPTIONS": {
+            "pool": {"min_size": 2, "max_size": 10},
+        },
+    }
+}</code></pre>
+					<p>The built-in pool lives inside each worker process. With many servers and many processes, the total connection count still grows. An external pooler such as <strong>PgBouncer</strong> in front of PostgreSQL caps it for the whole fleet.</p>
+
+					<h2 id="read-replicas">Read Replicas</h2>
+					<p>Most web apps read far more than they write. A read replica is a copy of the primary database that serves <code>SELECT</code> queries, so reports and listings stop competing with checkouts.</p>
+<pre class="diagram">                 writes
+App servers ─────────────────▶ Primary
+     │                            │
+     │ reads                      │ streaming replication
+     ▼                            ▼
+  Replica  ◀──────────────────────┘</pre>
+<pre><code class="language-python"># settings.py
+DATABASES = {
+    "default": {...},   # primary
+    "replica": {...},   # read-only copy
+}
+DATABASE_ROUTERS = ["shop.routers.PrimaryReplicaRouter"]
+
+
+# shop/routers.py
+class PrimaryReplicaRouter:
+    def db_for_read(self, model, **hints):
+        return "replica"
+
+    def db_for_write(self, model, **hints):
+        return "default"
+
+    def allow_relation(self, obj1, obj2, **hints):
+        return True
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        return db == "default"</code></pre>
+					<p>Replicas lag behind the primary, usually by milliseconds, sometimes by seconds. A user who places an order and is immediately redirected to "My orders" may not see it yet. Read from the primary right after a write:</p>
+<pre><code class="language-python">order = Order.objects.create(...)
+recent = Order.objects.using("default").filter(customer=customer)[:10]</code></pre>
+					<p>Send heavy analytics and exports to a dedicated replica so they cannot slow the one serving user traffic.</p>
+
+					<h2 id="background-jobs">Move Slow Work Out of the Request</h2>
+					<p>A request should do the minimum needed to respond. Sending emails, generating PDFs, calling third-party APIs, recalculating reports and exporting CSVs belong in a background worker such as <strong>Celery</strong> or <strong>RQ</strong>.</p>
+<pre><code class="language-python">from django.db import transaction
+
+from .tasks import send_order_confirmation
+
+
+def place_order(request):
+    with transaction.atomic():
+        order = create_order(request)
+
+    # Queue only after the order is committed, and pass the ID, not the object
+    transaction.on_commit(lambda: send_order_confirmation.delay(order.pk))
+    return redirect("order-detail", pk=order.pk)</code></pre>
+					<p>Two habits prevent most background job bugs:</p>
+					<ul class="list-check">
+						<li>Queue tasks in <code>transaction.on_commit</code>. Otherwise a fast worker may look for an order that has not been committed yet.</li>
+						<li>Pass primary keys, not model instances. The worker reloads fresh data, and the message stays small.</li>
+					</ul>
+
+					<h2 id="very-large-tables">Very Large Tables: Denormalize, Archive, Partition</h2>
+					<p>Past a certain size, even well-indexed queries slow down because indexes no longer fit in memory, and maintenance work such as vacuuming takes hours. At that point you change the shape of the data.</p>
+
+					<h3>Denormalized counters</h3>
+					<p>If every product page shows "sold 12,431 times," do not count <code>OrderItem</code> rows on every view. Store the number and update it when it changes:</p>
+<pre><code class="language-python">Product.objects.filter(pk=item.product_id).update(
+    sold_count=F("sold_count") + item.quantity
+)</code></pre>
+					<p>You trade a little write cost and the risk of drift for a constant-time read. Run a periodic job that recalculates the true value and corrects any drift.</p>
+
+					<h3>Archive cold data</h3>
+					<p>Orders from five years ago are rarely read but still sit in every index. Move them to an archive table or cheaper storage, and keep the hot table small. A smaller table means smaller indexes, faster vacuums and quicker backups.</p>
+
+					<h3>Partitioning</h3>
+					<p>PostgreSQL native partitioning splits one logical table into many physical ones, typically by month. Queries that filter on the partition key only touch the matching partitions, and dropping a whole month of old data becomes an instant <code>DROP TABLE</code> instead of a multi-hour <code>DELETE</code>.</p>
+<pre><code class="language-sql">CREATE TABLE shop_event (
+    id          bigint GENERATED ALWAYS AS IDENTITY,
+    created_at  timestamptz NOT NULL,
+    payload     jsonb NOT NULL,
+    PRIMARY KEY (id, created_at)
+) PARTITION BY RANGE (created_at);
+
+CREATE TABLE shop_event_2026_10 PARTITION OF shop_event
+    FOR VALUES FROM ('2026-10-01') TO ('2026-11-01');</code></pre>
+					<p>Django's migrations do not create partitioned tables. Create them with <code>RunSQL</code> in a migration, or use a package such as <code>django-postgres-extra</code>. The primary key must include the partition key, which <code>models.CompositePrimaryKey</code> (Django 5.2+) can express. Always filter on <code>created_at</code> in queries against a partitioned table; without it, PostgreSQL has to check every partition.</p>
+					<p>Partitioning adds operational work, such as creating future partitions on a schedule. Reach for it when a table is in the hundreds of millions of rows and keeps growing, not before.</p>
+
+					<h2 id="migrations">Migrations on Large Tables</h2>
+					<p>A migration that runs in one second on your laptop can lock a production table for twenty minutes. Check the SQL before you deploy:</p>
+<pre><code class="language-bash">python manage.py sqlmigrate shop 0042</code></pre>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Change</th><th scope="col">Risk on a big table</th><th scope="col">Safer approach</th></tr></thead>
+							<tbody>
+								<tr><td>Add an index</td><td>Blocks writes while it builds</td><td><code>AddIndexConcurrently</code> in a non-atomic migration</td></tr>
+								<tr><td>Add a nullable column</td><td>Fast</td><td>Safe as is</td></tr>
+								<tr><td>Add a column with a constant default</td><td>Fast on PostgreSQL 11+</td><td>Safe; avoid volatile defaults like <code>now()</code></td></tr>
+								<tr><td>Add <code>NOT NULL</code> to an existing column</td><td>Scans the whole table under lock</td><td>Add nullable, backfill in batches, then add the constraint</td></tr>
+								<tr><td>Rename or drop a column</td><td>Running code still uses the old name</td><td>Deploy code that stops using it first, then migrate</td></tr>
+							</tbody>
+						</table>
+					</div>
+<pre><code class="language-python">from django.contrib.postgres.operations import AddIndexConcurrently
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+    atomic = False   # CREATE INDEX CONCURRENTLY cannot run inside a transaction
+
+    dependencies = [("shop", "0041_previous")]
+
+    operations = [
+        AddIndexConcurrently(
+            "order",
+            models.Index(fields=["customer", "-created_at"], name="order_customer_created_idx"),
+        ),
+    ]</code></pre>
+
+					<h2 id="admin-and-drf">Django Admin and DRF at Scale</h2>
+
+					<h3>Admin</h3>
+					<p>The admin is often the first page to fall over on a large table. A changelist runs a full <code>COUNT(*)</code>, every foreign key dropdown loads the entire related table, and every column that shows a related object adds a query per row.</p>
+<pre><code class="language-python">@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ["id", "customer", "status", "total", "created_at"]
+    list_select_related = ["customer"]          # no N+1 in the list
+    list_filter = ["status"]
+    raw_id_fields = ["customer"]                # no 2 million option dropdown
+    show_full_result_count = False              # skip the second COUNT(*)
+    paginator = EstimatedCountPaginator         # from the pagination section
+    search_fields = ["=id", "customer__email"]  # "=" means exact match</code></pre>
+					<p><code>search_fields</code> defaults to <code>icontains</code> on every field listed, which scans the table. Prefer exact matches with <code>=</code> or prefix matches with <code>^</code> on indexed columns.</p>
+
+					<h3>Django REST Framework</h3>
+					<p>Serializers hide N+1 queries well. A nested serializer or a <code>SerializerMethodField</code> that touches a relation runs a query per object. Fix it in <code>get_queryset</code>, where the queryset is built:</p>
+<pre><code class="language-python">class OrderViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OrderSerializer
+    pagination_class = OrderCursorPagination
+
+    def get_queryset(self):
+        return (
+            Order.objects
+            .filter(customer__user=self.request.user)
+            .select_related("customer")
+            .prefetch_related(
+                Prefetch("items", queryset=OrderItem.objects.select_related("product"))
+            )
+            .annotate(item_count=Count("items"))
+        )
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    item_count = serializers.IntegerField(read_only=True)  # comes from annotate
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ["id", "status", "total", "created_at", "item_count", "items"]</code></pre>
+					<p>Never compute <code>item_count</code> in a <code>SerializerMethodField</code> with <code>obj.items.count()</code>. That is one <code>COUNT</code> query per order.</p>
+
+					<h2 id="common-mistakes">Common Performance Mistakes</h2>
+					<ul class="list-cross">
+						<li><strong>Querysets in loops.</strong> Any <code>.get()</code>, <code>.filter()</code> or related access inside a <code>for</code> loop deserves a second look.</li>
+						<li><strong><code>if queryset:</code> and <code>len(queryset)</code></strong> to check existence or size. Use <code>.exists()</code> and <code>.count()</code>.</li>
+						<li><strong>Filtering in Python.</strong> <code>[o for o in Order.objects.all() if o.total &gt; 1000]</code> loads the table to keep ten rows.</li>
+						<li><strong>Default <code>Meta.ordering</code></strong> on a large model. It adds <code>ORDER BY</code> to every query, including ones that do not need it. Order explicitly where it matters.</li>
+						<li><strong>Unbounded querysets in APIs.</strong> Every list endpoint needs pagination and a maximum page size.</li>
+						<li><strong><code>.distinct()</code> over large joins.</strong> Often a sign that <code>Exists</code> would do the job better.</li>
+						<li><strong>Heavy work in signals.</strong> A <code>post_save</code> handler that calls an API runs inside every save, including bulk scripts.</li>
+						<li><strong>Optimizing without measuring.</strong> Fix the query that costs the most total time first.</li>
+					</ul>
+
+					<h2 id="scale-roadmap">What to Do at Each Scale</h2>
+					<p>You do not need partitioning for 50,000 rows. Match the technique to the size of the problem.</p>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Rows in largest table</th><th scope="col">Focus on</th><th scope="col">Usually starts to break</th></tr></thead>
+							<tbody>
+								<tr><td>Up to ~100K</td><td>Clean ORM code, <code>select_related</code> and <code>prefetch_related</code>, test query counts</td><td>N+1 queries on list pages</td></tr>
+								<tr><td>~100K to 10M</td><td>Composite and partial indexes, <code>only()</code> and <code>values()</code>, bulk writes, Redis caching, background jobs</td><td>Unindexed filters, <code>icontains</code> search, admin pages, CSV exports</td></tr>
+								<tr><td>~10M to 100M</td><td>Keyset pagination, estimated counts, batched jobs with <code>iterator()</code>, connection pooling, read replicas, safe migrations</td><td><code>OFFSET</code> pagination, <code>COUNT(*)</code>, long migrations, bulk deletes</td></tr>
+								<tr><td>100M+</td><td>Partitioning, archiving, denormalized counters, dedicated search and analytics stores</td><td>Index size versus memory, vacuum time, backups, any full table scan</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>These boundaries are rough. Row width, traffic and hardware move them a lot. Let your measurements decide, not the row count alone.</p>
+
+					<h2 id="checklist">Optimization Checklist</h2>
+					<ul class="list-check">
+						<li>Slow queries identified with debug toolbar, <code>explain()</code> and <code>pg_stat_statements</code></li>
+						<li>No N+1 queries on list pages and API endpoints; query counts locked in tests</li>
+						<li>Only needed columns loaded on large or wide tables</li>
+						<li>Counting, summing and filtering done in SQL, not Python</li>
+						<li>Indexes match the filters and sort orders of hot queries</li>
+						<li>Keyset pagination for large or fast-growing lists</li>
+						<li>Bulk operations for imports and mass updates</li>
+						<li><code>iterator()</code> or primary key batches for jobs over large tables</li>
+						<li>Expensive, rarely changing results cached in Redis</li>
+						<li>Connection pooling in place</li>
+						<li>Slow work moved to background workers</li>
+						<li>Migrations reviewed with <code>sqlmigrate</code> before they reach a big table</li>
+					</ul>
+
+					<h2 id="conclusion">Conclusion</h2>
+					<p>Most Django performance problems come from a short list: too many queries, too much data per query, missing indexes, and patterns like <code>OFFSET</code> and <code>COUNT(*)</code> that do not survive large tables. The ORM has a fix for each of them.</p>
+					<p>Work in this order. Measure. Remove N+1 queries. Fetch less. Push work into the database. Index what you query. Only then reach for caching, replicas and partitioning, because each of those adds moving parts you will have to maintain.</p>
+					<aside class="callout">
+						<p class="callout-title">Final thought</p>
+						<p>A project with millions of records does not need clever code. It needs every query to touch as few rows as possible, and a habit of checking that it still does.</p>
+					</aside>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="django-optimization-at-scale" hidden>
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list></div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

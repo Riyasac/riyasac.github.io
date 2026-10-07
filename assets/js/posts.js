@@ -4,6 +4,18 @@
    The homepage Blog section and the blog index both render from this list. */
 window.BLOG_POSTS = [
 	{
+		slug: 'django-optimization-at-scale',
+		title: 'Django Optimization: Techniques for Projects with Millions of Records',
+		description: 'How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.',
+		date: '2026-10-07',
+		readingTime: 24,
+		level: 'Intermediate to Advanced',
+		tags: ['Django', 'Performance', 'PostgreSQL'],
+		url: '/blog/django-optimization-at-scale/',
+		cover: '/assets/img/blog/django-optimization-at-scale/cover.webp',
+		coverAlt: 'Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows'
+	},
+	{
 		slug: 'api-fundamentals',
 		title: 'API Fundamentals: Architectures, Authentication, REST Design and Security',
 		description: 'How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.',
