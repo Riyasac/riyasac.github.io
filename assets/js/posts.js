@@ -5,7 +5,7 @@
 window.BLOG_POSTS = [
 	{
 		slug: 'django-optimization-at-scale',
-		title: 'Django Optimization: Techniques for Projects with Millions of Records',
+		title: 'Scaling Django Applications: Optimization Techniques for Millions of Records',
 		description: 'How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.',
 		date: '2026-10-07',
 		readingTime: 24,
