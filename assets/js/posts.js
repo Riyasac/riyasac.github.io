@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'lazy-imports-in-python',
+		title: 'Lazy Imports in Python: Benefits, Examples and Best Practices',
+		description: 'Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.',
+		date: '2026-10-09',
+		readingTime: 24,
+		level: 'Intermediate',
+		tags: ['Python', 'Performance', 'Django'],
+		url: '/blog/lazy-imports-in-python/',
+		cover: '/assets/img/blog/lazy-imports-in-python/cover.webp',
+		coverAlt: 'Lazy Imports in Python cover: a code window comparing an eager pandas import, a function-local import and the Python 3.15 lazy import keyword, with measured startup times of 246 ms eager and 19 ms lazy'
+	},
+	{
 		slug: 'django-optimization-at-scale',
 		title: 'Scaling Django Applications: Optimization Techniques for Millions of Records',
 		description: 'How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.',

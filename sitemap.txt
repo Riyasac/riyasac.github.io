@@ -1,4 +1,5 @@
 https://riyasac.github.io/
 https://riyasac.github.io/blog/
+https://riyasac.github.io/blog/lazy-imports-in-python/
 https://riyasac.github.io/blog/django-optimization-at-scale/
 https://riyasac.github.io/blog/api-fundamentals/
