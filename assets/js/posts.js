@@ -1,7 +1,10 @@
 /* Blog posts, newest first.
    To publish a post: copy blog/_post-template.html to blog/<slug>/index.html,
-   write the article, then add one entry at the top of this list.
-   The homepage Blog section and the blog index both render from this list. */
+   write the article, then add one entry at the top of this list and run
+   `node tools/sync-posts.mjs` to refresh the static cards and the sitemaps.
+   The homepage Blog section, the blog index and "More posts" all render from this list.
+   Optional `updated: 'YYYY-MM-DD'` sets the sitemap lastmod after a substantial edit.
+   A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
 		slug: 'django-optimization-at-scale',

@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Django Middleware Explained: The Complete Guide with Real-World Examples | Riyas A C</title>
-	<meta name="description" content="Learn how Django processes every request and response, how the built-in middleware stack works, how to write custom middleware, and the best practices for production.">
+	<meta name="description" content="Learn how Django processes every request and response, how the built-in middleware stack works, how to write custom middleware, and production best practices.">
 	<meta name="keywords" content="Django middleware, custom middleware, Django request lifecycle, Python, Django REST Framework, backend">
 	<meta name="author" content="Riyas A C">
 	<meta name="theme-color" content="#f6f5f0" id="themeColor">
@@ -31,8 +31,12 @@
 	<meta property="og:title" content="Django Middleware Explained: The Complete Guide with Real-World Examples">
 	<meta property="og:description" content="How Django processes every request and response, the built-in middleware stack, custom middleware, and production best practices.">
 	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
 	<meta property="og:image:alt" content="Django Middleware: the hidden layer behind every request">
 	<meta property="article:published_time" content="2026-07-28T11:42:34Z">
+	<meta property="article:modified_time" content="2026-07-28T11:42:34Z">
 	<meta property="article:author" content="Riyas A C">
 	<meta property="article:tag" content="Django">
 	<meta property="article:tag" content="Python">
@@ -43,6 +47,7 @@
 	<meta name="twitter:title" content="Django Middleware Explained: The Complete Guide with Real-World Examples">
 	<meta name="twitter:description" content="How Django processes every request and response, the built-in middleware stack, custom middleware, and production best practices.">
 	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg">
+	<meta name="twitter:image:alt" content="Django Middleware: the hidden layer behind every request">
 
 	<!-- Icons -->
 	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
@@ -65,18 +70,61 @@
 	{
 		"@context": "https://schema.org",
 		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/django-middleware-explained/#article",
+		"url": "https://riyasac.github.io/blog/django-middleware-explained/",
 		"headline": "Django Middleware Explained: The Complete Guide with Real-World Examples",
 		"description": "Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.",
-		"image": "https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/django-middleware-explained/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
 		"datePublished": "2026-07-28T11:42:34Z",
+		"dateModified": "2026-07-28T11:42:34Z",
+		"inLanguage": "en",
 		"author": {
 			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
 			"name": "Riyas A C",
 			"url": "https://riyasac.github.io/"
 		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
 		"keywords": ["Django", "Python", "Middleware"],
 		"mainEntityOfPage": "https://riyasac.github.io/blog/django-middleware-explained/",
 		"isBasedOn": "https://medium.com/@riyasac6/django-middleware-explained-the-complete-guide-with-real-world-examples-c0e041afd43b"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Django Middleware Explained: The Complete Guide with Real-World Examples",
+				"item": "https://riyasac.github.io/blog/django-middleware-explained/"
+			}
+		]
 	}
 	</script>
 </head>
@@ -152,7 +200,7 @@
 					</ul>
 				</div>
 				<figure class="container post-container post-cover">
-					<img src="/assets/img/blog/django-middleware-explained/cover.webp" width="1024" height="535" alt="Django Middleware, the hidden layer behind every request: an HTTP request passes through security, authentication and session middleware to the Django views, then through performance, logging and common middleware, with the database behind.">
+					<img src="/assets/img/blog/django-middleware-explained/cover.webp" width="1024" height="535" alt="Django Middleware, the hidden layer behind every request: an HTTP request passes through security, authentication and session middleware to the Django views, then through performance, logging and common middleware, with the database behind." fetchpriority="high">
 				</figure>
 			</header>
 
@@ -1163,7 +1211,7 @@ Rate Limiter</pre>
 
 			<footer class="container post-container post-footer">
 				<div class="author-card">
-					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
 					<div>
 						<p class="author-label">Written by</p>
 						<p class="author-name">Riyas A C</p>
@@ -1183,9 +1231,30 @@ Rate Limiter</pre>
 					<a href="https://medium.com/@riyasac6/django-middleware-explained-the-complete-guide-with-real-world-examples-c0e041afd43b" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
 				</p>
 
-				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="django-middleware-explained" hidden>
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="django-middleware-explained">
 					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
-					<div class="post-grid" data-post-list></div>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 24 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 20 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
 				</section>
 
 				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>

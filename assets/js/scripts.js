@@ -132,7 +132,8 @@
 			items = posts.filter(function (post) { return post.slug !== wrapper.dataset.current; });
 			wrapper.hidden = items.length === 0;
 		}
-		renderPosts(list, items.slice(0, limit));
+		// tools/sync-posts.mjs writes the same cards into the HTML; only render when they are missing
+		if (!list.querySelector('.post-card')) renderPosts(list, items.slice(0, limit));
 
 		// Tag filter on the blog index, once there is more than one post to filter
 		const filter = document.getElementById('tagFilter');

@@ -1,30 +1,7 @@
-#
-# robots.txt
-#
-# This file is to prevent the crawling and indexing of certain parts
-# of your site by web crawlers and spiders run by sites like Yahoo!
-# and Google. By telling these "robots" where not to go on your site,
-# you save bandwidth and server resources.
-#
-# This file will be ignored unless it is at the root of your host:
-# Used:    http://example.com/robots.txt
-# Ignored: http://example.com/site/robots.txt
-#
-# For more information about the robots.txt standard, see:
-# http://www.robotstxt.org/robotstxt.html
-
+# https://www.robotstxt.org/robotstxt.html
+# Everything on this site is public. Pages that should stay out of search
+# results (the post template, 404) carry <meta name="robots" content="noindex">.
 User-agent: *
-# Crawl-delay: 10
+Allow: /
 
-# CSS, JS, Images
-Allow: /assets/*.css$
-Allow: /assets/*.css?
-Allow: /assets/*.js$
-Allow: /assets/*.js?
-Allow: /assets/*.jpg
-Allow: /assets/*.jpeg
-Allow: /assets/*.png
-Allow: /assets/*.svg
-Allow: /assets/*.webp
-
-Sitemap: https://riyasac.github.io/sitemap.txt
+Sitemap: https://riyasac.github.io/sitemap.xml

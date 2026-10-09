@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Scaling Django Applications: Optimization Techniques for Millions of Records | Riyas A C</title>
-	<meta name="description" content="Practical Django ORM optimization with examples: N+1 queries, indexes, pagination, bulk operations, caching, replicas and partitioning for tables with millions of rows.">
+	<meta name="description" content="Practical Django ORM optimization: N+1 queries, indexes, pagination, bulk operations, caching, read replicas and partitioning for tables with millions of rows.">
 	<meta name="keywords" content="Django optimization, Django performance, Django ORM, select_related, prefetch_related, N+1 queries, database indexing, PostgreSQL, keyset pagination, cursor pagination, bulk_create, iterator, Redis cache, read replicas, table partitioning, Django at scale">
 	<meta name="author" content="Riyas A C">
 	<meta name="theme-color" content="#f6f5f0" id="themeColor">
@@ -30,8 +30,12 @@
 	<meta property="og:title" content="Scaling Django Applications: Optimization Techniques for Millions of Records">
 	<meta property="og:description" content="How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.">
 	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
 	<meta property="og:image:alt" content="Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows">
 	<meta property="article:published_time" content="2026-10-07T12:00:00Z">
+	<meta property="article:modified_time" content="2026-10-07T12:00:00Z">
 	<meta property="article:author" content="Riyas A C">
 	<meta property="article:tag" content="Django">
 	<meta property="article:tag" content="Performance">
@@ -42,6 +46,7 @@
 	<meta name="twitter:title" content="Scaling Django Applications: Optimization Techniques for Millions of Records">
 	<meta name="twitter:description" content="How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.">
 	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg">
+	<meta name="twitter:image:alt" content="Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows">
 
 	<!-- Icons -->
 	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
@@ -64,17 +69,60 @@
 	{
 		"@context": "https://schema.org",
 		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/django-optimization-at-scale/#article",
+		"url": "https://riyasac.github.io/blog/django-optimization-at-scale/",
 		"headline": "Scaling Django Applications: Optimization Techniques for Millions of Records",
 		"description": "Practical Django ORM optimization with examples: N+1 queries, indexes, pagination, bulk operations, caching, replicas and partitioning for tables with millions of rows.",
-		"image": "https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/django-optimization-at-scale/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
 		"datePublished": "2026-10-07T12:00:00Z",
+		"dateModified": "2026-10-07T12:00:00Z",
+		"inLanguage": "en",
 		"author": {
 			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
 			"name": "Riyas A C",
 			"url": "https://riyasac.github.io/"
 		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
 		"keywords": ["Django", "Performance", "PostgreSQL", "ORM", "Indexing", "Pagination", "Caching", "Scalability"],
 		"mainEntityOfPage": "https://riyasac.github.io/blog/django-optimization-at-scale/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Scaling Django Applications: Optimization Techniques for Millions of Records",
+				"item": "https://riyasac.github.io/blog/django-optimization-at-scale/"
+			}
+		]
 	}
 	</script>
 </head>
@@ -150,7 +198,7 @@
 					</ul>
 				</div>
 				<figure class="container post-container post-cover">
-					<img src="/assets/img/blog/django-optimization-at-scale/cover.webp" width="1024" height="535" alt="Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows">
+					<img src="/assets/img/blog/django-optimization-at-scale/cover.webp" width="1024" height="535" alt="Django Optimization cover: ORM methods such as select_related, only, iterator and bulk_create beside a database growing to millions of rows" fetchpriority="high">
 				</figure>
 			</header>
 
@@ -947,7 +995,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 			<footer class="container post-container post-footer">
 				<div class="author-card">
-					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
 					<div>
 						<p class="author-label">Written by</p>
 						<p class="author-name">Riyas A C</p>
@@ -961,9 +1009,30 @@ class OrderSerializer(serializers.ModelSerializer):
 					</div>
 				</div>
 
-				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="django-optimization-at-scale" hidden>
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="django-optimization-at-scale">
 					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
-					<div class="post-grid" data-post-list></div>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 20 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 16 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
 				</section>
 
 				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>

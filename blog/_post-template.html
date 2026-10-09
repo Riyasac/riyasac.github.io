@@ -9,7 +9,8 @@
 		3. Write the article inside #postBody. Use h2 with an id for each main section;
 		   the "On this page" list is built from those h2s automatically.
 		4. Put images in assets/img/blog/<your-slug>/ (cover.webp for the page, cover.jpg for link previews)
-		5. Add an entry at the top of assets/js/posts.js and a line to sitemap.txt
+		5. Add an entry at the top of assets/js/posts.js, then run: node tools/sync-posts.mjs
+		   (writes the static post cards and sitemap.xml / sitemap.txt)
 		6. Delete the robots noindex line below
 	-->
 	<meta name="robots" content="noindex">
@@ -42,17 +43,21 @@
 	<meta property="og:title" content="POST_TITLE">
 	<meta property="og:description" content="POST_DESCRIPTION">
 	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/POST_SLUG/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
 	<meta property="og:image:alt" content="POST_COVER_ALT">
 	<meta property="article:published_time" content="POST_DATE_ISO">
+	<meta property="article:modified_time" content="POST_DATE_ISO">
 	<meta property="article:author" content="Riyas A C">
 	<meta property="article:tag" content="POST_TAG">
-	<meta property="article:tag" content="Middleware">
 
 	<!-- Twitter / X -->
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="POST_TITLE">
 	<meta name="twitter:description" content="POST_DESCRIPTION">
 	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/POST_SLUG/cover.jpg">
+	<meta name="twitter:image:alt" content="POST_COVER_ALT">
 
 	<!-- Icons -->
 	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
@@ -75,17 +80,60 @@
 	{
 		"@context": "https://schema.org",
 		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/POST_SLUG/#article",
+		"url": "https://riyasac.github.io/blog/POST_SLUG/",
 		"headline": "POST_TITLE",
 		"description": "POST_DESCRIPTION",
-		"image": "https://riyasac.github.io/assets/img/blog/POST_SLUG/cover.jpg",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/POST_SLUG/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
 		"datePublished": "POST_DATE_ISO",
+		"dateModified": "POST_DATE_ISO",
+		"inLanguage": "en",
 		"author": {
 			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
 			"name": "Riyas A C",
 			"url": "https://riyasac.github.io/"
 		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
 		"keywords": ["POST_TAG"],
 		"mainEntityOfPage": "https://riyasac.github.io/blog/POST_SLUG/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "POST_TITLE",
+				"item": "https://riyasac.github.io/blog/POST_SLUG/"
+			}
+		]
 	}
 	</script>
 </head>
@@ -161,7 +209,7 @@
 					</ul>
 				</div>
 				<figure class="container post-container post-cover">
-					<img src="/assets/img/blog/POST_SLUG/cover.webp" width="1024" height="535" alt="POST_COVER_ALT">
+					<img src="/assets/img/blog/POST_SLUG/cover.webp" width="1024" height="535" alt="POST_COVER_ALT" fetchpriority="high">
 				</figure>
 			</header>
 
@@ -214,7 +262,7 @@ View</pre>
 
 			<footer class="container post-container post-footer">
 				<div class="author-card">
-					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
 					<div>
 						<p class="author-label">Written by</p>
 						<p class="author-name">Riyas A C</p>
@@ -235,7 +283,10 @@ View</pre>
 
 				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="POST_SLUG" hidden>
 					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
-					<div class="post-grid" data-post-list></div>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<!-- posts:end -->
+					</div>
 				</section>
 
 				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
