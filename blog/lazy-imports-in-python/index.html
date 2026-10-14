@@ -35,7 +35,7 @@
 	<meta property="og:image:height" content="535">
 	<meta property="og:image:alt" content="Lazy Imports in Python cover: a code window comparing an eager pandas import, a function-local import and the Python 3.15 lazy import keyword, with measured startup times of 246 ms eager and 19 ms lazy">
 	<meta property="article:published_time" content="2026-10-09T12:00:00Z">
-	<meta property="article:modified_time" content="2026-10-09T12:00:00Z">
+	<meta property="article:modified_time" content="2026-10-14T12:00:00Z">
 	<meta property="article:author" content="Riyas A C">
 	<meta property="article:tag" content="Python">
 	<meta property="article:tag" content="Performance">
@@ -80,7 +80,7 @@
 			"height": 535
 		},
 		"datePublished": "2026-10-09T12:00:00Z",
-		"dateModified": "2026-10-09T12:00:00Z",
+		"dateModified": "2026-10-14T12:00:00Z",
 		"inLanguage": "en",
 		"author": {
 			"@type": "Person",
@@ -189,7 +189,7 @@
 					<p class="post-lead">How to load a module only when your code actually needs it, what that buys you in startup time, what it costs you in predictability, and where the new lazy import syntax in Python 3.15 fits.</p>
 					<ul class="post-meta">
 						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-09">9 Oct 2026</time></li>
-						<li><i class="bi bi-clock" aria-hidden="true"></i> 24 min read</li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 17 min read</li>
 						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Intermediate</li>
 						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Python, Django</li>
 					</ul>
@@ -211,51 +211,37 @@
 				<div class="post-body" id="postBody">
 
 					<h2 id="introduction">Introduction</h2>
-					<p>Every <code>import</code> at the top of a Python file runs when that file is loaded. Usually that is fine. The standard library loads quickly, and most modules are small. Trouble starts when a project grows and its top-level imports pull in heavy libraries that only one code path uses.</p>
-					<p>You see it in places like these:</p>
-					<ul>
-						<li>A command-line tool that takes a quarter of a second to print <code>--version</code> because it imports pandas first.</li>
-						<li>A Django project where every management command, test run and worker boot pays for a PDF or Excel library that one admin view uses.</li>
-						<li>A package with optional features, where users who never touch the plotting module still wait for matplotlib.</li>
-						<li>Developer scripts and git hooks that run dozens of times a day, where 300 ms of startup adds up.</li>
-					</ul>
-					<p>The idea behind <strong>lazy imports in Python</strong> is simple. Load a module when the code first needs it, not when the program starts. Code paths that never use the module never pay for it.</p>
-					<p>It is not a general speed-up. If your program uses the module on every run, deferring the import moves the cost; it does not remove it. This guide covers how imports work, five ways to make them lazy, a measured before-and-after example, Django-specific advice, and the trade-offs that decide whether the technique is worth it.</p>
-					<p>Examples were tested on Python 3.12. The <code>lazy</code> keyword examples were tested on a Python 3.15 pre-release, because the syntax only exists from 3.15.</p>
+					<p>Every <code>import</code> at the top of a Python file runs when that file loads. That is fine until top-level imports pull in heavy libraries that only one code path uses. Then you get a CLI that takes a quarter of a second to print <code>--version</code>, or a Django project where every management command, test run and worker boot pays for a PDF library one admin view needs.</p>
+					<p><strong>Lazy imports in Python</strong> fix this by loading a module when the code first needs it, not when the program starts. Code paths that never use the module never pay for it. Paths that do use it pay the same cost, just later. Lazy imports move cost; they do not remove it.</p>
+					<p>This guide covers how imports work, six ways to defer them, a measured before-and-after benchmark, Django guidance and the trade-offs. Examples were tested on Python 3.12, and the <code>lazy</code> keyword examples on a Python 3.15 pre-release.</p>
 
 					<h2 id="what-are-lazy-imports">What Are Lazy Imports in Python?</h2>
-					<p>A regular import runs as soon as Python reaches the statement. At the top of a file, that means the moment the file itself is imported or executed.</p>
+					<p>A regular import runs as soon as Python reaches the statement. Here pandas, and NumPy with it, loads whether or not anyone calls <code>analyze_data()</code>:</p>
 <pre><code class="language-python">import pandas as pd
 
 
 def analyze_data(data):
     return pd.DataFrame(data)</code></pre>
-					<p>Here pandas loads when this module loads, whether or not anyone ever calls <code>analyze_data()</code>. pandas in turn loads NumPy and a long list of its own submodules, so the cost is real.</p>
 					<p>The simplest lazy import moves the statement into the function:</p>
 <pre><code class="language-python">def analyze_data(data):
     import pandas as pd
 
     return pd.DataFrame(data)</code></pre>
-					<p>Now pandas loads the first time <code>analyze_data()</code> runs and reaches that line. Later calls find pandas already loaded in Python's module cache and skip the expensive part.</p>
-					<p>Two clarifications are worth keeping in mind:</p>
-					<ul>
-						<li><strong>This defers the import; it is not a lazy module object.</strong> The import still happens all at once, just later. Tools covered further down (<code>LazyLoader</code>, <code>lazy_loader</code>, and Python 3.15's <code>lazy import</code>) create a placeholder that loads on first attribute access, which is a different mechanism.</li>
-						<li><strong>Importing a module is not the same as running your code.</strong> Importing executes the module's top-level code: class and function definitions, constants, and any setup it does. Calling <code>pd.DataFrame()</code> is separate work that happens afterwards. Lazy imports only shift the first kind of cost.</li>
-					</ul>
+					<p>pandas now loads on the first call. Later calls find it in Python's module cache and skip the expensive part.</p>
+					<p>Strictly, this <strong>defers</strong> the import. It is not a lazy module object. <code>LazyLoader</code>, <code>lazy_loader</code> and Python 3.15's <code>lazy import</code> create a placeholder that loads on first attribute access, which is a different mechanism. Either way, only the cost of importing (running the module's top-level code) moves. The work your code does afterwards is unchanged.</p>
 
 					<h2 id="how-imports-work">How Python Imports Work</h2>
 					<p>When Python executes <code>import pandas</code>, the <a href="https://docs.python.org/3/reference/import.html" target="_blank" rel="noopener">import system</a> roughly does this:</p>
-					<ul>
-						<li><strong>Check the cache.</strong> If <code>"pandas"</code> is already a key in <code>sys.modules</code>, Python binds that existing module to the name and stops.</li>
-						<li><strong>Find the module.</strong> Finders search <code>sys.path</code> for a matching package, source file, compiled extension or other loader.</li>
-						<li><strong>Create and register it.</strong> A new module object is created and stored in <code>sys.modules</code> before its code runs, which is what makes circular imports partially work.</li>
-						<li><strong>Execute it.</strong> The loader runs the module's top-level code. For source files, Python reuses cached bytecode from <code>__pycache__</code> when it is up to date.</li>
-					</ul>
-					<p>The expensive step is usually execution, and it is recursive. Every <code>import</code> inside pandas triggers the same process for its own dependencies. A single line in your file can initialise hundreds of modules.</p>
-					<p>Import-time side effects add to the bill. A module that reads config files, compiles regular expressions, opens connections, registers plugins or builds large lookup tables at the top level does that work for every process that imports it.</p>
-					<p>Most imports are cheap. <code>import json</code> or <code>import os</code> costs little, and many standard library modules are already loaded by the time your code runs. Do not move every import into functions. Measure first and target the few that matter.</p>
+					<ol>
+						<li><strong>Check the cache.</strong> If <code>"pandas"</code> is already in <code>sys.modules</code>, bind it and stop.</li>
+						<li><strong>Find the module</strong> on <code>sys.path</code>.</li>
+						<li><strong>Create and register it</strong> in <code>sys.modules</code> before its code runs, which is what makes circular imports partially work.</li>
+						<li><strong>Execute it.</strong> Run the module's top-level code, reusing cached bytecode from <code>__pycache__</code> when possible.</li>
+					</ol>
+					<p>Execution is the expensive step, and it is recursive: every import inside pandas repeats the process. One line in your file can initialise hundreds of modules. Import-time side effects, such as reading config, compiling regexes or building lookup tables, add to the bill in every process.</p>
+					<p>Most imports are cheap. Do not move every import into functions. Measure first and target the few that matter.</p>
 					<h3>Measure import cost with -X importtime</h3>
-					<p>CPython has had a built-in import profiler since 3.7. <a href="https://docs.python.org/3/using/cmdline.html#cmdoption-X" target="_blank" rel="noopener"><code>-X importtime</code></a> prints the time each import takes, in microseconds, to stderr:</p>
+					<p>CPython's built-in import profiler, <a href="https://docs.python.org/3/using/cmdline.html#cmdoption-X" target="_blank" rel="noopener"><code>-X importtime</code></a> (since 3.7), prints each import's time in microseconds to stderr:</p>
 <pre><code class="language-bash">python -X importtime -c "import pandas" 2&gt; import.log
 sort -t'|' -k2 -n import.log | tail -5</code></pre>
 <pre class="diagram">import time:  self [us] | cumulative | imported package
@@ -263,11 +249,10 @@ import time:      1073 |      41022 |       pandas.core.groupby.generic
 import time:       948 |      58594 |   numpy
 import time:       206 |      71552 |   pandas.core.api
 import time:       284 |     199819 | pandas</pre>
-					<p>On my machine, <code>import pandas</code> took about 200 ms cumulative, with NumPy alone near 59 ms. The <code>self</code> column shows time spent in a module's own top-level code; <code>cumulative</code> includes everything it imported. Look at cumulative first to find the expensive roots.</p>
-					<p>Python 3.14 added <code>-X importtime=2</code>, which also reports imports that hit the <code>sys.modules</code> cache. That helps answer "who else imports this?" when a module seems impossible to remove.</p>
+					<p>On my machine, <code>import pandas</code> took about 200 ms cumulative, with NumPy near 59 ms. <code>self</code> is time in a module's own top-level code; <code>cumulative</code> includes everything it imported. Sort by cumulative to find the expensive roots. Python 3.14's <code>-X importtime=2</code> also reports cache hits, which helps answer "who else imports this?"</p>
 
 					<h2 id="implementation-approaches">Different Ways to Implement Lazy Imports</h2>
-					<p>There are several ways to defer an import. They range from one moved line to interpreter-level support. Start with the simplest one that solves your problem.</p>
+					<p>Start with the simplest approach that solves your problem.</p>
 
 					<h3>Approach A: import inside a function</h3>
 <pre><code class="language-python">def generate_report(data):
@@ -275,12 +260,7 @@ import time:       284 |     199819 | pandas</pre>
 
     frame = pd.DataFrame(data)
     return frame.describe()</code></pre>
-					<ul>
-						<li><strong>Simple.</strong> No tools, no indirection. Anyone reading the function sees what it needs.</li>
-						<li><strong>Deferred to first call.</strong> The first call pays the full import cost; nothing else does.</li>
-						<li><strong>Cached afterwards.</strong> Later calls do a <code>sys.modules</code> lookup and a name binding. On my machine that measured about 80 ns per call against about 24 ns for using a module-level name. Negligible for a report function, worth avoiding inside a loop that runs millions of times.</li>
-						<li><strong>Best for:</strong> heavy dependencies used by one or two functions, such as exports, reports, image processing or a rarely used admin action.</li>
-					</ul>
+					<p>No tools, no indirection, and the dependency sits next to the code that needs it. The first call pays the import; later calls do a <code>sys.modules</code> lookup. I measured about 80 ns per call against 24 ns for a module-level name: negligible for a report, worth avoiding in a loop that runs millions of times. Use it for heavy dependencies that one or two functions need.</p>
 
 					<h3>Approach B: import inside a conditional branch</h3>
 <pre><code class="language-python">def export_data(rows, fmt):
@@ -295,11 +275,10 @@ import time:       284 |     199819 | pandas</pre>
         return json.dumps(rows)
 
     raise ValueError(f"Unsupported format: {fmt}")</code></pre>
-					<p>Each branch loads only what it needs. A caller asking for JSON never loads pandas. This matters most when the dependencies are optional: a user who has not installed pandas can still export JSON, and only the CSV branch fails.</p>
-					<p>Placing <code>import json</code> inside the branch is mostly for symmetry. It is a cheap standard library module; putting it at the top of the file would be just as good.</p>
+					<p>Each branch loads only what it needs, so a JSON caller never loads pandas. This matters most for optional dependencies: users without pandas can still export JSON. (<code>import json</code> is inside the branch only for symmetry; it is cheap enough for the top of the file.)</p>
 
 					<h3>Approach C: import on demand with importlib</h3>
-					<p>When the module name is data rather than code, for example a backend chosen in settings or a plugin listed in a config file, use <a href="https://docs.python.org/3/library/importlib.html#importlib.import_module" target="_blank" rel="noopener"><code>importlib.import_module()</code></a>:</p>
+					<p>When the module name is data, such as a backend chosen in settings, use <a href="https://docs.python.org/3/library/importlib.html#importlib.import_module" target="_blank" rel="noopener"><code>importlib.import_module()</code></a>. This is the basis of most plugin systems:</p>
 <pre><code class="language-python">import importlib
 
 EXPORTERS = {
@@ -315,14 +294,13 @@ def load_exporter(name):
         raise ValueError(f"Unsupported exporter: {name!r}") from None
 
     return importlib.import_module(module_path)</code></pre>
-					<p>This is the basis of most plugin systems. Only the selected exporter is imported, and adding a new one means adding a module and a dictionary entry.</p>
 					<aside class="callout">
 						<p class="callout-title">Never import user input</p>
-						<p>Importing a module executes its code. Passing a request parameter or other untrusted string straight to <code>import_module()</code> lets the caller choose which code runs. Map public names to module paths through an explicit allowlist, as above, or read them only from trusted configuration.</p>
+						<p>Importing a module executes its code. Passing a request parameter or other untrusted string to <code>import_module()</code> lets the caller choose which code runs. Map public names to module paths through an allowlist, as above, or read them only from trusted configuration.</p>
 					</aside>
 
 					<h3>Approach D: module-level __getattr__ (PEP 562)</h3>
-					<p>Since Python 3.7, <a href="https://peps.python.org/pep-0562/" target="_blank" rel="noopener">PEP 562</a> lets a module define <code>__getattr__</code>. Python calls it only when normal attribute lookup on the module fails. A package can use that hook to import submodules the first time someone touches them:</p>
+					<p>Since Python 3.7, <a href="https://peps.python.org/pep-0562/" target="_blank" rel="noopener">PEP 562</a> lets a module define <code>__getattr__</code>, which runs only when normal attribute lookup fails. A package can use it to import submodules on first access:</p>
 <pre><code class="language-python"># analytics/__init__.py
 import importlib
 
@@ -337,18 +315,19 @@ def __getattr__(name):
 
 def __dir__():
     return sorted(set(globals()) | _LAZY_SUBMODULES)</code></pre>
-					<p><code>import analytics</code> is now cheap. <code>analytics.charts</code> imports the submodule on first access. After that the import system has already set <code>charts</code> as an attribute of the package, so <code>__getattr__</code> is not called again. The <code>__dir__</code> function keeps the lazy names visible in <code>dir()</code> and in interactive completion.</p>
-					<p>The cost is discoverability. Static analysers and IDEs cannot see attributes created by <code>__getattr__</code> unless you help them, usually with a <code>.pyi</code> stub or explicit imports under <code>if TYPE_CHECKING:</code>. Use this pattern for libraries with a large public namespace, not for application code where a function-local import would do.</p>
+					<p><code>import analytics</code> stays cheap, and <code>analytics.charts</code> loads on first use. After that the import system has set <code>charts</code> on the package, so <code>__getattr__</code> is not called again. <code>__dir__</code> keeps the lazy names visible in <code>dir()</code> and completion.</p>
+					<p>The cost is discoverability: IDEs and type checkers cannot see these attributes without a <code>.pyi</code> stub or <code>TYPE_CHECKING</code> imports. Use it for libraries with a large public namespace, not application code.</p>
 
 					<h3>Approach E: lazy module objects (stdlib and third-party)</h3>
-					<p>Sometimes you want a module object at the top of the file that only loads when used. Two options exist before Python 3.15.</p>
-					<p><strong>The standard library route</strong> is <a href="https://docs.python.org/3/library/importlib.html#importlib.util.LazyLoader" target="_blank" rel="noopener"><code>importlib.util.LazyLoader</code></a>, available since Python 3.5. The importlib documentation includes a <a href="https://docs.python.org/3/library/importlib.html#implementing-lazy-imports" target="_blank" rel="noopener">short recipe</a> that wraps it into a <code>lazy_import(name)</code> helper. The documentation is also frank about the downside: it discourages <code>LazyLoader</code> unless startup time is critical, because errors raised while loading show up later and out of context.</p>
-					<p><strong>The third-party route</strong> is a package such as <a href="https://github.com/scientific-python/lazy-loader" target="_blank" rel="noopener"><code>lazy_loader</code></a> from the Scientific Python project, used by libraries like scikit-image. It provides <code>lazy_loader.load("numpy")</code> for single modules and <code>lazy_loader.attach()</code> to generate a package's <code>__getattr__</code>. At the time of writing it is actively maintained (version 0.6, released September 2026, supporting Python 3.9 and later). It is not part of the standard library, so it is another dependency to track.</p>
-					<p>Either way, you trade simple code for a proxy object whose behaviour is less obvious when debugging. For application code, function-local imports usually get you the same benefit with none of the machinery.</p>
+					<p>To get a module object at the top of the file that loads only when used, before Python 3.15:</p>
+					<ul>
+						<li><strong>Standard library:</strong> <a href="https://docs.python.org/3/library/importlib.html#importlib.util.LazyLoader" target="_blank" rel="noopener"><code>importlib.util.LazyLoader</code></a> (Python 3.5+), with a <a href="https://docs.python.org/3/library/importlib.html#implementing-lazy-imports" target="_blank" rel="noopener">short recipe</a> in the docs. The docs discourage it unless startup time is critical, because load errors surface later and out of context.</li>
+						<li><strong>Third party:</strong> <a href="https://github.com/scientific-python/lazy-loader" target="_blank" rel="noopener"><code>lazy_loader</code></a> from Scientific Python, used by scikit-image. It provides <code>lazy_loader.load("numpy")</code> and <code>lazy_loader.attach()</code> to generate a package's <code>__getattr__</code>. At the time of writing it is actively maintained (version 0.6, September 2026, Python 3.9+), but it is another dependency to track.</li>
+					</ul>
+					<p>Both trade simple code for a proxy that is harder to debug. For application code, function-local imports give the same benefit without the machinery.</p>
 
 					<h3>Approach F: interpreter-level lazy imports (Python 3.15+)</h3>
-					<p>Earlier attempts to make laziness a global interpreter switch did not land. <a href="https://peps.python.org/pep-0690/" target="_blank" rel="noopener">PEP 690</a>, which proposed making imports lazy by default behind a global flag, was rejected.</p>
-					<p><a href="https://peps.python.org/pep-0810/" target="_blank" rel="noopener">PEP 810, Explicit lazy imports</a>, took the opposite approach: the developer marks individual imports as lazy. It was accepted, its status is now Final, and it ships in Python 3.15. The 3.15.0 final release is scheduled for 9 October 2026 (see <a href="https://peps.python.org/pep-0790/" target="_blank" rel="noopener">PEP 790</a>). Check <a href="https://docs.python.org/3.15/whatsnew/3.15.html" target="_blank" rel="noopener">What's New in Python 3.15</a> for the details of the release you install.</p>
+					<p><a href="https://peps.python.org/pep-0690/" target="_blank" rel="noopener">PEP 690</a>, which proposed making all imports lazy behind a global flag, was rejected. <a href="https://peps.python.org/pep-0810/" target="_blank" rel="noopener">PEP 810, Explicit lazy imports</a>, lets the developer mark individual imports instead. It is Final and ships in Python 3.15, whose final release was scheduled for 9 October 2026 (<a href="https://peps.python.org/pep-0790/" target="_blank" rel="noopener">PEP 790</a>). Check <a href="https://docs.python.org/3.15/whatsnew/3.15.html" target="_blank" rel="noopener">What's New in Python 3.15</a> for the release you install.</p>
 <pre><code class="language-python"># Python 3.15+ only
 lazy import json
 lazy from pathlib import Path
@@ -359,62 +338,31 @@ data = json.loads('{"a": 1}')  # json loads here, on first use
 here = Path(".")               # pathlib loads here</code></pre>
 					<p>What I verified on a 3.15 pre-release, and what the documentation states:</p>
 					<ul>
-						<li><code>lazy</code> is a soft keyword. It only means something directly before <code>import</code> or <code>from</code>, so existing variables named <code>lazy</code> keep working.</li>
-						<li>The statement binds a placeholder. The module is not in <code>sys.modules</code> until the name is first used. At that point Python performs the real import and replaces the placeholder (the PEP calls this reification).</li>
-						<li>Lazy imports are only allowed at module level. Inside a function, class body or <code>try</code>/<code>except</code> block, they are a <code>SyntaxError</code>. Star imports and <code>from __future__</code> imports cannot be lazy either.</li>
-						<li>A missing module does not fail at the <code>lazy import</code> line. It raises <code>ImportError</code> at first use, with the original <code>ModuleNotFoundError</code> chained to it.</li>
-						<li><code>-X lazy_imports=all</code> or <code>PYTHON_LAZY_IMPORTS=all</code> makes module-level imports lazy without the keyword. <code>normal</code> (the default) respects only explicit <code>lazy</code> imports. <code>sys.set_lazy_imports()</code> and <code>sys.set_lazy_imports_filter()</code> control the same behaviour at runtime and are intended for applications, not libraries.</li>
+						<li><code>lazy</code> is a soft keyword, so existing variables named <code>lazy</code> keep working.</li>
+						<li>The statement binds a placeholder. The real import happens on first use, and Python replaces the placeholder (the PEP calls this reification).</li>
+						<li>Lazy imports are only allowed at module level. Inside a function, class body or <code>try</code>/<code>except</code>, they are a <code>SyntaxError</code>. Star imports and <code>from __future__</code> imports cannot be lazy.</li>
+						<li>A missing module raises <code>ImportError</code> at first use, with the original <code>ModuleNotFoundError</code> chained.</li>
+						<li><code>-X lazy_imports=all</code> or <code>PYTHON_LAZY_IMPORTS=all</code> makes module-level imports lazy without the keyword; <code>normal</code> (the default) respects only explicit ones. <code>sys.set_lazy_imports()</code> and <code>sys.set_lazy_imports_filter()</code> control this at runtime and are meant for applications, not libraries.</li>
 					</ul>
-					<p>Older Python versions cannot parse the <code>lazy</code> keyword. A file that uses it fails with <code>SyntaxError</code> on 3.14 and earlier. For code that must support both, PEP 810 adds a module-level <code>__lazy_modules__</code> list:</p>
+					<p>Python 3.14 and earlier cannot parse <code>lazy</code>. For code that must support both, PEP 810 adds a module-level <code>__lazy_modules__</code> list, which 3.15 honours and older versions ignore. I confirmed both behaviours on 3.12 and the 3.15 pre-release:</p>
 <pre><code class="language-python">__lazy_modules__ = ["pandas"]
 
 import argparse
 import pandas as pd   # lazy on Python 3.15+, an ordinary import on older versions</code></pre>
-					<p>Python 3.15 treats imports of listed modules as lazy. Older versions ignore the variable, so the file still works everywhere. I confirmed both behaviours on 3.12 and the 3.15 pre-release.</p>
 
 					<h2 id="benefits">Benefits of Lazy Imports</h2>
-					<p>Each benefit below comes from one fact: code that never runs an import never pays for it. That also defines the limit of each benefit.</p>
-
-					<h3>Faster application startup</h3>
-					<p><strong>Why:</strong> Python executes every top-level import before your first line of real work. Removing a heavy one from that path removes its cost from startup.</p>
-					<p><strong>When it helps:</strong> short-lived processes such as CLIs, scripts, serverless functions, test runs and autoscaled workers that start often.</p>
-					<p><strong>Limit:</strong> if the deferred module is used on most runs, the total time is the same. Only the moment the cost is paid changes.</p>
-
-					<h3>Reduced initial import overhead</h3>
-					<p><strong>Why:</strong> one heavy import often pulls in hundreds of transitive modules. Deferring the root defers the whole tree.</p>
-					<p><strong>When it helps:</strong> modules that are imported by many others, such as a shared <code>utils.py</code> that happens to import a big SDK.</p>
-					<p><strong>Limit:</strong> if another module imports the same dependency eagerly, the dependency still loads at startup. Use <code>-X importtime</code> to confirm the module actually disappears from the startup path.</p>
-
-					<h3>Optional dependency management</h3>
-					<p><strong>Why:</strong> a deferred import only runs on the code path that needs it, so a missing optional package fails only on that path.</p>
-					<p><strong>When it helps:</strong> packages with extras, for example <code>pip install mytool[excel]</code>. Users without the extra can still use everything else.</p>
-					<p><strong>Limit:</strong> you need a clear error message for the missing package, and tests for both the installed and missing cases.</p>
-
-					<h3>Better command-line responsiveness</h3>
-					<p><strong>Why:</strong> CLIs often have many subcommands, and each run uses one. Eager imports make every subcommand pay for all of them.</p>
-					<p><strong>When it helps:</strong> <code>--help</code>, <code>--version</code>, shell completion and small subcommands. Users notice delays of a few hundred milliseconds in an interactive tool.</p>
-					<p><strong>Limit:</strong> a CLI whose main command needs the heavy library will still feel slow on that command.</p>
-
-					<h3>Improved modularity</h3>
-					<p><strong>Why:</strong> putting a dependency next to the only code that uses it makes the dependency visible and easy to remove.</p>
-					<p><strong>When it helps:</strong> isolating integrations such as payment SDKs, cloud clients or report renderers behind a single function or module.</p>
-					<p><strong>Limit:</strong> scattered imports across many functions can make a module's dependencies harder to see at a glance. Keep them to a few clear entry points.</p>
-
-					<h3>Lower initial memory use in some applications</h3>
-					<p><strong>Why:</strong> a module that is never imported never allocates its functions, classes, constants and native libraries.</p>
-					<p><strong>When it helps:</strong> many small processes on one host, or memory-limited containers. In the benchmark below, the eager CLI peaked at about 65 MiB of resident memory for the <code>version</code> command and the lazy one at about 11 MiB.</p>
-					<p><strong>Limit:</strong> once the module is used, memory reaches the same level. Long-running servers that use the module anyway gain nothing. Pre-forking servers, such as Gunicorn with <code>--preload</code>, can even lose a little. Modules loaded before the fork can share memory pages with every worker through copy-on-write, while a lazily loaded module is loaded separately in each worker.</p>
-
-					<h3>Plugin and backend architectures</h3>
-					<p><strong>Why:</strong> with <code>importlib</code>, only the configured backend is imported. Unused backends and their dependencies stay on disk.</p>
-					<p><strong>When it helps:</strong> storage backends, payment providers, export formats, notification channels.</p>
-					<p><strong>Limit:</strong> a broken backend is only discovered when someone selects it. Import every registered backend in a test.</p>
+					<p>Every benefit comes from one fact: code that never runs an import never pays for it. That also sets each benefit's limit.</p>
+					<ul>
+						<li><strong>Faster startup</strong> for short-lived processes: CLIs, scripts, serverless functions, test runs and autoscaled workers. No gain if most runs use the module anyway.</li>
+						<li><strong>Smaller import trees.</strong> Deferring one root defers hundreds of transitive modules. If another module imports it eagerly, it still loads at startup, so confirm with <code>-X importtime</code>.</li>
+						<li><strong>Optional dependencies.</strong> With extras such as <code>pip install mytool[excel]</code>, a missing package fails only on its own path. You need a clear error message and tests for both cases.</li>
+						<li><strong>Responsive CLIs.</strong> <code>--help</code>, <code>--version</code> and shell completion stop paying for every subcommand's dependencies.</li>
+						<li><strong>Lower initial memory.</strong> In the benchmark below, the eager CLI peaked at about 65 MiB for <code>version</code> and the lazy one at about 11 MiB. Once the module loads, memory is the same. Pre-forking servers such as Gunicorn with <code>--preload</code> can even lose: modules loaded before the fork share pages across workers through copy-on-write, while a lazy module loads separately in each worker.</li>
+						<li><strong>Plugin architectures.</strong> Only the configured backend loads. A broken backend is found only when selected, so import every registered backend in a test.</li>
+					</ul>
 
 					<h2 id="before-and-after">Before-and-After Example: A Report CLI</h2>
-					<p>Here is a small command-line tool with two subcommands. <code>version</code> prints a string. <code>summary</code> reads a CSV with pandas and prints statistics. To run it, install pandas first:</p>
-<pre><code class="language-bash">python -m venv .venv
-source .venv/bin/activate
-pip install pandas</code></pre>
+					<p>A small CLI with two subcommands: <code>version</code> prints a string, <code>summary</code> reads a CSV with pandas. Install pandas first (<code>pip install pandas</code> in a virtual environment).</p>
 
 					<h3>Eager version</h3>
 <pre><code class="language-python"># report_eager.py
@@ -449,16 +397,7 @@ def main():
 
 if __name__ == "__main__":
     main()</code></pre>
-					<p>Execution flow for <code>python report_eager.py version</code>:</p>
-<pre class="diagram">start interpreter
-↓
-import argparse
-↓
-import pandas  ← loads NumPy and the rest of pandas
-↓
-parse arguments
-↓
-print "report-cli 1.0.0"</pre>
+					<p>Running <code>version</code> imports argparse, then pandas and NumPy, then parses arguments and prints one line.</p>
 
 					<h3>Lazy version</h3>
 					<p>The only change is where pandas is imported:</p>
@@ -471,11 +410,10 @@ def summarize(args):
 
     frame = pd.read_csv(args.path)
     print(frame.describe())</code></pre>
-					<p>Now <code>version</code> goes straight from argument parsing to printing. <code>summary</code> imports pandas when it starts its real work.</p>
-					<p>On Python 3.15 or later, you can get the same effect without moving the import. Change the top-level line to <code>lazy import pandas as pd</code>. pandas then loads at the first <code>pd.read_csv</code> call. I checked this flow on a 3.15 pre-release with a stand-in module, because pandas did not yet run on that pre-release build.</p>
+					<p>Now <code>version</code> goes straight from parsing to printing. On Python 3.15+, <code>lazy import pandas as pd</code> at the top gives the same effect without moving the line. I checked that flow on a 3.15 pre-release with a stand-in module, because pandas did not yet run on that build.</p>
 
 					<h3>Benchmark script</h3>
-					<p>This script uses only the standard library. It runs each command as a fresh process, because the import cache lives inside a process; timing imports inside one long-running process would measure the cache, not startup.</p>
+					<p>The script runs each command as a fresh process. The import cache lives inside a process, so timing imports in one long-running process would measure the cache, not startup.</p>
 <pre><code class="language-python"># bench.py
 import statistics
 import subprocess
@@ -514,10 +452,10 @@ def main():
 
 if __name__ == "__main__":
     main()</code></pre>
-					<p>Put <code>bench.py</code>, both CLI files and a small <code>sales.csv</code> (any CSV with a few numeric columns) in one folder and run <code>python bench.py</code>.</p>
+					<p>Put <code>bench.py</code>, both CLI files and a small <code>sales.csv</code> with a few numeric columns in one folder and run <code>python bench.py</code>.</p>
 
 					<h3>Measured results</h3>
-					<p>These are real numbers from one machine, not a general claim. Environment: Linux, Intel Core i5-1155G7, Python 3.12.3, pandas 3.0.6, 20 runs per case, median wall time measured from the parent process. I ran the script twice and the results matched within about 15 ms.</p>
+					<p>Real numbers from one machine: Linux, Intel Core i5-1155G7, Python 3.12.3, pandas 3.0.6, median of 20 runs. Two runs matched within about 15 ms.</p>
 					<div class="table-wrap">
 						<table>
 							<thead><tr><th scope="col">Command</th><th scope="col">Eager</th><th scope="col">Lazy</th></tr></thead>
@@ -528,23 +466,15 @@ if __name__ == "__main__":
 							</tbody>
 						</table>
 					</div>
-					<p>Two results matter:</p>
 					<ul>
-						<li><strong><code>version</code> got about 13 times faster</strong>, because it no longer loads pandas at all.</li>
-						<li><strong><code>summary</code> did not change.</strong> It still needs pandas, so it still pays roughly 250 ms; it just pays at a different line. The time until the first useful output is the same.</li>
+						<li><strong><code>version</code> got about 13 times faster</strong>, because it no longer loads pandas.</li>
+						<li><strong><code>summary</code> did not change.</strong> It still pays roughly 250 ms for pandas, at a different line.</li>
 					</ul>
-					<p>Your numbers will differ with hardware, Python version, library versions, disk cache state and whether bytecode is already compiled. Run the script on your own tool before deciding anything. The pattern will hold, though: lazy imports speed up the paths that skip the module and do nothing for the paths that use it.</p>
+					<p>Your numbers will vary with hardware, versions and cache state, so run the script on your own tool. The pattern holds: lazy imports speed up paths that skip the module and do nothing for paths that use it.</p>
 
 					<h2 id="django">Lazy Imports in Django Applications</h2>
-					<p>Django loads a lot at startup on purpose. <code>django.setup()</code> imports every app in <code>INSTALLED_APPS</code>, their models and their <code>AppConfig.ready()</code> hooks. Middleware is imported when the WSGI or ASGI handler is created. The URLconf, and every views module it references, is imported the first time a URL is resolved, or earlier when system checks run. Anything those modules import at the top level loads in every process: web workers, Celery workers, test runners and each <code>manage.py</code> command.</p>
-					<p>That makes a few places good candidates for deferring heavy imports:</p>
-					<ul>
-						<li><strong>Management commands</strong> that need pandas, boto3 or a reporting library.</li>
-						<li><strong>Report and export features</strong> such as Excel, PDF or Parquet output.</li>
-						<li><strong>Image processing</strong> with Pillow or OpenCV that only one upload path needs.</li>
-						<li><strong>External service clients</strong> used by a single integration.</li>
-						<li><strong>Rarely used admin actions</strong> that pull in large libraries.</li>
-					</ul>
+					<p>Django loads a lot at startup on purpose. <code>django.setup()</code> imports every app in <code>INSTALLED_APPS</code>, their models and <code>AppConfig.ready()</code> hooks. Middleware loads when the WSGI or ASGI handler is created, and the URLconf with every views module it references loads on first URL resolution or during system checks. Anything those modules import at the top level loads in every web worker, Celery worker, test run and <code>manage.py</code> command.</p>
+					<p>Good candidates for deferral: heavy libraries in management commands, Excel, PDF or Parquet exports, Pillow or OpenCV on a single upload path, single-integration SDKs, and rarely used admin actions.</p>
 
 					<h3>A rarely used export view</h3>
 <pre><code class="language-python"># orders/views.py
@@ -575,10 +505,10 @@ def export_orders_xlsx(request):
     response = HttpResponse(buffer.getvalue(), content_type=XLSX_TYPE)
     response["Content-Disposition"] = 'attachment; filename="orders.xlsx"'
     return response</code></pre>
-					<p>Every other view in <code>orders/views.py</code>, and every worker that imports this file, no longer loads openpyxl.</p>
+					<p>Every other view in the file, and every worker that imports it, no longer loads openpyxl.</p>
 
 					<h3>A management command with an optional dependency</h3>
-					<p>Django discovers management commands by file name and imports a command's module only when you run that command. Heavy imports at the top of a command file therefore only slow that command. The pattern below is still useful when one command has an optional, heavier mode:</p>
+					<p>Django imports a command's module only when you run that command, so top-level imports in a command file only slow that command. The pattern below helps when one command has an optional, heavier mode:</p>
 <pre><code class="language-python"># orders/management/commands/export_orders.py
 from django.core.management.base import BaseCommand, CommandError
 
@@ -613,28 +543,16 @@ class Command(BaseCommand):
                 writer.writerows(rows)
 
         self.stdout.write(self.style.SUCCESS(f"Exported to {options['path']}"))</code></pre>
-					<p>The <code>import pyarrow</code> line is there for a reason. While testing this example, my first version only checked for pandas. pandas was installed but pyarrow was not, and the command failed deep inside <code>to_parquet()</code> with a less helpful error. Check every dependency the deferred path needs, up front.</p>
-
-					<h3>What lazy imports will not fix</h3>
-					<p>In most Django projects, import time is not the bottleneck. Lazy imports do not replace:</p>
-					<ul class="list-cross">
-						<li>Query optimization: removing N+1 queries and fetching less data</li>
-						<li>Database indexing</li>
-						<li>Caching expensive results</li>
-						<li>Keeping heavy work out of app initialization and out of the request cycle</li>
-						<li>A sound application structure</li>
-					</ul>
-					<p>If your pages are slow, look at the queries first. My post on <a href="/blog/django-optimization-at-scale/">scaling Django applications to millions of records</a> covers that side.</p>
+					<p>The <code>import pyarrow</code> line is deliberate. My first version only checked for pandas; with pyarrow missing, the command failed deep inside <code>to_parquet()</code> with a less helpful error. Check every dependency the deferred path needs, up front.</p>
 
 					<h3>Django-specific cautions</h3>
 					<ul>
-						<li><strong>Import-time side effects.</strong> Some imports exist for their side effects: registering signal receivers, admin classes, template tags, checks or serializers. Deferring them changes behaviour, not just timing.</li>
-						<li><strong>App initialization and <code>AppConfig.ready()</code>.</strong> Django's documentation recommends importing signal handlers inside <a href="https://docs.djangoproject.com/en/stable/ref/applications/#django.apps.AppConfig.ready" target="_blank" rel="noopener"><code>ready()</code></a>. That is a deferred import, but it is a required one. It must run at startup, so keep it there.</li>
-						<li><strong>Circular imports.</strong> A function-local import can break a cycle between two apps, and Django itself sometimes uses one. Treat it as a patch. Resolving the dependency direction, or referring to models by string (<code>"orders.Order"</code>) and <code>apps.get_model()</code>, is the real fix.</li>
-						<li><strong>Signal registration.</strong> If <code>signals.py</code> is only imported from a lazy path, receivers silently do nothing until that path runs.</li>
-						<li><strong>Model discovery.</strong> Django finds models by importing each app's <code>models</code> module during setup. Never hide models behind a lazy path; migrations and the ORM will not see them.</li>
-						<li><strong>Test behaviour.</strong> A deferred import may already be cached by an earlier test, so the first-use path behaves differently in a full suite than in isolation. Patch the dependency with <code>unittest.mock.patch.dict(sys.modules, ...)</code> when you need to test the missing-package case.</li>
-						<li><strong>Optional dependencies.</strong> Document which features need which extras, and fail with a clear <code>CommandError</code> or <code>ImproperlyConfigured</code> message instead of a raw <code>ImportError</code>.</li>
+						<li><strong>Import-time side effects.</strong> Some imports register signal receivers, admin classes, template tags, checks or serializers. Deferring them changes behaviour, not just timing. If <code>signals.py</code> is only imported from a lazy path, receivers silently do nothing until that path runs.</li>
+						<li><strong><code>AppConfig.ready()</code>.</strong> Django recommends importing signal handlers inside <a href="https://docs.djangoproject.com/en/stable/ref/applications/#django.apps.AppConfig.ready" target="_blank" rel="noopener"><code>ready()</code></a>. That import is deferred but required at startup; keep it there (see below).</li>
+						<li><strong>Model discovery.</strong> Django finds models by importing each app's <code>models</code> module during setup. Never hide models behind a lazy path.</li>
+						<li><strong>Circular imports.</strong> A function-local import can break a cycle between apps, but treat it as a patch. Fix the dependency direction, or refer to models by string (<code>"orders.Order"</code>) and <code>apps.get_model()</code>.</li>
+						<li><strong>Tests.</strong> An earlier test may already have cached a deferred import, so the first-use path behaves differently in a full suite. Use <code>unittest.mock.patch.dict(sys.modules, ...)</code> to test the missing-package case.</li>
+						<li><strong>Optional dependencies.</strong> Document which features need which extras, and raise <code>CommandError</code> or <code>ImproperlyConfigured</code> instead of a raw <code>ImportError</code>.</li>
 					</ul>
 <pre><code class="language-python"># orders/apps.py
 from django.apps import AppConfig
@@ -647,25 +565,21 @@ class OrdersConfig(AppConfig):
         # Registers signal receivers. This must run at startup, so it is
         # not a candidate for lazy loading.
         from . import signals  # noqa: F401</code></pre>
-					<p>I ran both examples above in a minimal Django 6.1 project. The signal fired, the CSV export worked, the Parquet path raised the <code>CommandError</code> when pyarrow was missing, and openpyxl was not in <code>sys.modules</code> until the export view ran.</p>
+					<p>I ran these examples in a minimal Django 6.1 project. The signal fired, the CSV export worked, the Parquet path raised <code>CommandError</code> when pyarrow was missing, and openpyxl was not in <code>sys.modules</code> until the export view ran.</p>
+					<p>In most Django projects import time is not the bottleneck. Lazy imports do not replace query optimization, indexing, caching, or keeping heavy work out of app initialization and the request cycle. If pages are slow, look at the queries first; my post on <a href="/blog/django-optimization-at-scale/">scaling Django applications to millions of records</a> covers that side.</p>
 
 					<h2 id="drawbacks">Potential Drawbacks and Limitations</h2>
-
-					<h3>Delayed errors</h3>
-					<p>A missing or broken dependency used to fail at startup, where deployment checks catch it. Now it fails when a user clicks Export, possibly weeks later.</p>
-					<p><strong>Mitigation:</strong> add a smoke test or startup check that imports every optional dependency you expect in that environment. Run it in CI and in your deploy pipeline.</p>
-
-					<h3>Latency on first use</h3>
-					<p>The first request that needs the module pays the whole import cost. In the benchmark, that is about 250 ms added to one request.</p>
-					<p><strong>Mitigation:</strong> for long-running servers where that module is used regularly, import it at startup instead. If you defer it, consider warming it up after boot, outside the request path.</p>
-
-					<h3>Debugging complexity</h3>
-					<p>With proxy-based approaches, an import error surfaces at an attribute access far from the import line. Python 3.15 chains the original error, which helps, but the traceback still starts at the point of use.</p>
-					<p><strong>Mitigation:</strong> prefer plain function-local imports, where the import line is right next to the code that needs it.</p>
+					<ul>
+						<li><strong>Delayed errors.</strong> A missing dependency used to fail at startup, where deploy checks catch it. Now it fails when a user clicks Export. <em>Mitigation:</em> a CI and deploy smoke test that imports every optional dependency expected in that environment.</li>
+						<li><strong>First-use latency.</strong> The first request that needs the module pays the whole import, about 250 ms in the benchmark. <em>Mitigation:</em> in long-running servers that use the module regularly, import it at startup or warm it up after boot.</li>
+						<li><strong>Harder debugging.</strong> With proxy-based approaches, errors surface at an attribute access far from the import. <em>Mitigation:</em> prefer plain function-local imports.</li>
+						<li><strong>Hidden circular imports.</strong> A local import stops the error without removing the cycle. <em>Mitigation:</em> comment it as a short-term fix, then move shared code to a third module or reverse one dependency.</li>
+						<li><strong>Untested paths.</strong> A suite that never calls the export function never imports its dependency. <em>Mitigation:</em> test every lazy path, plus the "dependency missing" case for optional ones.</li>
+						<li><strong>Maintenance cost.</strong> A home-grown framework of proxies and import hooks can cost more engineering time than it saves. <em>Mitigation:</em> start with function-local imports; on 3.15+, prefer the standard <code>lazy</code> keyword.</li>
+					</ul>
 
 					<h3>Type checking and IDE support</h3>
-					<p>Type checkers and IDEs handle function-local imports well. <code>importlib</code> calls and <code>__getattr__</code> tricks are opaque to them. A function-local import also leaves no module-level name for type annotations.</p>
-					<p><strong>Mitigation:</strong> import types under <code>TYPE_CHECKING</code>. Type checkers see the import; the runtime does not execute it.</p>
+					<p>Type checkers handle function-local imports well, but <code>importlib</code> calls and <code>__getattr__</code> are opaque to them, and a local import leaves no module-level name for annotations. Import types under <code>TYPE_CHECKING</code>: type checkers see them; the runtime does not execute them.</p>
 <pre><code class="language-python">from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -679,14 +593,8 @@ def load_sales(path: str) -&gt; pd.DataFrame:
 
     return pd.read_csv(path)</code></pre>
 
-					<h3>Circular import problems</h3>
-					<p>Moving an import into a function can stop a circular import error, because by the time the function runs both modules are fully loaded. It hides the cycle without removing it, and the next refactor can bring it back.</p>
-					<p><strong>Mitigation:</strong> use the local import as a short-term fix and leave a comment. Then break the cycle by moving shared code into a third module or reversing one dependency.</p>
-
 					<h3>Threading and concurrency</h3>
-					<p>Python's import system uses per-module locks, so two threads importing the same module at once do not initialise it twice. Plain function-local imports are safe.</p>
-					<p>Custom lazy logic is a different matter. If you build an expensive object on first use, such as a client, a model or a parsed config, two threads can both see "not built yet" and both build it.</p>
-					<p><strong>Mitigation:</strong> guard custom first-use work with a lock.</p>
+					<p>Python's import system uses per-module locks, so plain function-local imports are thread-safe. Custom first-use logic is not. If you build an expensive client or parsed config on first use, two threads can both see "not built yet" and both build it. Guard it with a lock:</p>
 <pre><code class="language-python">import threading
 
 _client = None
@@ -702,14 +610,6 @@ def get_client():
 
                 _client = Client.from_env()
     return _client</code></pre>
-
-					<h3>Testing complexity</h3>
-					<p>Deferred code paths are easy to forget. A test suite that never calls the export function never imports its dependency, so a broken import ships unnoticed.</p>
-					<p><strong>Mitigation:</strong> give every lazy path at least one test. Also test the "dependency missing" behaviour when the dependency is optional.</p>
-
-					<h3>Maintenance overhead</h3>
-					<p>A custom lazy-import framework, with proxies, registries and import hooks, is code your team has to understand and maintain. It is easy to build one that costs more engineering time than it saves in startup time.</p>
-					<p><strong>Mitigation:</strong> start with function-local imports. Reach for <code>LazyLoader</code>, <code>lazy_loader</code> or <code>__getattr__</code> only for libraries with real startup budgets. On Python 3.15+, prefer the standard <code>lazy</code> keyword over any home-grown mechanism.</p>
 
 					<h2 id="when-to-use">When Should You Use Lazy Imports?</h2>
 					<div class="table-wrap">
@@ -728,60 +628,37 @@ def get_client():
 							</tbody>
 						</table>
 					</div>
-					<p>Ordinary top-level imports remain the right default. They make dependencies visible at a glance, fail fast when something is missing, and match what linters and every Python developer expect. Use lazy imports where a measurement shows they pay off.</p>
-
-					<h2 id="best-practices">Best Practices</h2>
-					<ul class="list-check">
-						<li><strong>Profile before optimizing.</strong> Run <code>python -X importtime</code> and find the imports that actually cost something.</li>
-						<li><strong>Measure startup and first use separately.</strong> Benchmark fresh processes, and time both the path that skips the module and the path that uses it.</li>
-						<li><strong>Prefer simple function-local imports.</strong> They need no tools and are easy to read.</li>
-						<li><strong>Keep required initialization explicit.</strong> Models, signal registration, admin registration and app setup stay eager.</li>
-						<li><strong>Avoid custom import frameworks</strong> unless a library genuinely needs them.</li>
-						<li><strong>Validate dynamic module names</strong> against an allowlist or trusted configuration.</li>
-						<li><strong>Document optional dependencies</strong> and raise clear errors when they are missing.</li>
-						<li><strong>Test every deferred path</strong>, including the case where an optional dependency is absent.</li>
-						<li><strong>Account for first-request latency</strong> in servers; warm up hot modules at boot.</li>
-						<li><strong>Keep type checking working</strong> with <code>TYPE_CHECKING</code> imports or stubs.</li>
-						<li><strong>Keep import behaviour predictable.</strong> Follow one convention per project and comment why an import is deferred.</li>
-						<li><strong>Do not use lazy imports to hide architecture problems</strong> such as circular dependencies or modules doing heavy work at import time.</li>
-					</ul>
+					<p>Top-level imports remain the right default. They make dependencies visible, fail fast and match what linters and other developers expect. Defer an import when a measurement shows it pays off, follow one convention per project, and comment why each import is deferred.</p>
 
 					<h2 id="conclusion">Conclusion</h2>
-					<p>Lazy imports move the cost of loading a module from program start to first use. When a code path never needs the module, that cost disappears. In the example above, a <code>version</code> command dropped from about 250 ms to 19 ms. When the code path does need the module, nothing changes except when you pay.</p>
-					<p>For most code, a function-local import around a heavy, rarely used dependency is all you need. <code>importlib</code> handles plugin systems, and PEP 562 <code>__getattr__</code> helps large libraries. Python 3.15's <code>lazy import</code> finally gives you a standard, explicit way to keep imports at the top of the file and still defer them.</p>
+					<p>Lazy imports move the cost of loading a module from program start to first use. When a code path never needs the module, the cost disappears: the <code>version</code> command above dropped from about 250 ms to 19 ms. When it does need the module, nothing changes except when you pay. A function-local import is usually all you need; <code>importlib</code> serves plugin systems, PEP 562 serves large libraries, and Python 3.15's <code>lazy import</code> lets you keep imports at the top of the file and still defer them.</p>
 					<aside class="callout">
 						<p class="callout-title">Try this today</p>
-						<p>Run <code>python -X importtime -c "import yourapp"</code> on your own project and sort by cumulative time. If one dependency dominates and only a few code paths use it, move that import next to the code that needs it, measure again, and add a test for that path.</p>
+						<p>Run <code>python -X importtime -c "import yourapp"</code> on your project and sort by cumulative time. If one dependency dominates and few code paths use it, move that import next to the code that needs it, measure again, and add a test for that path.</p>
 					</aside>
 
 					<h2 id="faq">Frequently Asked Questions</h2>
 
 					<h3>What is a lazy import in Python?</h3>
-					<p>A lazy import loads a module when the code first needs it instead of when the program starts. The most common form is an <code>import</code> statement inside the function that uses the module. Python 3.15 also adds an explicit <code>lazy import</code> statement.</p>
+					<p>An import that loads a module when the code first needs it instead of at program start. The common form is an <code>import</code> inside the function that uses the module. Python 3.15 adds an explicit <code>lazy import</code> statement.</p>
 
 					<h3>Do lazy imports improve Python performance?</h3>
-					<p>They improve startup time and initial memory for code paths that never use the deferred module. They do not make the module itself faster, and they do not help code paths that use it on every run.</p>
+					<p>They improve startup time and initial memory for code paths that never use the deferred module. They do not make the module faster or help paths that use it on every run.</p>
 
 					<h3>Are imports inside Python functions bad practice?</h3>
-					<p>No, when they have a reason. PEP 8 recommends top-level imports as the default, and that default is right for most code. A function-local import is reasonable for heavy optional dependencies, for breaking a circular import as a temporary fix, or in Django's <code>AppConfig.ready()</code>. Add a short comment saying why.</p>
-
-					<h3>Does Python cache imported modules?</h3>
-					<p>Yes. Imported modules are stored in <code>sys.modules</code> for the life of the process. Later imports of the same module reuse the cached object without running its code again. The cache does not persist between processes.</p>
+					<p>Not when they have a reason. PEP 8's top-level default is right for most code. A function-local import is reasonable for heavy optional dependencies, as a temporary fix for a circular import, or in Django's <code>AppConfig.ready()</code>. Add a short comment saying why.</p>
 
 					<h3>Can lazy imports reduce memory usage?</h3>
-					<p>They can reduce memory for processes that never use the deferred module. In the benchmark, the <code>version</code> command peaked at about 11 MiB instead of 65 MiB. Once the module is imported, memory use is the same as with an eager import.</p>
+					<p>For processes that never use the deferred module, yes. In the benchmark, <code>version</code> peaked at about 11 MiB instead of 65 MiB. Once the module is imported, memory is the same as with an eager import.</p>
 
 					<h3>Are lazy imports useful in Django?</h3>
-					<p>Yes, for heavy dependencies used by a few views, admin actions or management commands. Keep models, signal registration and anything else needed during app initialization as regular imports. Query performance usually matters far more than import time.</p>
-
-					<h3>What are the disadvantages of lazy imports?</h3>
-					<p>Errors for missing dependencies appear later, the first use is slower, dependencies are less visible, and deferred paths need their own tests. Proxy-based approaches also make debugging and static analysis harder.</p>
+					<p>Yes, for heavy dependencies used by a few views, admin actions or management commands. Keep models, signal registration and app initialization as regular imports. Query performance usually matters far more than import time.</p>
 
 					<h3>How can I measure Python import time?</h3>
-					<p>Use <code>python -X importtime</code> (or the <code>PYTHONPROFILEIMPORTTIME</code> environment variable) to see per-module import times. To measure what users feel, time complete process runs with <code>subprocess</code> and <code>time.perf_counter()</code>, as in the benchmark script above.</p>
+					<p>Use <code>python -X importtime</code> (or <code>PYTHONPROFILEIMPORTTIME</code>) for per-module times. To measure what users feel, time complete process runs with <code>subprocess</code> and <code>time.perf_counter()</code>, as in the benchmark script above.</p>
 
 					<h3>Is lazy importing built into Python?</h3>
-					<p>Partly, and more so from 3.15. <code>importlib.util.LazyLoader</code> has existed since Python 3.5, and module-level <code>__getattr__</code> since 3.7. Python 3.15 adds the <code>lazy import</code> and <code>lazy from ... import</code> syntax from PEP 810. On 3.14 and earlier, that syntax is a <code>SyntaxError</code>.</p>
+					<p>Partly, and more so from 3.15. <code>importlib.util.LazyLoader</code> exists since 3.5 and module-level <code>__getattr__</code> since 3.7. Python 3.15 adds <code>lazy import</code> and <code>lazy from ... import</code> from PEP 810; on 3.14 and earlier that syntax is a <code>SyntaxError</code>.</p>
 
 					<h2 id="references">References</h2>
 					<ul>
@@ -823,7 +700,7 @@ def get_client():
 						<article class="post-card reveal">
 							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
 							<div class="post-card-body">
-								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 24 min read</p>
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
 								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
 								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
 								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
@@ -832,7 +709,7 @@ def get_client():
 						<article class="post-card reveal">
 							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
 							<div class="post-card-body">
-								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 20 min read</p>
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
 								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
 								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
 								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
@@ -841,7 +718,7 @@ def get_client():
 						<article class="post-card reveal">
 							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
 							<div class="post-card-body">
-								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 16 min read</p>
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
 								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
 								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
 								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
