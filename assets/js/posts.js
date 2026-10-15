@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'bulk-csv-import-export-pipelines',
+		title: 'Building Efficient Bulk CSV Import/Export and Data Migration Pipelines',
+		description: 'Build fast bulk CSV import/export pipelines in Django: ZIP handling, Celery background jobs, streaming, chunked bulk upserts, validation and retries.',
+		date: '2026-10-15',
+		readingTime: 14,
+		level: 'Beginner to Intermediate',
+		tags: ['Django', 'Celery', 'Performance'],
+		url: '/blog/bulk-csv-import-export-pipelines/',
+		cover: '/assets/img/blog/bulk-csv-import-export-pipelines/cover.webp',
+		coverAlt: 'Bulk CSV Import and Export cover: an import job status response showing 50,004 rows, 50,000 imported and 4 failed with line-level errors, with measured results of 51.3 seconds row by row, 2.0 seconds with chunked upserts and 1.6 MB streaming memory'
+	},
+	{
 		slug: 'python-testing-code-quality',
 		title: 'Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices',
 		description: 'A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.',
