@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Python Concurrency for Backend Developers: Threads, asyncio and Processes | Riyas A C</title>
+	<meta name="description" content="When to use threads, asyncio or processes in Python: measured benchmarks, the GIL, free-threaded Python 3.14, and async views in Django.">
+	<meta name="keywords" content="Python concurrency, Python threading, asyncio, multiprocessing, ThreadPoolExecutor, ProcessPoolExecutor, InterpreterPoolExecutor, GIL, free-threaded Python, Python 3.14, I/O-bound vs CPU-bound, Django async views, sync_to_async">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Python Concurrency for Backend Developers: Threads, asyncio and Processes">
+	<meta property="og:description" content="Threads, asyncio or processes? Measured benchmarks on regular and free-threaded Python 3.14, and how it all applies to Django.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Python Concurrency cover: benchmark results showing 100 I/O calls taking 10.01 s sequentially, 0.40 s with threads and 0.10 s with asyncio, and CPU-bound threads taking 1.06 s with the GIL enabled versus 0.34 s with it disabled">
+	<meta property="article:published_time" content="2026-10-15T12:00:00Z">
+	<meta property="article:modified_time" content="2026-10-15T12:00:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Python">
+	<meta property="article:tag" content="Concurrency">
+	<meta property="article:tag" content="Django">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Python Concurrency for Backend Developers: Threads, asyncio and Processes">
+	<meta name="twitter:description" content="Threads, asyncio or processes? Measured benchmarks on regular and free-threaded Python 3.14, and how it all applies to Django.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.jpg">
+	<meta name="twitter:image:alt" content="Python Concurrency cover: benchmark results showing 100 I/O calls taking 10.01 s sequentially, 0.40 s with threads and 0.10 s with asyncio, and CPU-bound threads taking 1.06 s with the GIL enabled versus 0.34 s with it disabled">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/#article",
+		"url": "https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/",
+		"headline": "Python Concurrency for Backend Developers: Threads, asyncio and Processes",
+		"description": "When to use threads, asyncio or processes in Python: measured benchmarks, the GIL, free-threaded Python 3.14, and async views in Django.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T12:00:00Z",
+		"dateModified": "2026-10-15T12:00:00Z",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Python", "Concurrency", "Django", "asyncio", "Threading", "Multiprocessing", "GIL", "Free-threaded Python"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Python Concurrency for Backend Developers: Threads, asyncio and Processes",
+				"item": "https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Python</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Python Concurrency for Backend Developers: Threads, asyncio and Processes</h1>
+					<p class="post-lead">When to use threads, asyncio or processes in a Python backend, measured on regular and free-threaded Python 3.14, and how it all applies to Django.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 14 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Intermediate</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Python, Django</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Python</li><li>Concurrency</li><li>Django</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" width="1024" height="535" alt="Python Concurrency cover: benchmark results showing 100 I/O calls taking 10.01 s sequentially, 0.40 s with threads and 0.10 s with asyncio, and CPU-bound threads taking 1.06 s with the GIL enabled versus 0.34 s with it disabled" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+					<p>A backend service spends most of its life waiting: for the database, for another API, for a file upload. Sometimes it does the opposite and burns CPU resizing images or building a report. <strong>Python concurrency</strong> is about choosing the right tool for each kind of work, and Python gives you three: <strong>threads</strong>, <strong>asyncio</strong> and <strong>processes</strong>.</p>
+					<p>Pick wrong and nothing gets faster. Threads do not speed up CPU-bound Python on a regular build. asyncio does not help when one call blocks the event loop. Processes cost memory and startup time you may not need.</p>
+					<p>This guide explains what each model does, measures all three on the same workloads, covers what free-threaded Python changes, and shows how this applies to Django. Benchmarks ran on Python 3.14.6, with both the regular build and the free-threaded build, and the Django example on Django 6.1.</p>
+
+					<h2 id="concurrency-vs-parallelism">Concurrency vs Parallelism, I/O-Bound vs CPU-Bound</h2>
+					<p><strong>Concurrency</strong> means several tasks are in progress at once, taking turns. <strong>Parallelism</strong> means several tasks run at the same instant on different CPU cores. A single waiter serving ten tables is concurrent; ten waiters are parallel.</p>
+					<p>Which one you need depends on where the time goes:</p>
+					<ul>
+						<li><strong>I/O-bound work</strong> waits on something outside your process: database queries, HTTP calls, Redis, disk, a message broker. The CPU is idle during the wait. Concurrency helps because other tasks can run while one waits.</li>
+						<li><strong>CPU-bound work</strong> keeps a core busy: image processing, PDF generation, parsing, compression, number crunching in pure Python. Only parallelism helps, because the work has to run on more cores.</li>
+					</ul>
+					<p>Most web requests are I/O-bound. Most background jobs that feel slow are CPU-bound or a mix of both. Profile before choosing; the answer decides everything below.</p>
+
+					<h2 id="gil">The GIL and Free-Threaded Python</h2>
+					<p>CPython's regular build has a <strong>Global Interpreter Lock</strong> (GIL): only one thread executes Python bytecode at a time. A thread releases the GIL while it waits on I/O, and C extensions such as NumPy can release it during heavy work. So threads overlap well on I/O but cannot run pure-Python code in parallel.</p>
+					<p>That is changing. <a href="https://peps.python.org/pep-0703/" target="_blank" rel="noopener">PEP 703</a> added a <strong>free-threaded build</strong> without the GIL, experimental in Python 3.13. Under <a href="https://peps.python.org/pep-0779/" target="_blank" rel="noopener">PEP 779</a>, it became officially supported (no longer experimental) in Python 3.14. It is still a separate build, usually installed as <code>python3.14t</code>, not the default. Python 3.15 adds a stable ABI for free-threaded builds (<code>abi3t</code>), which makes it easier for C extensions to ship one wheel that works on it.</p>
+					<p>Check which build you are on:</p>
+<pre><code class="language-python">import sys
+import sysconfig
+
+print(sysconfig.get_config_var("Py_GIL_DISABLED"))  # 1 on a free-threaded build
+print(sys._is_gil_enabled())                         # False when the GIL is off</code></pre>
+					<p>On a free-threaded build, importing a C extension that has not declared free-threading support re-enables the GIL for the whole process and prints a warning. Your threads then behave exactly like the regular build. Check your dependencies before expecting a speed-up.</p>
+
+					<h2 id="threads">Threads</h2>
+					<p>Threads share one process and its memory. They are cheap to start, they can call any blocking library, and they need no special syntax. <code>concurrent.futures.ThreadPoolExecutor</code> is the simplest way to use them:</p>
+<pre><code class="language-python">from concurrent.futures import ThreadPoolExecutor
+
+import requests
+
+URLS = [f"https://api.example.com/products/{i}" for i in range(100)]
+
+
+def fetch(url):
+    response = requests.get(url, timeout=5)
+    response.raise_for_status()
+    return response.json()
+
+
+with ThreadPoolExecutor(max_workers=32) as pool:
+    products = list(pool.map(fetch, URLS))</code></pre>
+					<p>While one thread waits for a response, the GIL passes to another. In the benchmark below, 100 calls that each wait 100 ms took 10 seconds sequentially and 0.40 seconds with 32 threads.</p>
+					<p><strong>Use threads for:</strong> I/O-bound work with ordinary blocking libraries such as <code>requests</code>, <code>boto3</code> or database drivers, especially inside sync code you cannot rewrite.</p>
+					<p><strong>Watch out for:</strong> each thread uses memory for its stack, so thousands of threads are not practical. Shared state needs locks, and that matters more than ever on free-threaded Python.</p>
+
+					<h3>Shared state needs a lock</h3>
+					<p><code>count += 1</code> is three steps: read, add, write. Two threads can read the same value and both write back the same result, losing an update.</p>
+<pre><code class="language-python"># counter.py
+import threading
+
+count = 0
+lock = threading.Lock()
+
+
+def unsafe(n):
+    global count
+    for _ in range(n):
+        count += 1               # read, add, write: not atomic
+
+
+def safe(n):
+    global count
+    for _ in range(n):
+        with lock:
+            count += 1
+
+
+for worker in (unsafe, safe):
+    count = 0
+    threads = [threading.Thread(target=worker, args=(200_000,)) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    print(f"{worker.__name__:&lt;7} expected 1600000, got {count}")</code></pre>
+					<p>On the regular 3.14.6 build, the unsafe version printed the right total in all three of my runs. That is luck, not a guarantee: the GIL can switch threads between those steps. On the free-threaded build, it lost about 85% of the updates:</p>
+<pre class="diagram">Python 3.14.6, GIL disabled
+unsafe  expected 1600000, got 243216
+unsafe  expected 1600000, got 244441
+unsafe  expected 1600000, got 211839
+safe    expected 1600000, got 1600000</pre>
+					<p>Code that "worked" under the GIL can break on a free-threaded build. Protect shared mutable state with a <code>Lock</code>, or avoid sharing it: pass data through a <code>queue.Queue</code> or return results from the pool.</p>
+
+					<h2 id="asyncio">asyncio</h2>
+					<p>asyncio runs many tasks on <strong>one thread</strong> with an event loop. Each <code>await</code> on I/O hands control back to the loop, which runs another task until the result arrives. Because switching happens only at <code>await</code>, there are no surprise interleavings, and one process can hold tens of thousands of open connections.</p>
+<pre><code class="language-python">import asyncio
+
+import httpx
+
+
+async def fetch(client, url):
+    response = await client.get(url, timeout=5)
+    response.raise_for_status()
+    return response.json()
+
+
+async def main(urls):
+    async with httpx.AsyncClient() as client:
+        async with asyncio.TaskGroup() as group:            # Python 3.11+
+            tasks = [group.create_task(fetch(client, url)) for url in urls]
+    return [task.result() for task in tasks]
+
+
+products = asyncio.run(main(URLS))</code></pre>
+					<p><code>TaskGroup</code> waits for every task and cancels the rest if one fails, which is safer than a bare <code>asyncio.gather()</code>. For bounded concurrency against a rate-limited API, wrap calls in an <code>asyncio.Semaphore</code>.</p>
+					<p><strong>Use asyncio for:</strong> high-concurrency I/O, such as many outbound HTTP calls, WebSockets, streaming, and services that fan out to several backends per request.</p>
+					<p><strong>Watch out for:</strong> every library in the path must be async-aware. <code>requests</code>, <code>time.sleep()</code> and most database drivers block the loop.</p>
+
+					<h3>One blocking call stalls everything</h3>
+<pre><code class="language-python"># blocking.py
+import asyncio
+import time
+
+
+async def blocking_handler():
+    time.sleep(0.1)              # blocks the whole event loop
+
+
+async def non_blocking_handler():
+    await asyncio.sleep(0.1)     # yields to other tasks while waiting
+
+
+async def serve(handler, requests=10):
+    start = time.perf_counter()
+    await asyncio.gather(*(handler() for _ in range(requests)))
+    print(f"{handler.__name__:&lt;22} {time.perf_counter() - start:.2f} s")
+
+
+asyncio.run(serve(blocking_handler))
+asyncio.run(serve(non_blocking_handler))</code></pre>
+<pre class="diagram">blocking_handler       1.00 s
+non_blocking_handler   0.10 s</pre>
+					<p>Ten "concurrent" handlers took ten times as long, because each <code>time.sleep()</code> held the only thread. In an async web server, that means one slow call delays every other request on the worker. When you must call blocking code, move it to a thread with <code>await asyncio.to_thread(func, *args)</code>, and move CPU-heavy code to a process pool.</p>
+
+					<h2 id="processes">Processes</h2>
+					<p>Each process has its own interpreter, memory and GIL, so processes give true parallelism on every Python build. <code>ProcessPoolExecutor</code> has the same interface as the thread pool:</p>
+<pre><code class="language-python">from concurrent.futures import ProcessPoolExecutor
+
+from PIL import Image
+
+
+def make_thumbnail(path):
+    with Image.open(path) as image:
+        image.thumbnail((400, 400))
+        image.save(path.with_suffix(".thumb.jpg"))
+    return path.name
+
+
+if __name__ == "__main__":
+    with ProcessPoolExecutor() as pool:       # defaults to one worker per CPU
+        for name in pool.map(make_thumbnail, image_paths, chunksize=8):
+            print("done", name)</code></pre>
+					<p><strong>Use processes for:</strong> CPU-bound pure-Python work on the regular build, and anything you want isolated so a crash or memory leak cannot take down the parent.</p>
+					<p><strong>Watch out for:</strong></p>
+					<ul>
+						<li><strong>Pickling.</strong> Arguments and return values are serialised between processes. Pass file paths or IDs, not large objects or open connections. Functions must be importable, so define them at module level.</li>
+						<li><strong>Startup and memory.</strong> Each worker is a full interpreter with its own copy of your imports. Reuse a pool instead of creating one per task.</li>
+						<li><strong>The <code>if __name__ == "__main__"</code> guard</strong> is required. Since Python 3.14, the default start method on Linux is <code>forkserver</code> instead of <code>fork</code> (macOS and Windows already used <code>spawn</code>), so workers re-import your module rather than inheriting a copy of the parent.</li>
+					</ul>
+
+					<h3>Subinterpreters (Python 3.14+)</h3>
+					<p>Python 3.14 added <code>concurrent.interpreters</code> and <code>concurrent.futures.InterpreterPoolExecutor</code> (<a href="https://peps.python.org/pep-0734/" target="_blank" rel="noopener">PEP 734</a>). Each worker is an isolated interpreter with its own GIL, running in one process. In my benchmark it ran CPU-bound work in parallel on the regular build at close to process-pool speed. Many C extensions do not yet support subinterpreters, so treat it as an option to test rather than a default.</p>
+
+					<h2 id="benchmark">Benchmark: Same Work, Three Models</h2>
+					<p>This script runs two workloads under each model. The I/O workload is 100 tasks that each wait 100 ms, using <code>time.sleep()</code> as a stand-in for a network call. The CPU workload is 8 chunks of pure-Python arithmetic. It uses only the standard library.</p>
+<pre><code class="language-python"># bench.py
+import asyncio
+import statistics
+import sys
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
+try:
+    from concurrent.futures import InterpreterPoolExecutor  # Python 3.14+
+except ImportError:
+    InterpreterPoolExecutor = None
+
+WORKERS = 8
+IO_TASKS, IO_DELAY = 100, 0.1        # 100 calls that each wait 100 ms
+CPU_TASKS, CPU_N = 8, 3_000_000      # 8 chunks of pure-Python arithmetic
+
+
+def io_task(_):
+    time.sleep(IO_DELAY)             # stands in for a network or database call
+
+
+async def io_task_async():
+    await asyncio.sleep(IO_DELAY)
+
+
+def cpu_task(n):
+    total = 0
+    for i in range(n):
+        total += i * i % 7
+    return total
+
+
+def timed(fn, runs=3):
+    timings = []
+    for _ in range(runs):
+        start = time.perf_counter()
+        fn()
+        timings.append(time.perf_counter() - start)
+    return statistics.median(timings)
+
+
+def run_pool(pool_cls, task, args, workers=WORKERS):
+    with pool_cls(max_workers=workers) as pool:
+        list(pool.map(task, args))
+
+
+async def run_asyncio():
+    async with asyncio.TaskGroup() as group:
+        for _ in range(IO_TASKS):
+            group.create_task(io_task_async())
+
+
+def main():
+    gil = getattr(sys, "_is_gil_enabled", lambda: True)()
+    print(f"Python {sys.version.split()[0]}, GIL {'enabled' if gil else 'disabled'}")
+
+    io_args = range(IO_TASKS)
+    io_cases = {
+        "sequential": lambda: [io_task(i) for i in io_args],
+        "threads (32)": lambda: run_pool(ThreadPoolExecutor, io_task, io_args, 32),
+        "asyncio": lambda: asyncio.run(run_asyncio()),
+        "processes (8)": lambda: run_pool(ProcessPoolExecutor, io_task, io_args),
+    }
+    cpu_args = [CPU_N] * CPU_TASKS
+    cpu_cases = {
+        "sequential": lambda: [cpu_task(n) for n in cpu_args],
+        "threads (8)": lambda: run_pool(ThreadPoolExecutor, cpu_task, cpu_args),
+        "processes (8)": lambda: run_pool(ProcessPoolExecutor, cpu_task, cpu_args),
+    }
+    if InterpreterPoolExecutor:
+        cpu_cases["interpreters (8)"] = lambda: run_pool(InterpreterPoolExecutor, cpu_task, cpu_args)
+
+    for title, cases in [("I/O-bound", io_cases), ("CPU-bound", cpu_cases)]:
+        print(title)
+        for label, fn in cases.items():
+            print(f"  {label:&lt;18} {timed(fn):6.2f} s")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+					<p>Run it with <code>python bench.py</code>, and with <code>python3.14t bench.py</code> if you have the free-threaded build. With <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">uv</a>, <code>uv python install 3.14t</code> installs it.</p>
+
+					<h3>Measured results</h3>
+					<p>Environment: Linux, Intel Core i5-1155G7 (4 cores, 8 threads), Python 3.14.6 regular and free-threaded builds, median of 3 runs per case. A second full run matched within 0.05 s.</p>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">I/O-bound benchmark: 100 tasks of 100 ms each</caption>
+							<thead><tr><th scope="col">I/O-bound (100 × 100 ms)</th><th scope="col">GIL enabled</th><th scope="col">GIL disabled</th></tr></thead>
+							<tbody>
+								<tr><td>Sequential</td><td>10.01 s</td><td>10.01 s</td></tr>
+								<tr><td>Threads (32)</td><td>0.40 s</td><td>0.40 s</td></tr>
+								<tr><td>asyncio</td><td>0.10 s</td><td>0.10 s</td></tr>
+								<tr><td>Processes (8)</td><td>1.32 s</td><td>1.33 s</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">CPU-bound benchmark: 8 chunks of pure-Python work</caption>
+							<thead><tr><th scope="col">CPU-bound (8 chunks)</th><th scope="col">GIL enabled</th><th scope="col">GIL disabled</th></tr></thead>
+							<tbody>
+								<tr><td>Sequential</td><td>1.07 s</td><td>1.04 s</td></tr>
+								<tr><td>Threads (8)</td><td>1.06 s</td><td>0.34 s</td></tr>
+								<tr><td>Processes (8)</td><td>0.38 s</td><td>0.36 s</td></tr>
+								<tr><td>Interpreters (8)</td><td>0.40 s</td><td>0.85 s</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>What the numbers show:</p>
+					<ul>
+						<li><strong>I/O: asyncio and threads both win, by 25 to 100 times.</strong> Threads were capped at 32 workers, so 100 tasks ran in four waves of about 100 ms. asyncio ran all 100 at once. Processes helped too, but with only 8 workers and the cost of starting them.</li>
+						<li><strong>CPU on the regular build: threads did nothing.</strong> 1.06 s against 1.07 s sequential. Processes ran about 2.8 times faster and subinterpreters about 2.7 times.</li>
+						<li><strong>CPU on the free-threaded build: threads ran about 3.1 times faster</strong>, matching processes without pickling or extra memory. Sequential speed was the same on both builds for this loop.</li>
+						<li><strong>The speed-up stops near 3x, not 8x,</strong> because this CPU has 4 physical cores; 8 hardware threads do not double arithmetic throughput.</li>
+						<li><strong>Subinterpreters were slower on the free-threaded build</strong> (0.85 s against 0.40 s) in every run. I have not dug into why; on that build, plain threads are the simpler choice anyway.</li>
+					</ul>
+					<p>These are small, synthetic workloads on one laptop. Real I/O has variable latency, and real CPU work may spend time in C code that already releases the GIL. Run the script on your own hardware, then measure your real workload.</p>
+
+					<h2 id="django">Concurrency in Django</h2>
+					<p>A Django project usually gets concurrency from its server, not from your code. Under WSGI with Gunicorn, <code>--workers</code> starts processes and <code>--threads</code> adds threads per process. Gunicorn's docs suggest <code>(2 × CPU cores) + 1</code> workers as a starting point. Each request runs synchronously in one thread, which is simple and works with every library.</p>
+					<p>Async views help when one request waits on several slow services. Run Django under an ASGI server such as Uvicorn, Daphne or Granian, and the waits overlap:</p>
+<pre><code class="language-python"># dashboard/views.py
+import asyncio
+
+import httpx
+from django.http import JsonResponse
+
+from orders.models import Order
+
+
+async def dashboard(request):
+    async with httpx.AsyncClient(timeout=5) as client:
+        rates, weather = await asyncio.gather(
+            client.get("https://rates.example.com/latest"),
+            client.get("https://weather.example.com/today"),
+        )
+
+    order_count = await Order.objects.filter(status="paid").acount()
+    recent = [order async for order in Order.objects.order_by("-id")[:5]]
+
+    return JsonResponse({
+        "rates": rates.json(),
+        "weather": weather.json(),
+        "paid_orders": order_count,
+        "recent": [order.pk for order in recent],
+    })</code></pre>
+					<p>I ran this pattern on Django 6.1 with two 200 ms stand-in calls: the view returned in 0.21 s instead of 0.4 s. Every <code>QuerySet</code> method that runs SQL has an <code>a</code>-prefixed async version, such as <code>aget()</code>, <code>acount()</code> and <code>acreate()</code>, and querysets support <code>async for</code>.</p>
+					<p>Rules that keep async Django correct:</p>
+					<ul>
+						<li><strong>Transactions do not work in async mode yet.</strong> Put transactional code in a sync function and call it with <code>sync_to_async</code>:
+<pre><code class="language-python">from asgiref.sync import sync_to_async
+from django.db import transaction
+
+
+@sync_to_async
+def place_order(customer_id, items):
+    with transaction.atomic():
+        order = Order.objects.create(customer_id=customer_id, status="pending")
+        OrderItem.objects.bulk_create(
+            OrderItem(order=order, **item) for item in items
+        )
+        return order
+
+
+async def checkout(request):
+    order = await place_order(request.user.customer_id, parse_items(request))
+    return JsonResponse({"order_id": order.pk}, status=201)</code></pre>
+						</li>
+						<li><strong>Never call blocking code directly in an async view.</strong> <code>requests</code>, sync ORM calls and <code>time.sleep()</code> stall the event loop, as in the benchmark above. Django raises <code>SynchronousOnlyOperation</code> for sync ORM calls in async code, but it cannot detect other blocking libraries.</li>
+						<li><strong>Sync middleware costs a context switch.</strong> If any middleware in the stack is sync-only, Django switches threads around it on every async request. For typical ORM views that cost is small; for high-concurrency I/O views, check that your middleware is async-capable.</li>
+						<li><strong>Keep CPU-heavy and long work out of requests entirely.</strong> PDF generation, image processing and exports belong in Celery or Django's tasks framework, where workers are separate processes. My post on <a href="/blog/django-optimization-at-scale/">scaling Django applications</a> covers queuing them safely with <code>transaction.on_commit</code>.</li>
+					</ul>
+					<p>If your views mostly run a few ORM queries and render a template, sync Django is fine. Async pays off when a request fans out to slow external services, or for WebSockets and streaming responses.</p>
+
+					<h2 id="choosing">Which Model Should You Use?</h2>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">Choosing a concurrency model by workload</caption>
+							<thead><tr><th scope="col">Workload</th><th scope="col">Use</th><th scope="col">Why</th><th scope="col">Watch out for</th></tr></thead>
+							<tbody>
+								<tr><td>A few dozen I/O calls with blocking libraries</td><td><code>ThreadPoolExecutor</code></td><td>Works with <code>requests</code>, SDKs and drivers as they are</td><td>Shared state needs locks</td></tr>
+								<tr><td>Thousands of concurrent connections, fan-out, WebSockets</td><td>asyncio</td><td>One thread holds many waiting tasks cheaply</td><td>Every library must be async; one blocking call stalls all tasks</td></tr>
+								<tr><td>CPU-bound pure Python, regular build</td><td><code>ProcessPoolExecutor</code></td><td>Separate GIL per process</td><td>Pickling, memory per worker, startup cost</td></tr>
+								<tr><td>CPU-bound pure Python, free-threaded build</td><td>Threads</td><td>Parallel without pickling or extra memory</td><td>All C extensions must support free-threading; locks matter</td></tr>
+								<tr><td>CPU-bound work inside NumPy, Pillow or similar</td><td>Threads, then measure</td><td>Many C extensions release the GIL during heavy work</td><td>Check the library; fall back to processes</td></tr>
+								<tr><td>Blocking call inside async code</td><td><code>asyncio.to_thread()</code> or <code>sync_to_async</code></td><td>Keeps the event loop free</td><td>Thread pool size limits throughput</td></tr>
+								<tr><td>Slow work triggered by a web request</td><td>Celery or Django tasks</td><td>Separate worker processes, retries, no request timeout</td><td>Queue only after the transaction commits</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="mistakes">Common Mistakes</h2>
+					<ul class="list-cross">
+						<li><strong>Threads for CPU-bound work on the regular build.</strong> They add overhead and no speed, as the 1.06 s result shows.</li>
+						<li><strong>Blocking calls in <code>async def</code>.</strong> <code>requests.get()</code> or <code>time.sleep()</code> inside a coroutine serialises every task on the loop.</li>
+						<li><strong>Async for its own sake.</strong> An async view that only runs one ORM query is not faster, and it adds complexity.</li>
+						<li><strong>Unbounded concurrency.</strong> Launching 10,000 tasks against an API or a database with 20 connections causes timeouts. Cap it with a pool size or a semaphore.</li>
+						<li><strong>Shared mutable state without locks</strong>, which works by luck under the GIL and fails on free-threaded Python.</li>
+						<li><strong>A new process pool per task.</strong> Worker startup can cost more than the work; create the pool once and reuse it.</li>
+						<li><strong>Passing large objects to processes.</strong> Everything is pickled and copied. Pass IDs and paths.</li>
+					</ul>
+
+					<h2 id="conclusion">Conclusion</h2>
+					<p>Match the model to the bottleneck. For waiting, use threads with ordinary libraries or asyncio at high concurrency. For computing, use processes on the regular build, or threads on the free-threaded build once your dependencies support it. In Django, let the server and a task queue provide most of the concurrency, and use async views where a request fans out to slow services.</p>
+					<aside class="callout">
+						<p class="callout-title">Try this today</p>
+						<p>Find your slowest endpoint or job and measure how much of its time is waiting versus computing. Then run <code>bench.py</code> on the server it runs on, with both builds if you can. The two numbers tell you which section of this guide to apply.</p>
+					</aside>
+
+					<h2 id="faq">Frequently Asked Questions</h2>
+
+					<h3>What is the difference between threading and asyncio in Python?</h3>
+					<p>Threads are scheduled by the operating system and can run any blocking code. asyncio runs many tasks on one thread and switches only at <code>await</code>, so it needs async libraries but handles far more concurrent connections with less memory. Both suit I/O-bound work.</p>
+
+					<h3>Does Python support true parallelism?</h3>
+					<p>Yes. Processes have always run in parallel. Since Python 3.14, the officially supported free-threaded build lets threads run Python code in parallel, and subinterpreters offer a third option. The regular build still has the GIL.</p>
+
+					<h3>Is the GIL removed in Python 3.14?</h3>
+					<p>Not by default. Python 3.14 makes the free-threaded build officially supported, but it is a separate build, usually <code>python3.14t</code>. The standard build still has the GIL, and a free-threaded build re-enables it if you import an extension that does not support free-threading.</p>
+
+					<h3>Should I use async views in Django?</h3>
+					<p>Use them when a request waits on several slow external services, or for WebSockets and streaming. For typical views that run a few queries and render a template, sync views under a WSGI server are simpler and just as fast.</p>
+
+					<h3>How many threads or processes should I use?</h3>
+					<p>For CPU-bound work, about one process per physical core. For I/O-bound threads, start around 10 to 50 and stay within the limits of what you call, such as the database connection pool or an API's rate limit. Then measure.</p>
+
+					<h2 id="references">References</h2>
+					<ul>
+						<li><a href="https://docs.python.org/3/library/concurrent.futures.html" target="_blank" rel="noopener">concurrent.futures: thread, process and interpreter pools</a></li>
+						<li><a href="https://docs.python.org/3/library/asyncio-task.html" target="_blank" rel="noopener">asyncio: coroutines, tasks and TaskGroup</a></li>
+						<li><a href="https://docs.python.org/3/howto/free-threading-python.html" target="_blank" rel="noopener">Python support for free threading</a></li>
+						<li><a href="https://peps.python.org/pep-0703/" target="_blank" rel="noopener">PEP 703: Making the Global Interpreter Lock optional</a></li>
+						<li><a href="https://peps.python.org/pep-0779/" target="_blank" rel="noopener">PEP 779: Criteria for supported status for free-threaded Python</a></li>
+						<li><a href="https://peps.python.org/pep-0734/" target="_blank" rel="noopener">PEP 734: Multiple interpreters in the standard library</a></li>
+						<li><a href="https://docs.python.org/3.15/whatsnew/3.15.html" target="_blank" rel="noopener">What's New in Python 3.15</a></li>
+						<li><a href="https://docs.djangoproject.com/en/stable/topics/async/" target="_blank" rel="noopener">Django documentation: Asynchronous support</a></li>
+						<li><a href="https://docs.gunicorn.org/en/stable/design.html" target="_blank" rel="noopener">Gunicorn design: workers and threads</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="python-concurrency-threads-asyncio-processes">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

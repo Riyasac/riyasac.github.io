@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'python-concurrency-threads-asyncio-processes',
+		title: 'Python Concurrency for Backend Developers: Threads, asyncio and Processes',
+		description: 'When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.',
+		date: '2026-10-15',
+		readingTime: 14,
+		level: 'Intermediate',
+		tags: ['Python', 'Concurrency', 'Django'],
+		url: '/blog/python-concurrency-threads-asyncio-processes/',
+		cover: '/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp',
+		coverAlt: 'Python Concurrency cover: benchmark results showing 100 I/O calls taking 10.01 s sequentially, 0.40 s with threads and 0.10 s with asyncio, and CPU-bound threads taking 1.06 s with the GIL enabled versus 0.34 s with it disabled'
+	},
+	{
 		slug: 'lazy-imports-in-python',
 		title: 'Lazy Imports in Python: Benefits, Examples and Best Practices',
 		description: 'Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.',
