@@ -88,6 +88,18 @@
 	transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, fill 0.35s ease !important;
 }
 
+/* Keep the toggle icon's turn during the cross-fade */
+.theme-switching .theme-toggle .bi {
+	transition: transform 0.5s var(--ease), opacity 0.3s ease !important;
+}
+
+/* Circular theme reveal (scripts.js animates the clip-path); drop the default fade */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+
 /* 2. Base
    -------------------------------------------------------------------------- */
 html {
@@ -312,14 +324,32 @@ p:last-child {
 	transform: rotate(-20deg) scale(0.94);
 }
 
-/* Show the icon for the theme you would switch to */
+/* Show the icon for the theme you would switch to. Both icons stay in place;
+   the hidden one is rotated and shrunk away, so switching turns one into the other. */
+.theme-toggle {
+	position: relative;
+	overflow: hidden;
+}
+
+.theme-toggle .bi {
+	position: absolute;
+	line-height: 1;
+	transition: transform 0.5s var(--ease), opacity 0.3s ease;
+}
+
 .theme-toggle .bi-sun,
 :root[data-theme="dark"] .theme-toggle .bi-moon-stars {
-	display: none;
+	opacity: 0;
+	transform: rotate(-90deg) scale(0.4);
+}
+
+:root[data-theme="dark"] .theme-toggle .bi-moon-stars {
+	transform: rotate(90deg) scale(0.4);
 }
 
 :root[data-theme="dark"] .theme-toggle .bi-sun {
-	display: inline-block;
+	opacity: 1;
+	transform: none;
 }
 
 @media (min-width: 992px) {
