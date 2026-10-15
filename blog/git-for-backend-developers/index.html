@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes | Riyas A C</title>
+	<meta name="description" content="A practical Git guide for backend developers: clean commits, branching strategies, merge vs rebase, conflicts, undoing mistakes, bisect and hooks.">
+	<meta name="keywords" content="Git, Git for backend developers, git rebase vs merge, git branching strategy, git commit message, git reflog, undo git commit, git bisect, git hooks, pre-commit, force-with-lease, resolve merge conflicts, GitHub Flow, trunk-based development, GitFlow">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/git-for-backend-developers/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/git-for-backend-developers/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes">
+	<meta property="og:description" content="Write commits reviewers can follow, choose between merge and rebase, and recover from almost any mistake. Every command tested on Git 2.43.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/git-for-backend-developers/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Git for Backend Developers cover: a terminal showing git reset --hard HEAD~2, then git reflog listing the lost commit and git reset --hard HEAD@{1} bringing both commits back, with git bisect finding a bad commit among 30 in 5 runs">
+	<meta property="article:published_time" content="2026-10-15T15:00:00Z">
+	<meta property="article:modified_time" content="2026-10-15T15:00:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Git">
+	<meta property="article:tag" content="Workflow">
+	<meta property="article:tag" content="Best Practices">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes">
+	<meta name="twitter:description" content="Write commits reviewers can follow, choose between merge and rebase, and recover from almost any mistake. Every command tested on Git 2.43.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/git-for-backend-developers/cover.jpg">
+	<meta name="twitter:image:alt" content="Git for Backend Developers cover: a terminal showing git reset --hard HEAD~2, then git reflog listing the lost commit and git reset --hard HEAD@{1} bringing both commits back, with git bisect finding a bad commit among 30 in 5 runs">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/git-for-backend-developers/#article",
+		"url": "https://riyasac.github.io/blog/git-for-backend-developers/",
+		"headline": "Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes",
+		"description": "A practical Git guide for backend developers: clean commits, branching strategies, merge vs rebase, conflicts, undoing mistakes, bisect and hooks.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/git-for-backend-developers/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T15:00:00Z",
+		"dateModified": "2026-10-15T15:00:00Z",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Git", "Workflow", "Best Practices", "Rebase", "Branching strategy", "git reflog", "git bisect", "Git hooks"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/git-for-backend-developers/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes",
+				"item": "https://riyasac.github.io/blog/git-for-backend-developers/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Git</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</h1>
+					<p class="post-lead">Write commits a reviewer can follow, choose between merge and rebase, resolve conflicts with confidence, and recover from almost any mistake.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 14 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner to Intermediate</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Git, Bash</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Git</li><li>Workflow</li><li>Best Practices</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/git-for-backend-developers/cover.webp" width="1024" height="535" alt="Git for Backend Developers cover: a terminal showing git reset --hard HEAD~2, then git reflog listing the lost commit and git reset --hard HEAD@{1} bringing both commits back, with git bisect finding a bad commit among 30 in 5 runs" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+					<p>Most developers learn enough <strong>Git</strong> to commit, push and pull, then hit a wall the first time a rebase goes wrong or a commit seems to vanish. On a backend team, that wall costs real time: a messy history slows down code review, a bad merge breaks a deploy, and a committed secret has to be rotated everywhere.</p>
+					<p>This guide covers the Git that matters in day-to-day backend work:</p>
+					<ul class="list-check">
+						<li>How Git stores your work, in just enough detail to stop it feeling like magic</li>
+						<li>Writing commits and branches a reviewer can follow</li>
+						<li>Merge vs rebase, and cleaning up history before a pull request</li>
+						<li>Resolving conflicts and undoing almost any mistake</li>
+						<li>Finding the commit that broke something, and keeping secrets out of the repository</li>
+					</ul>
+					<p>Every command and output below was run on Git 2.43 in a scratch repository. Commit hashes will differ on your machine.</p>
+
+					<h2 id="how-git-works">How Git Works in Five Minutes</h2>
+					<p>A few ideas explain almost every Git command:</p>
+					<ul>
+						<li><strong>A commit is a snapshot</strong> of the whole project, plus a message, an author and a pointer to its parent commit. Git stores snapshots, not diffs; diffs are computed when you ask for them.</li>
+						<li><strong>A commit's ID is a hash of its content and its parent.</strong> Change anything, even the message, and you get a new commit with a new ID. That is why rebasing and amending "rewrite history".</li>
+						<li><strong>A branch is a movable pointer to one commit.</strong> Creating a branch costs almost nothing. <code>HEAD</code> points to the branch you are on.</li>
+						<li><strong>Your work moves through three areas:</strong> the working directory (files on disk), the staging area or index (what the next commit will contain), and the repository (committed history).</li>
+					</ul>
+<pre class="diagram">working directory  ──git add──▶  staging area  ──git commit──▶  repository
+        ◀──git restore──                ◀──git restore --staged──</pre>
+					<p>Keep these in mind and commands stop being incantations. <code>git reset</code> moves a branch pointer. <code>git rebase</code> copies commits onto a new parent. A "lost" commit is usually still in the repository, just no longer pointed to by any branch.</p>
+
+					<h2 id="setup">A Sensible Setup</h2>
+					<p>A few settings remove common friction. All of these exist in current Git releases:</p>
+<pre><code class="language-bash">git config --global init.defaultBranch main
+git config --global pull.rebase true            # rebase local commits on pull instead of merging
+git config --global fetch.prune true            # remove branches deleted on the remote
+git config --global push.autoSetupRemote true   # first push of a new branch sets its upstream
+git config --global rebase.autoSquash true      # apply fixup! commits automatically (see below)
+git config --global rebase.updateRefs true      # keep stacked branches in sync during a rebase
+git config --global merge.conflictStyle zdiff3  # show the original text in conflicts
+git config --global rerere.enabled true         # remember how you resolved a conflict</code></pre>
+					<p>Add a global ignore file for editor and OS clutter (<code>.idea/</code>, <code>.vscode/</code>, <code>.DS_Store</code>) so project <code>.gitignore</code> files only list what the project creates, such as <code>__pycache__/</code>, <code>.venv/</code> and <code>.env</code>.</p>
+
+					<h2 id="commits">Writing Good Commits</h2>
+					<p>A commit is a unit a reviewer reads, a deploy can roll back, and <code>git bisect</code> can test. That gives three rules:</p>
+					<ul>
+						<li><strong>One logical change per commit.</strong> A migration, the model change it needs, and its tests belong together. An unrelated formatting fix does not.</li>
+						<li><strong>Every commit should build and pass tests,</strong> so you can check out any point in history and trust it.</li>
+						<li><strong>The message explains why.</strong> The diff already shows what changed.</li>
+					</ul>
+					<p>Stage selectively when your working directory holds more than one change. <code>git add -p</code> walks through each hunk and asks whether to include it, so one messy afternoon becomes several clean commits.</p>
+					<p>A message format that works on any team:</p>
+<pre class="diagram">Add retry with backoff to payment client
+
+The provider returns 503 during its nightly maintenance window, which
+failed about 40 checkouts a night. Retry idempotent calls up to three
+times with exponential backoff; non-idempotent calls still fail fast.
+
+Refs: PAY-214</pre>
+					<ul>
+						<li>A summary line in the imperative mood ("Add", "Fix", not "Added"), around 50 characters and no more than 72.</li>
+						<li>A blank line, then a body that explains the problem and the reasoning, wrapped at about 72 characters.</li>
+						<li>A ticket reference if your team uses one. Some teams also use the <a href="https://www.conventionalcommits.org/" target="_blank" rel="noopener">Conventional Commits</a> prefixes (<code>feat:</code>, <code>fix:</code>) to generate changelogs.</li>
+					</ul>
+					<p>Messages like "fix", "wip" or "changes" cost nothing to write and a lot to read six months later, when you are trying to understand why a line exists.</p>
+
+					<h2 id="branching">Branching Strategies</h2>
+					<p>A branching strategy is a team agreement about where work happens and how it reaches production. Three are common:</p>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">Comparison of common Git branching strategies</caption>
+							<thead><tr><th scope="col">Strategy</th><th scope="col">How it works</th><th scope="col">Fits</th><th scope="col">Trade-off</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Trunk-based</strong></td><td>Short-lived branches (hours to a couple of days) merge into <code>main</code>; unfinished features hide behind feature flags</td><td>Teams that deploy continuously with strong CI</td><td>Needs good tests and flag discipline</td></tr>
+								<tr><td><strong>GitHub Flow</strong></td><td>Branch from <code>main</code>, open a pull request, review, merge, deploy <code>main</code></td><td>Most web services and small teams</td><td>One production line; no separate release branch</td></tr>
+								<tr><td><strong>GitFlow</strong></td><td>Long-lived <code>main</code> and <code>develop</code>, plus feature, release and hotfix branches</td><td>Versioned releases, several supported versions, QA gates</td><td>More branches, more merges, slower feedback</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>For a typical backend service that deploys often, GitHub Flow or trunk-based development keeps things simple. GitFlow earns its overhead when you ship versioned releases or must maintain several at once. Its author added a note in 2020 recommending simpler workflows for continuously delivered software.</p>
+					<p>Whatever the strategy, a few rules hold:</p>
+					<ul class="list-check">
+						<li>Name branches by type and purpose, such as <code>feature/PAY-214-payment-retry</code> or <code>bugfix/order-total-rounding</code></li>
+						<li>Keep branches short-lived; the longer a branch lives, the worse its merge</li>
+						<li>Protect <code>main</code>: require pull requests, reviews and passing CI</li>
+						<li>Delete branches after merging</li>
+					</ul>
+
+					<h2 id="merge-vs-rebase">Merge vs Rebase</h2>
+					<p>Your feature branch has two commits. Meanwhile someone pushed "Fix settings" to <code>main</code>. You can bring that change into your branch two ways.</p>
+					<p><strong>Merge</strong> creates a new commit with two parents. Nothing existing changes:</p>
+<pre class="diagram">*   Merge branch 'main' into merge-demo
+|\
+| * Fix settings
+* | Test orders endpoint
+* | Add orders endpoint
+|/
+* Add app</pre>
+					<p><strong>Rebase</strong> replays your commits on top of the new <code>main</code>, as if you had started there. History becomes a straight line, but your two commits are new copies with new IDs:</p>
+<pre class="diagram">* Test orders endpoint
+* Add orders endpoint
+* Fix settings
+* Add app</pre>
+<pre><code class="language-bash">git switch feature/orders
+git fetch origin
+git rebase origin/main          # or: git merge origin/main</code></pre>
+					<p>Both are correct. Rebase gives a readable, linear history and makes <code>git bisect</code> simpler. Merge preserves exactly what happened and never rewrites commits. A common team choice is: rebase your own branch to stay current, then merge it into <code>main</code> through the pull request.</p>
+					<aside class="callout">
+						<p class="callout-title">The one rule of rebasing</p>
+						<p>Do not rebase commits that other people have based work on, such as <code>main</code> or a shared branch. Rebasing your own feature branch is fine. When you must update a pushed branch after a rebase, use <code>git push --force-with-lease</code>, which refuses to overwrite commits on the remote that you have not seen. A plain <code>--force</code> silently discards them. If your editor or IDE fetches in the background, add <code>--force-if-includes</code> too; otherwise a fetch can make the lease pass for commits you never actually looked at.</p>
+					</aside>
+
+					<h3>Merge strategies for pull requests</h3>
+					<ul>
+						<li><strong>Merge commit:</strong> keeps every branch commit plus a merge commit. Full history, noisier log.</li>
+						<li><strong>Squash and merge:</strong> turns the whole branch into one commit on <code>main</code>. Clean, and one commit per pull request makes reverting easy. You lose the individual commits.</li>
+						<li><strong>Rebase and merge:</strong> replays each commit onto <code>main</code> with no merge commit. Linear, but every commit must stand on its own.</li>
+					</ul>
+					<p>Squash suits teams whose branch commits are messy. If your commits are already clean and meaningful, a merge commit or rebase keeps more useful history.</p>
+
+					<h2 id="clean-history">Cleaning Up History Before a Pull Request</h2>
+					<p>Review comments usually lead to small fixes for earlier commits. Instead of a trail of "address review" commits, attach each fix to the commit it belongs to. <code>git commit --fixup</code> marks it:</p>
+<pre><code class="language-bash">git add models.py
+git commit --fixup=&lt;sha-of-"Add order model"&gt;
+git rebase -i --autosquash origin/main</code></pre>
+					<p>The rebase moves each <code>fixup!</code> commit under its target and folds it in:</p>
+<pre class="diagram">Before                         After
+fixup! Add order model         Add order view
+Add order view                 Add order serializer
+Add order serializer           Add order model
+Add order model</pre>
+					<p>Interactive rebase (<code>git rebase -i</code>) can also reorder, reword, split or drop commits. Use it on your own branch before review, never on commits others already have.</p>
+					<p>For the latest commit only, <code>git commit --amend</code> adds staged changes to it or edits its message.</p>
+
+					<h2 id="conflicts">Resolving Conflicts</h2>
+					<p>A conflict happens when both sides changed the same lines. Here <code>main</code> lowered a timeout to 10 while a feature branch raised it to 60. With the default style, Git shows only the two new versions. With <code>merge.conflictStyle zdiff3</code>, it also shows the original:</p>
+<pre class="diagram">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+TIMEOUT = 10
+||||||| af76355
+TIMEOUT = 30
+=======
+TIMEOUT = 60
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/timeout
+RETRIES = 3</pre>
+					<p>Seeing that the original was 30 tells you both sides deliberately changed it in opposite directions. That is a conversation with the other developer, not a coin toss. Without the middle section, you would only see two numbers.</p>
+					<p>To resolve:</p>
+					<ol>
+						<li>Edit the file to the correct final content and remove the markers.</li>
+						<li>Run the tests. A clean textual merge can still be a broken program.</li>
+						<li><code>git add</code> the file, then <code>git commit</code> for a merge or <code>git rebase --continue</code> for a rebase.</li>
+					</ol>
+					<p>If it goes badly, <code>git merge --abort</code> or <code>git rebase --abort</code> returns you to where you started. With <code>rerere.enabled</code>, Git records each resolution and reapplies it if the same conflict appears again, which helps when you rebase a long branch several times.</p>
+
+					<h2 id="undoing-mistakes">Undoing Mistakes</h2>
+					<p>Almost everything in Git can be undone. Pick the command by where the mistake is:</p>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">Which Git command undoes which mistake</caption>
+							<thead><tr><th scope="col">Situation</th><th scope="col">Command</th><th scope="col">Effect</th></tr></thead>
+							<tbody>
+								<tr><td>Discard uncommitted changes to a file</td><td><code>git restore app.py</code></td><td>File matches the last commit. The changes are gone.</td></tr>
+								<tr><td>Unstage a file, keep the changes</td><td><code>git restore --staged app.py</code></td><td>Removed from the next commit only</td></tr>
+								<tr><td>Fix the last commit's message or contents</td><td><code>git commit --amend</code></td><td>Replaces the last commit</td></tr>
+								<tr><td>Undo local commits, keep changes staged</td><td><code>git reset --soft HEAD~1</code></td><td>Branch moves back; files untouched</td></tr>
+								<tr><td>Undo local commits, keep changes unstaged</td><td><code>git reset HEAD~1</code></td><td>The default <code>--mixed</code> mode</td></tr>
+								<tr><td>Throw away local commits and changes</td><td><code>git reset --hard HEAD~1</code></td><td>Branch and files move back</td></tr>
+								<tr><td>Undo a commit that is already pushed</td><td><code>git revert &lt;sha&gt;</code></td><td>New commit that reverses it; history is not rewritten</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>The line that matters most: <strong>rewrite only local history; revert shared history.</strong> <code>reset</code> and <code>--amend</code> change commit IDs, which breaks everyone who already pulled them. <code>revert</code> adds a new commit, so it is safe on <code>main</code>:</p>
+<pre class="diagram">Revert "Round tax to two decimals"
+Round tax to two decimals
+Add tax calculation</pre>
+
+					<h3>Recovering "lost" commits with the reflog</h3>
+					<p>Git records every position <code>HEAD</code> has been in, in the reflog. Here three commits were made, then <code>git reset --hard HEAD~2</code> appeared to delete two of them:</p>
+<pre class="diagram">$ git log --oneline
+edb832b Add payment client
+
+$ git reflog -n 4
+edb832b HEAD@{0}: reset: moving to HEAD~2
+c0a5de0 HEAD@{1}: commit: Add payment webhooks
+c4ad21c HEAD@{2}: commit: Add retry to payment client
+edb832b HEAD@{3}: commit (initial): Add payment client
+
+$ git reset --hard HEAD@{1}
+$ git log --oneline
+c0a5de0 Add payment webhooks
+c4ad21c Add retry to payment client
+edb832b Add payment client</pre>
+					<p>The commits were never deleted, only unreferenced. The same works after a botched rebase: find the entry before the rebase started and reset to it, or create a branch there with <code>git branch rescue HEAD@{5}</code>. By default, unreachable reflog entries expire after 30 days, so recover soon.</p>
+					<p>The reflog cannot recover changes that were never committed or stashed. That is the real danger of <code>git reset --hard</code> and <code>git restore</code>: commit or stash first if in doubt.</p>
+
+					<h2 id="bisect">Finding the Bad Commit with git bisect</h2>
+					<p>A test that passed last week fails today, and 30 commits landed in between. <code>git bisect</code> binary-searches the history: you mark one good and one bad commit, and it checks out the midpoint until it finds the first bad one.</p>
+					<p>If a command can tell good from bad, Git runs the whole search for you. Exit code 0 means good, anything else means bad:</p>
+<pre><code class="language-bash">git bisect start HEAD HEAD~30          # bad commit first, then a known good one
+git bisect run ./check.sh
+git bisect reset                       # return to where you started</code></pre>
+<pre><code class="language-bash">#!/bin/sh
+# check.sh
+python3 -c "from cart import total; assert total([10, 20, 30]) == 60"</code></pre>
+<pre class="diagram">a8e3c52d796e10faf8c2a953b3ecbfc958981462 is the first bad commit
+commit a8e3c52d796e10faf8c2a953b3ecbfc958981462
+Author: Riyas A C &lt;dev@example.com&gt;
+Date:   Thu Oct 15 10:00:00 2026 +0530
+
+    Refactor cart total</pre>
+					<p>Git found the bad commit among 30 in 5 test runs. With 1,000 commits it would take about 10. In a real project, the check is usually one test: <code>git bisect run pytest tests/test_cart.py -x</code>. This is where small, buildable commits pay off: bisect points at a 10-line change instead of a 2,000-line one.</p>
+
+					<h2 id="secrets-and-hooks">Keeping Secrets Out with Hooks</h2>
+					<p>A secret committed once lives in history forever, even if a later commit deletes it. Anyone with a clone has it. Prevention is far cheaper than cleanup.</p>
+					<ul class="list-check">
+						<li>Read secrets from the environment and keep local values in <code>.env</code>, listed in <code>.gitignore</code></li>
+						<li>Commit a <code>.env.example</code> with placeholder values so others know which variables exist</li>
+						<li>Turn on secret scanning and push protection on your Git host</li>
+						<li>Add a pre-commit check that blocks obvious secrets before they are committed</li>
+					</ul>
+					<p>A Git hook is a script in <code>.git/hooks/</code> that runs at a point in the workflow; a non-zero exit stops the action. This one blocks staged lines that look like an AWS key, a hard-coded Django <code>SECRET_KEY</code>, or a private key:</p>
+<pre><code class="language-bash">#!/bin/sh
+# .git/hooks/pre-commit: block staged lines that look like hard-coded secrets
+pattern='AKIA[0-9A-Z]{16}|SECRET_KEY *= *"|PRIVATE KEY-----'
+
+if git diff --cached -U0 | grep -E "^\+.*($pattern)" &gt;/dev/null; then
+    echo "pre-commit: possible secret in staged changes, commit blocked" &gt;&amp;2
+    exit 1
+fi</code></pre>
+<pre class="diagram">$ git commit -m "Add settings"          # SECRET_KEY = "django-insecure-abc123"
+pre-commit: possible secret in staged changes, commit blocked
+
+$ git commit -m "Add settings"          # SECRET_KEY = os.environ["SECRET_KEY"]
+[main (root-commit) 43ae2e8] Add settings
+ 1 file changed, 1 insertion(+)</pre>
+					<p>Hooks in <code>.git/hooks/</code> are not shared through the repository, and anyone can skip them with <code>--no-verify</code>. For a team, use the <a href="https://pre-commit.com/" target="_blank" rel="noopener">pre-commit</a> framework with a committed config and a maintained secret scanner such as Gitleaks or detect-secrets, and run the same checks in CI, where they cannot be skipped.</p>
+					<p>If a secret does reach a remote, <strong>rotate it immediately</strong>. Rewriting history afterwards is cleanup, not a fix: the value may already be in clones, forks, CI logs and caches. My post on <a href="/blog/api-fundamentals/">API fundamentals</a> covers where secrets should live instead.</p>
+
+					<h2 id="everyday-tools">Everyday Commands Worth Knowing</h2>
+					<ul>
+						<li><strong><code>git stash push -m "wip: refunds"</code></strong> shelves uncommitted changes so you can switch branches; <code>git stash pop</code> brings them back. Name your stashes; anonymous ones pile up.</li>
+						<li><strong><code>git worktree add ../hotfix main</code></strong> checks out a second branch in another folder. Fix production without stashing or disturbing your current work.</li>
+						<li><strong><code>git log -S "calculate_tax"</code></strong> finds commits that added or removed a string. Ideal for "when did this function disappear?"</li>
+						<li><strong><code>git blame -w -C app.py</code></strong> shows who last changed each line, ignoring whitespace changes and following code moved between files.</li>
+						<li><strong><code>git switch</code> and <code>git restore</code></strong> split the old overloaded <code>git checkout</code> into "change branch" and "restore files". They are harder to misuse.</li>
+						<li><strong><code>git log --oneline --graph --all</code></strong> draws the branch structure in the terminal. Worth an alias.</li>
+					</ul>
+
+					<h2 id="common-mistakes">Common Git Mistakes</h2>
+					<ul class="list-cross">
+						<li><strong>Force-pushing a shared branch</strong>, or using <code>--force</code> instead of <code>--force-with-lease</code> on your own.</li>
+						<li><strong>Rebasing commits others have pulled.</strong> Their history and yours diverge, and the same changes appear twice.</li>
+						<li><strong>Huge commits mixing unrelated changes</strong>, which are hard to review, revert or bisect.</li>
+						<li><strong>Long-lived branches</strong> that drift for weeks and end in a painful merge.</li>
+						<li><strong>Committing generated files, virtual environments or <code>.env</code>.</strong> Set up <code>.gitignore</code> on day one.</li>
+						<li><strong>Resolving conflicts without running tests</strong>, which hides broken merges until CI or production.</li>
+						<li><strong><code>git reset --hard</code> with uncommitted work</strong>, the one loss the reflog cannot undo.</li>
+					</ul>
+
+					<h2 id="conclusion">Conclusion</h2>
+					<p>Git rewards a small mental model: commits are snapshots, branches are pointers, and history is only lost when nothing points to it and the reflog expires. With that, the rules follow. Make small commits with messages that explain why. Rebase your own work, merge shared work, and revert rather than rewrite anything already pushed. When something breaks, bisect finds it. When something seems lost, the reflog almost always has it.</p>
+					<aside class="callout">
+						<p class="callout-title">Try this today</p>
+						<p>Apply the setup block above, then run <code>git reflog</code> in a project you work on. Seeing every position your branch has been in makes risky commands far less scary.</p>
+					</aside>
+
+					<h2 id="faq">Frequently Asked Questions</h2>
+
+					<h3>What is the difference between git merge and git rebase?</h3>
+					<p>Merge joins two branches with a new merge commit and leaves existing commits unchanged. Rebase replays your commits on top of another branch, producing a linear history with new commit IDs. Rebase your own unshared branches; merge shared ones.</p>
+
+					<h3>How do I undo a pushed commit?</h3>
+					<p>Use <code>git revert &lt;sha&gt;</code>. It creates a new commit that reverses the change, so nobody else's history breaks. Avoid <code>git reset</code> plus a force-push on shared branches.</p>
+
+					<h3>Can I recover a commit after git reset --hard?</h3>
+					<p>Usually, yes. Run <code>git reflog</code>, find the commit, and <code>git reset --hard</code> to it or create a branch there. Unreachable entries expire after 30 days by default. Uncommitted changes discarded by the reset cannot be recovered this way.</p>
+
+					<h3>When is force-pushing safe?</h3>
+					<p>On your own branch that nobody else has based work on, after a rebase or amend. Use <code>git push --force-with-lease</code> so the push fails if someone else pushed in the meantime. Never force-push <code>main</code> or other shared branches.</p>
+
+					<h3>Which branching strategy should a backend team use?</h3>
+					<p>For services that deploy continuously, GitHub Flow or trunk-based development: short-lived branches merged into <code>main</code> after review and CI. Use GitFlow when you ship versioned releases or support several versions at once.</p>
+
+					<h2 id="references">References</h2>
+					<ul>
+						<li><a href="https://git-scm.com/book/en/v2" target="_blank" rel="noopener">Pro Git book</a></li>
+						<li><a href="https://git-scm.com/docs/git-rebase" target="_blank" rel="noopener">git rebase documentation, including --autosquash and --update-refs</a></li>
+						<li><a href="https://git-scm.com/docs/git-reflog" target="_blank" rel="noopener">git reflog documentation</a></li>
+						<li><a href="https://git-scm.com/docs/git-bisect" target="_blank" rel="noopener">git bisect documentation</a></li>
+						<li><a href="https://git-scm.com/docs/githooks" target="_blank" rel="noopener">githooks documentation</a></li>
+						<li><a href="https://git-scm.com/docs/git-config" target="_blank" rel="noopener">git config reference</a></li>
+						<li><a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="noopener">A successful Git branching model (GitFlow), with its 2020 note</a></li>
+						<li><a href="https://www.conventionalcommits.org/" target="_blank" rel="noopener">Conventional Commits</a></li>
+						<li><a href="https://pre-commit.com/" target="_blank" rel="noopener">pre-commit framework</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="git-for-backend-developers">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

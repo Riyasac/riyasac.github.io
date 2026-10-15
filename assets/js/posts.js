@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'git-for-backend-developers',
+		title: 'Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes',
+		description: 'Clean commits, branching strategies, merge vs rebase, conflict resolution, undoing mistakes with the reflog, git bisect and hooks that block secrets.',
+		date: '2026-10-15',
+		readingTime: 14,
+		level: 'Beginner to Intermediate',
+		tags: ['Git', 'Workflow', 'Best Practices'],
+		url: '/blog/git-for-backend-developers/',
+		cover: '/assets/img/blog/git-for-backend-developers/cover.webp',
+		coverAlt: 'Git for Backend Developers cover: a terminal showing git reset --hard HEAD~2, then git reflog listing the lost commit and git reset --hard HEAD@{1} bringing both commits back, with git bisect finding a bad commit among 30 in 5 runs'
+	},
+	{
 		slug: 'python-concurrency-threads-asyncio-processes',
 		title: 'Python Concurrency for Backend Developers: Threads, asyncio and Processes',
 		description: 'When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.',
