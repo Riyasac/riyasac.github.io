@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices | Riyas A C</title>
+	<meta name="description" content="A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.">
+	<meta name="keywords" content="Python testing, pytest tutorial, unit testing in Python, pytest fixtures, pytest parametrize, unittest.mock, pytest-cov, Ruff linter, Black formatter, mypy, pre-commit hooks, GitHub Actions Python">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/python-testing-code-quality/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/python-testing-code-quality/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices">
+	<meta property="og:description" content="A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/python-testing-code-quality/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Python Testing and Code Quality cover: pre-commit output with whitespace, YAML, private key, Ruff, Black and mypy hooks all passing, then pytest --cov reporting 16 passed, with results of 11 Ruff issues found, 16 tests passed and 100% coverage">
+	<meta property="article:published_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Python">
+	<meta property="article:tag" content="Testing">
+	<meta property="article:tag" content="Best Practices">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices">
+	<meta name="twitter:description" content="A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/python-testing-code-quality/cover.jpg">
+	<meta name="twitter:image:alt" content="Python Testing and Code Quality cover: pre-commit output with whitespace, YAML, private key, Ruff, Black and mypy hooks all passing, then pytest --cov reporting 16 passed, with results of 11 Ruff issues found, 16 tests passed and 100% coverage">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/python-testing-code-quality/#article",
+		"url": "https://riyasac.github.io/blog/python-testing-code-quality/",
+		"headline": "Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices",
+		"description": "A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/python-testing-code-quality/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T09:00:00+05:30",
+		"dateModified": "2026-10-15T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Python", "Testing", "Best Practices", "Pytest", "Ruff", "mypy", "Pre-commit", "GitHub Actions"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/python-testing-code-quality/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices",
+				"item": "https://riyasac.github.io/blog/python-testing-code-quality/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Python Testing</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices</h1>
+					<p class="post-lead">Unit and integration tests with pytest, fixtures, parametrize and mocks, then coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions. Every command was run.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 13 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> pytest 9, Ruff, Black, mypy</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Python</li><li>Testing</li><li>Best Practices</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/python-testing-code-quality/cover.webp" width="1024" height="535" alt="Python Testing and Code Quality cover: pre-commit output with whitespace, YAML, private key, Ruff, Black and mypy hooks all passing, then pytest --cov reporting 16 passed, with results of 11 Ruff issues found, 16 tests passed and 100% coverage" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+					<h2 id="introduction">Introduction</h2>
+
+					<p>Tests prove your code works today. Code-quality tools keep it readable and catch bugs before the tests even run. Together they let you change code without fear.</p>
+
+					<p>This guide builds a small shop project and adds, step by step: <strong>unit tests with pytest</strong>, <strong>fixtures</strong>, <strong>parametrized tests</strong>, <strong>mocking</strong>, <strong>integration tests</strong>, <strong>coverage</strong>, <strong>linting with Ruff</strong>, <strong>formatting with Black</strong>, <strong>type checking with mypy</strong>, <strong>pre-commit hooks</strong> and <strong>GitHub Actions CI</strong>.</p>
+
+					<aside class="callout">
+						<p class="callout-title">How this was tested</p>
+						<p>Every command and output below is from a real run on Python 3.12 with pytest 9.1.1, pytest-cov 7.1.0, Ruff 0.17.0, Black 26.10.1, mypy 2.4.0 and pre-commit 4.7.0. The workflow file passes actionlint, and its steps were run locally.</p>
+					</aside>
+
+					<h3>Testing, linting, formatting and type checking</h3>
+
+					<p>These four are often confused. Each answers a different question:</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Tool type</th><th scope="col">Question it answers</th><th scope="col">Runs your code?</th><th scope="col">Example</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Testing</strong></td><td>Does the code do the right thing?</td><td>Yes</td><td>pytest</td></tr>
+								<tr><td><strong>Linting</strong></td><td>Does the code contain likely bugs or bad patterns?</td><td>No</td><td>Ruff</td></tr>
+								<tr><td><strong>Formatting</strong></td><td>Is the code laid out consistently?</td><td>No</td><td>Black</td></tr>
+								<tr><td><strong>Type checking</strong></td><td>Do the types fit together?</td><td>No</td><td>mypy, Pyright</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>You need all four. A linter cannot tell you a discount is calculated wrongly; a test will not complain about an unused import.</p>
+
+					<h3>The example project</h3>
+
+<pre class="diagram">shop/
+├── pyproject.toml
+├── shop/
+│   ├── pricing.py      calculate_total()
+│   ├── rates.py        calls an external exchange-rate API
+│   └── orders.py       OrderRepository (SQLite) and OrderService
+└── tests/
+    ├── conftest.py     shared fixtures
+    ├── test_pricing.py
+    ├── test_rates.py
+    └── test_orders_integration.py</pre>
+
+<pre><code class="language-python"># shop/pricing.py
+from decimal import Decimal
+
+
+def calculate_total(prices: list[Decimal], discount_percent: int = 0) -&gt; Decimal:
+    """Return the order total after a percentage discount, rounded to 2 places."""
+    if not 0 &lt;= discount_percent &lt;= 100:
+        raise ValueError("discount_percent must be between 0 and 100")
+    subtotal = sum(prices, Decimal("0"))
+    total = subtotal * (100 - discount_percent) / 100
+    return total.quantize(Decimal("0.01"))</code></pre>
+
+					<h2 id="unit-testing">Unit Testing</h2>
+
+					<p>A <strong>unit test</strong> checks one small piece of code, usually one function, in isolation. It runs in milliseconds and needs no database, network or files.</p>
+
+					<p><strong>Why it helps:</strong> a failing unit test points straight at the broken function, and a fast suite means you run it after every change.</p>
+
+					<h3>Unit vs integration vs end-to-end tests</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Unit</th><th scope="col">Integration</th><th scope="col">End-to-end (E2E)</th></tr></thead>
+							<tbody>
+								<tr><td>Tests</td><td>One function or class</td><td>Several components together</td><td>The whole app, like a user</td></tr>
+								<tr><td>Example</td><td><code>calculate_total()</code></td><td>Service + repository + real SQLite</td><td>Browser places an order through the UI</td></tr>
+								<tr><td>Speed</td><td>Milliseconds</td><td>Faster than E2E, slower than unit</td><td>Seconds per test</td></tr>
+								<tr><td>How many</td><td>Most of your tests</td><td>Some</td><td>A few critical journeys</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Write many unit tests, fewer integration tests and only a handful of E2E tests (with tools such as Playwright). This mix is often called the <strong>testing pyramid</strong>.</p>
+
+					<h2 id="pytest">Pytest Basics</h2>
+
+					<p><strong>pytest</strong> is the most popular Python testing framework. Tests are plain functions that use Python's normal <code>assert</code>.</p>
+
+					<h3>Install and configure</h3>
+
+<pre><code class="language-bash">python -m venv .venv
+source .venv/bin/activate
+pip install pytest pytest-cov</code></pre>
+
+					<p>Configure pytest in <code>pyproject.toml</code>. pytest 9 reads a native <code>[tool.pytest]</code> table:</p>
+
+<pre><code class="language-toml">[tool.pytest]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = ["-ra", "--strict-markers"]
+markers = ["integration: tests that use a real database"]</code></pre>
+
+					<h3>Test discovery</h3>
+
+					<p>pytest finds tests automatically when you follow its naming rules:</p>
+
+					<ul>
+						<li>Files named <code>test_*.py</code> or <code>*_test.py</code></li>
+						<li>Functions named <code>test_*</code></li>
+						<li>Classes named <code>Test*</code> (without an <code>__init__</code> method)</li>
+					</ul>
+
+					<h3>Your first test</h3>
+
+<pre><code class="language-python"># tests/test_pricing.py
+from decimal import Decimal
+
+import pytest
+
+from shop.pricing import calculate_total
+
+
+def test_calculate_total_applies_discount():
+    # Arrange
+    prices = [Decimal("40.00"), Decimal("60.00")]
+
+    # Act
+    total = calculate_total(prices, discount_percent=10)
+
+    # Assert
+    assert total == Decimal("90.00")
+
+
+def test_calculate_total_of_empty_order_is_zero():
+    assert calculate_total([]) == Decimal("0.00")
+
+
+def test_calculate_total_rejects_discount_over_100():
+    with pytest.raises(ValueError, match="between 0 and 100"):
+        calculate_total([Decimal("10.00")], discount_percent=150)</code></pre>
+
+					<p><code>pytest.raises</code> passes only if the code raises that exception; <code>match</code> checks the message too.</p>
+
+					<h3>Running tests</h3>
+
+<pre><code class="language-bash">pytest                         # run everything
+pytest -v                      # one line per test
+pytest tests/test_pricing.py   # one file
+pytest -k discount             # tests whose name contains "discount"
+pytest -x                      # stop at the first failure
+pytest --lf                    # rerun only the tests that failed last time</code></pre>
+
+<pre class="diagram">tests/test_orders_integration.py ...                                     [ 18%]
+tests/test_pricing.py ..........                                         [ 81%]
+tests/test_rates.py ...                                                  [100%]
+
+============================== 16 passed in 0.07s ==============================</pre>
+
+					<h3>Reading a failure</h3>
+
+					<p>When an assertion fails, pytest shows the values on both sides. No <code>assertEqual</code> helpers needed:</p>
+
+<pre class="diagram">    def test_calculate_total_applies_discount():
+&gt;       assert calculate_total([Decimal("40.00"), Decimal("60.00")], 10) == Decimal("80.00")
+E       AssertionError: assert Decimal('90.00') == Decimal('80.00')
+E        +  where Decimal('90.00') = calculate_total([Decimal('40.00'), Decimal('60.00')], 10)</pre>
+
+					<h2 id="fixtures">Pytest Fixtures</h2>
+
+					<p>A <strong>fixture</strong> is a reusable piece of test setup. A test asks for a fixture by naming it as a parameter, and pytest creates it, passes it in and cleans it up afterwards.</p>
+
+<pre><code class="language-python"># tests/conftest.py
+import sqlite3
+
+import pytest
+
+from shop.orders import OrderRepository, OrderService
+
+
+@pytest.fixture
+def db():
+    conn = sqlite3.connect(":memory:")  # setup: a fresh, empty database
+    yield conn  # the test runs here
+    conn.close()  # teardown: runs even if the test fails
+
+
+@pytest.fixture
+def repo(db):  # fixtures can use other fixtures
+    return OrderRepository(db)
+
+
+@pytest.fixture
+def service(repo):
+    return OrderService(repo)</code></pre>
+
+					<ul>
+						<li><strong>Setup and teardown.</strong> Code before <code>yield</code> runs before the test; code after <code>yield</code> runs after it, pass or fail.</li>
+						<li><strong>Dependency management.</strong> <code>service</code> needs <code>repo</code>, which needs <code>db</code>. pytest builds the chain for you.</li>
+						<li>**<code>conftest.py</code>.** Fixtures defined here are available to every test in the folder, with no imports.</li>
+						<li><strong>Scope.</strong> By default a fixture is created fresh for each test. <code>@pytest.fixture(scope="session")</code> creates it once per run, useful for expensive resources, but shared state can leak between tests.</li>
+					</ul>
+
+					<p>pytest also ships built-in fixtures such as <code>tmp_path</code> (a temporary directory), <code>monkeypatch</code> (change environment variables or attributes) and <code>capsys</code> (capture printed output).</p>
+
+					<h2 id="parametrize">Parametrized Testing</h2>
+
+					<p><code>@pytest.mark.parametrize</code> runs one test function with many inputs. Each case is reported as its own test.</p>
+
+<pre><code class="language-python">@pytest.mark.parametrize(
+    ("prices", "discount", "expected"),
+    [
+        ([Decimal("100.00")], 0, Decimal("100.00")),
+        ([Decimal("100.00")], 25, Decimal("75.00")),
+        ([Decimal("19.99"), Decimal("5.01")], 0, Decimal("25.00")),
+        ([Decimal("10.00")], 100, Decimal("0.00")),
+        ([Decimal("33.33")], 33, Decimal("22.33")),
+    ],
+    ids=["no-discount", "quarter-off", "two-items", "free", "rounding"],
+)
+def test_calculate_total_cases(prices, discount, expected):
+    assert calculate_total(prices, discount) == expected
+
+
+@pytest.mark.parametrize("discount", [-1, 101])
+def test_calculate_total_rejects_invalid_discounts(discount):
+    with pytest.raises(ValueError):
+        calculate_total([Decimal("10.00")], discount)</code></pre>
+
+<pre class="diagram">tests/test_pricing.py::test_calculate_total_cases[no-discount] PASSED
+tests/test_pricing.py::test_calculate_total_cases[quarter-off] PASSED
+tests/test_pricing.py::test_calculate_total_cases[two-items] PASSED
+tests/test_pricing.py::test_calculate_total_cases[free] PASSED
+tests/test_pricing.py::test_calculate_total_cases[rounding] PASSED</pre>
+
+					<p><strong>Why it helps:</strong> adding a case is one line, and <code>ids</code> makes the failing case obvious. Without <code>ids</code>, pytest names them <code>prices0-0-expected0</code>, which tells you nothing.</p>
+
+					<h2 id="mocking">Mocking with unittest.mock</h2>
+
+					<p>A <strong>mock</strong> is a fake object that stands in for a real dependency, such as an HTTP API or a payment gateway. Tests stay fast, work offline and never charge a real card.</p>
+
+					<p>This function calls an external API:</p>
+
+<pre><code class="language-python"># shop/rates.py
+from decimal import Decimal
+
+import requests
+
+API_URL = "https://api.example.com/rates"
+
+
+def get_exchange_rate(base: str, target: str) -&gt; Decimal:
+    """Fetch the exchange rate from an external API."""
+    response = requests.get(API_URL, params={"base": base, "target": target}, timeout=5)
+    response.raise_for_status()
+    return Decimal(str(response.json()["rate"]))
+
+
+def convert_price(amount: Decimal, base: str, target: str) -&gt; Decimal:
+    rate = get_exchange_rate(base, target)
+    return (amount * rate).quantize(Decimal("0.01"))</code></pre>
+
+					<ul>
+						<li>**<code>Mock</code>** creates a fake object. Any attribute or call returns another mock, and you set what it returns with <code>return_value</code> or make it raise with <code>side_effect</code>.</li>
+						<li>**<code>patch</code>** temporarily replaces a real object with a mock during a test, as a decorator or a <code>with</code> block.</li>
+					</ul>
+
+<pre><code class="language-python"># tests/test_rates.py
+from decimal import Decimal
+from unittest.mock import Mock, patch
+
+import pytest
+import requests
+
+from shop.rates import convert_price, get_exchange_rate
+
+
+@patch("shop.rates.requests.get")
+def test_get_exchange_rate_parses_api_response(mock_get):
+    mock_get.return_value.json.return_value = {"rate": 83.25}
+
+    rate = get_exchange_rate("USD", "INR")
+
+    assert rate == Decimal("83.25")
+    mock_get.assert_called_once_with(
+        "https://api.example.com/rates",
+        params={"base": "USD", "target": "INR"},
+        timeout=5,
+    )
+
+
+def test_get_exchange_rate_raises_on_http_error():
+    response = Mock()
+    response.raise_for_status.side_effect = requests.HTTPError("503 Service Unavailable")
+
+    with (
+        patch("shop.rates.requests.get", return_value=response),
+        pytest.raises(requests.HTTPError),
+    ):
+        get_exchange_rate("USD", "INR")
+
+
+def test_convert_price_uses_rate():
+    with patch("shop.rates.get_exchange_rate", return_value=Decimal("0.92")) as fake_rate:
+        assert convert_price(Decimal("50.00"), "USD", "EUR") == Decimal("46.00")
+    fake_rate.assert_called_once_with("USD", "EUR")</code></pre>
+
+					<p>What each test checks:</p>
+
+					<ol>
+						<li>The success path, and that the API is called with the right URL, parameters and timeout.</li>
+						<li>The error path: a 503 from the API raises an exception instead of returning garbage.</li>
+						<li><code>convert_price</code> in isolation, by replacing <code>get_exchange_rate</code> itself.</li>
+					</ol>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p>Patching the wrong name. Patch where the object is <em>looked up</em>, not where it is defined. <code>rates.py</code> does <code>import requests</code>, so patch <code>shop.rates.requests.get</code>. If it did <code>from requests import get</code>, you would patch <code>shop.rates.get</code>.</p>
+					</aside>
+
+					<p>Do not mock everything. Mock things you do not own and cannot run in a test (third-party APIs, email, payments). For your own database, a real test database is usually better, which brings us to integration tests.</p>
+
+					<h2 id="integration-testing">Integration Testing</h2>
+
+					<p>An <strong>integration test</strong> checks that several components work together: here, <code>OrderService</code> (business logic), <code>OrderRepository</code> (SQL) and a real SQLite database.</p>
+
+<pre><code class="language-python"># shop/orders.py (excerpt)
+class OrderService:
+    """Business logic: price an order, then save it."""
+
+    def __init__(self, repo: OrderRepository) -&gt; None:
+        self.repo = repo
+
+    def place_order(self, customer: str, prices: list[Decimal], discount_percent: int = 0) -&gt; int:
+        if not prices:
+            raise ValueError("an order needs at least one item")
+        total = calculate_total(prices, discount_percent)
+        return self.repo.add(customer, total)</code></pre>
+
+<pre><code class="language-python"># tests/test_orders_integration.py
+from decimal import Decimal
+
+import pytest
+
+pytestmark = pytest.mark.integration  # mark every test in this file
+
+
+def test_place_order_saves_discounted_total(service, repo):
+    order_id = service.place_order(
+        "asha", [Decimal("40.00"), Decimal("60.00")], discount_percent=10
+    )
+
+    assert repo.get_total(order_id) == Decimal("90.00")
+
+
+def test_each_test_gets_a_fresh_database(repo):
+    assert repo.get_total(1) is None
+
+
+def test_place_order_rejects_empty_order(service):
+    with pytest.raises(ValueError, match="at least one item"):
+        service.place_order("asha", [])</code></pre>
+
+					<p>The first test catches bugs that unit tests miss: a wrong column name, a total saved as the wrong type, a missing <code>commit()</code>. The second proves the <code>db</code> fixture gives each test its own empty database.</p>
+
+					<p>Markers let you run each group on its own:</p>
+
+<pre><code class="language-bash">pytest -m integration          # 3 passed, 13 deselected
+pytest -m "not integration"    # 13 passed, 3 deselected</code></pre>
+
+					<aside class="callout">
+						<p class="callout-title">Tip</p>
+						<p>For Django projects, <code>pytest-django</code> adds a <code>db</code> fixture that wraps each test in a transaction, and Django's own <code>TestCase</code> does the same. Use the same database engine as production (for example PostgreSQL) for integration tests.</p>
+					</aside>
+
+					<h2 id="coverage">Test Coverage with pytest-cov</h2>
+
+					<p><strong>Coverage</strong> measures which lines (and branches) of your code ran during the tests. It shows you code that no test touches.</p>
+
+					<p>Add settings to <code>pyproject.toml</code>:</p>
+
+<pre><code class="language-toml">[tool.coverage.run]
+branch = true          # also check both sides of every if
+source = ["shop"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 90        # fail the run below 90%</code></pre>
+
+					<p>Running only the unit tests shows exactly what is untested:</p>
+
+<pre><code class="language-bash">pytest tests/test_pricing.py --cov --cov-report=term-missing</code></pre>
+
+<pre class="diagram">Name               Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------
+shop/__init__.py       0      0      0      0   100%
+shop/orders.py        23     13      2      0    40%   11-12, 17-22, 25-26, 33, 36-39
+shop/pricing.py        7      0      2      0   100%
+shop/rates.py         10     10      0      0     0%   1-17
+--------------------------------------------------------------
+TOTAL                 40     23      4      0    43%
+FAIL Required test coverage of 90.0% not reached. Total coverage: 43.18%</pre>
+
+					<p>The <strong>Missing</strong> column lists the exact line numbers. With the full suite, every file reaches 100%. Add <code>--cov-report=html</code> and open <code>htmlcov/index.html</code> to see untested lines highlighted in red.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Important</p>
+						<p>100% coverage means every line <em>ran</em>, not that every line is <em>correct</em>. A test with no <code>assert</code> still raises coverage. Use coverage to find gaps, not as the goal.</p>
+					</aside>
+
+					<h2 id="linting-ruff">Linting with Ruff</h2>
+
+					<p>A <strong>linter</strong> reads your code without running it and reports likely bugs and bad patterns: unused imports, undefined names, bare <code>except</code>, mutable default arguments. <strong>Ruff</strong> is a fast linter written in Rust that also replaces tools such as Flake8, isort and pyupgrade.</p>
+
+<pre><code class="language-bash">pip install ruff
+ruff check .          # report problems
+ruff check . --fix    # also apply safe automatic fixes</code></pre>
+
+					<p>Here is a file with typical problems:</p>
+
+<pre><code class="language-python">import os
+import json
+from typing import List, Optional
+
+
+def build_report(orders: List[dict], tags=[]) -&gt; str:
+    if orders == None:
+        return ""
+    try:
+        total = sum(o["total"] for o in orders)
+    except:
+        total = 0
+    unused = 42
+    return f"Report" + " total=" + str(total)</code></pre>
+
+<pre><code class="language-bash">ruff check shop/report.py --output-format concise</code></pre>
+
+<pre class="diagram">shop/report.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+shop/report.py:1:8: F401 [*] `os` imported but unused
+shop/report.py:2:8: F401 [*] `json` imported but unused
+shop/report.py:3:1: UP035 `typing.List` is deprecated, use `list` instead
+shop/report.py:3:26: F401 [*] `typing.Optional` imported but unused
+shop/report.py:6:26: UP006 [*] Use `list` instead of `List` for type annotation
+shop/report.py:6:43: B006 Do not use mutable data structures for argument defaults
+shop/report.py:7:18: E711 Comparison to `None` should be `cond is None`
+shop/report.py:11:5: E722 Do not use bare `except`
+shop/report.py:13:5: F841 Local variable `unused` is assigned to but never used
+shop/report.py:14:12: F541 [*] f-string without any placeholders
+Found 11 errors.
+[*] 6 fixable with `--fix` (3 unsafe fixes available with `--fix --unsafe-fixes`).</pre>
+
+					<p><code>ruff check --fix</code> removed the unused imports, sorted the rest, replaced <code>List</code> with <code>list</code> and removed the pointless <code>f</code>. The 4 remaining problems need a human decision: <code>tags=[]</code> (B006) is a real bug, because the same list is shared between calls.</p>
+
+					<p>Ruff only applies <strong>safe</strong> fixes by default. <strong>Unsafe</strong> fixes might change behaviour, so they need <code>--unsafe-fixes</code>.</p>
+
+					<p>Choose rules explicitly in <code>pyproject.toml</code>:</p>
+
+<pre><code class="language-toml">[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]   # pycodestyle, Pyflakes, isort, bugbear, pyupgrade, simplify</code></pre>
+
+					<aside class="callout">
+						<p class="callout-title">Note</p>
+						<p>With no configuration, Ruff 0.17 enabled 407 rules in my test, and the default set changes between releases. An explicit <code>select</code> keeps your results stable when you upgrade.</p>
+					</aside>
+
+					<h2 id="formatting-black">Code Formatting with Black</h2>
+
+					<p>A <strong>formatter</strong> rewrites your code into one consistent layout: spacing, quotes, line breaks. It never changes what the code does. <strong>Black</strong> is the most widely used Python formatter, and it has very few options, so teams stop arguing about style.</p>
+
+<pre><code class="language-bash">pip install black
+black .            # format files in place
+black --check .    # only report; exits with code 1 if anything would change (use in CI)</code></pre>
+
+					<p>Before:</p>
+
+<pre><code class="language-python">def apply_tax(amount,rate = 0.18 ,*,round_to:int=2):
+    items={'amount':amount,'rate':rate}
+    return round(items['amount']*(1+items['rate']),round_to)</code></pre>
+
+					<p>After <code>black</code>:</p>
+
+<pre><code class="language-python">def apply_tax(amount, rate=0.18, *, round_to: int = 2):
+    items = {"amount": amount, "rate": rate}
+    return round(items["amount"] * (1 + items["rate"]), round_to)</code></pre>
+
+					<p><strong>Linting vs formatting:</strong> the formatter only changes layout. The linter finds problems in logic and usage (an unused variable, a bare <code>except</code>) that formatting cannot fix.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Tip</p>
+						<p><code>ruff format</code> is a Black-compatible formatter built into Ruff. On this example it produced identical output. Use one formatter per project, not both.</p>
+					</aside>
+
+					<h2 id="type-checking-mypy">Type Checking with mypy</h2>
+
+					<p><strong>Type checking</strong> uses your type hints to find mistakes before the code runs. <strong>mypy</strong> is the original Python type checker; <strong>Pyright</strong> (used by VS Code's Pylance) is a fast alternative.</p>
+
+<pre><code class="language-bash">pip install mypy
+mypy shop</code></pre>
+
+					<p>This project sets <code>strict = true</code> under <code>[tool.mypy]</code> in <code>pyproject.toml</code>.</p>
+
+					<p><code>OrderRepository.get_total()</code> returns <code>Decimal | None</code>, because the order may not exist. This code forgets that, and mypy (in strict mode) reports it:</p>
+
+<pre><code class="language-python">def invoice_line(repo: OrderRepository, order_id: int) -&gt; str:
+    total = repo.get_total(order_id)
+    return "Total: " + total.quantize(Decimal("0.01"))</code></pre>
+
+<pre class="diagram">shop/invoice.py:8: error: Returning Any from function declared to return "str"  [no-any-return]
+shop/invoice.py:8: error: Unsupported operand types for + ("str" and "Decimal")  [operator]
+shop/invoice.py:8: note: Right operand is of type "Decimal | Any"
+shop/invoice.py:8: error: Item "None" of "Decimal | None" has no attribute "quantize"  [union-attr]
+Found 3 errors in 1 file (checked 5 source files)</pre>
+
+					<p>mypy found two bugs that would crash in production: adding a <code>str</code> to a <code>Decimal</code>, and calling a method on a value that can be <code>None</code>. The fix:</p>
+
+<pre><code class="language-python">def invoice_line(repo: OrderRepository, order_id: int) -&gt; str:
+    total = repo.get_total(order_id)
+    if total is None:
+        return "Order not found"
+    return f"Total: {total}"</code></pre>
+
+<pre class="diagram">Success: no issues found in 5 source files</pre>
+
+					<p>On an existing project, start with mypy's defaults and turn on <code>strict = true</code> once the code is clean; new projects can start strict. Without strict mode, mypy still reports the two <code>[operator]</code> and <code>[union-attr]</code> errors. Install type stubs for libraries that need them, such as <code>types-requests</code>.</p>
+
+					<h2 id="pre-commit-hooks">Pre-commit Hooks</h2>
+
+					<p>A <strong>Git hook</strong> is a script Git runs at certain moments. A <strong>pre-commit hook</strong> runs before each commit and can stop it. The <strong>pre-commit</strong> framework manages these hooks from one config file.</p>
+
+<pre><code class="language-yaml"># .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.0
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.10.1
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.4.0
+    hooks:
+      - id: mypy
+        files: ^shop/
+        additional_dependencies: [types-requests]</code></pre>
+
+<pre><code class="language-bash">pip install pre-commit
+pre-commit install              # add the hook to .git/hooks
+pre-commit run --all-files      # run every hook on the whole project once
+pre-commit autoupdate           # update hook versions later</code></pre>
+
+					<p>The first full run found problems in this very project: a line over 100 characters, nested <code>with</code> statements, and two files Black reformatted. After fixing them:</p>
+
+<pre class="diagram">trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check yaml...............................................................Passed
+check for added large files..............................................Passed
+detect private key.......................................................Passed
+ruff check...............................................................Passed
+black....................................................................Passed
+mypy.....................................................................Passed</pre>
+
+					<p>Then I added an unused <code>import os</code> and tried to commit:</p>
+
+<pre class="diagram">ruff check...............................................................Failed
+- hook id: ruff-check
+- files were modified by this hook
+Found 1 error (1 fixed, 0 remaining).</pre>
+
+					<p>The commit was blocked and Ruff removed the import. Run <code>git add</code> again and commit. Hooks only see staged files, so they stay fast.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Note</p>
+						<p>Hooks run on each developer's machine and can be skipped with <code>git commit --no-verify</code>. That is why CI must run the same checks.</p>
+					</aside>
+
+					<h2 id="ci-github-actions">CI/CD with GitHub Actions</h2>
+
+					<p><strong>Continuous integration (CI)</strong> runs your checks on a server for every push and pull request, so nothing broken reaches the main branch. With GitHub Actions, add one file:</p>
+
+<pre><code class="language-yaml"># .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: black --check .
+      - run: mypy shop
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: pytest --cov --cov-report=term-missing</code></pre>
+
+					<ul>
+						<li><strong>Two jobs</strong> run in parallel: code quality, and tests on three Python versions (a <strong>matrix</strong>).</li>
+						<li>**<code>cache: pip</code>** reuses downloaded packages between runs.</li>
+						<li>**<code>requirements-dev.txt</code>** pins exact tool versions, so CI and your laptop give the same results.</li>
+						<li>Any failing step (a lint error, or coverage under 90%) marks the run red. Add a branch protection rule on GitHub to require it before merging.</li>
+					</ul>
+
+					<h2 id="best-practices">Testing Best Practices</h2>
+
+					<h3>Use meaningful test names</h3>
+
+					<p>A test name should say what is tested and what should happen. When it fails in CI, the name alone should tell you what broke.</p>
+
+					<ul>
+						<li><code>test_calculate_total_rejects_discount_over_100</code> tells you the rule.</li>
+						<li><code>test_total_2</code> tells you nothing.</li>
+					</ul>
+
+					<h3>Follow Arrange-Act-Assert</h3>
+
+					<p>Split each test into three parts: <strong>Arrange</strong> the inputs, <strong>Act</strong> by calling the code once, <strong>Assert</strong> the result. The first example in this guide shows the pattern with comments. One behaviour per test keeps failures easy to read.</p>
+
+					<h3>Test edge cases</h3>
+
+					<p>The happy path is rarely where bugs hide. Test empty input (<code>[]</code>), zero and boundary values (<code>0</code>, <code>100</code>, <code>-1</code>, <code>101</code>), <code>None</code>, rounding, very large values, and error responses from dependencies (the 503 test above).</p>
+
+					<h3>Keep tests isolated</h3>
+
+					<p>Each test must pass on its own and in any order. Shared state breaks this:</p>
+
+<pre><code class="language-python">cart = []  # shared by every test in this file
+
+
+def test_add_item():
+    cart.append("keyboard")
+    assert len(cart) == 1
+
+
+def test_add_second_item():
+    cart.append("mouse")
+    assert len(cart) == 2  # only passes if test_add_item ran first</code></pre>
+
+					<p>Both pass when run together, but <code>pytest test_cart_bad.py::test_add_second_item</code> fails with <code>assert 1 == 2</code>. Create state inside each test or in a fixture instead.</p>
+
+					<h3>Keep the suite maintainable</h3>
+
+					<ul class="list-check">
+						<li>Test <strong>behaviour</strong> (inputs and outputs), not private implementation details, so refactoring does not break tests.</li>
+						<li>Move repeated setup into fixtures; keep the assertions in the test.</li>
+						<li>Keep unit tests fast. Mark slow tests and run them separately.</li>
+						<li>Fix or delete flaky tests quickly. A suite people do not trust gets ignored.</li>
+						<li>When you fix a bug, first write a test that reproduces it.</li>
+					</ul>
+
+					<h3>Common mistakes</h3>
+
+					<ul class="list-cross">
+						<li>Tests with no <code>assert</code>, which pass whatever the code does.</li>
+						<li>Mocking the code under test, so the test only checks the mock.</li>
+						<li>Calling real external APIs from unit tests.</li>
+						<li>Using <code>time.sleep()</code> to wait for something; it makes the suite slow and flaky.</li>
+						<li>Chasing a coverage number instead of testing important behaviour.</li>
+					</ul>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>A reliable Python project combines four kinds of checks: <strong>pytest</strong> to prove behaviour, <strong>Ruff</strong> to catch bad patterns, <strong>Black</strong> for consistent layout and <strong>mypy</strong> for type errors. Fixtures, parametrize and mocks keep tests short and fast; integration tests check the pieces work together; coverage shows what is still untested.</p>
+
+					<p>Automate everything twice: <strong>pre-commit</strong> gives each developer feedback in seconds, and <strong>GitHub Actions</strong> makes sure nothing slips through. Start small: add pytest and Ruff to your current project today, then add the rest one step at a time.</p>
+
+					<h3>Related reading</h3>
+
+					<ul>
+						<li><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></li>
+						<li><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></li>
+						<li><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="python-testing-code-quality">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/redis-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/redis-tutorial-for-beginners/">Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples</a></h3>
+								<p class="post-card-desc">Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Redis</li><li>Caching</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/golang-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/golang-tutorial-for-beginners/">Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin</a></h3>
+								<p class="post-card-desc">Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Go</li><li>APIs</li><li>Concurrency</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/database-optimization-guide/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 12 min read</p>
+								<h3><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></h3>
+								<p class="post-card-desc">PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>PostgreSQL</li><li>Django</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-toml.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'python-testing-code-quality',
+		title: 'Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices',
+		description: 'A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.',
+		date: '2026-10-15',
+		readingTime: 13,
+		level: 'Beginner',
+		tags: ['Python', 'Testing', 'Best Practices'],
+		url: '/blog/python-testing-code-quality/',
+		cover: '/assets/img/blog/python-testing-code-quality/cover.webp',
+		coverAlt: 'Python Testing and Code Quality cover: pre-commit output with whitespace, YAML, private key, Ruff, Black and mypy hooks all passing, then pytest --cov reporting 16 passed, with results of 11 Ruff issues found, 16 tests passed and 100% coverage'
+	},
+	{
 		slug: 'redis-tutorial-for-beginners',
 		title: 'Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples',
 		description: 'Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.',
