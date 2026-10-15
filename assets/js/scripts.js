@@ -309,7 +309,7 @@
 	function applyTheme(theme, animate) {
 		if (animate && !reduceMotion) {
 			root.classList.add('theme-switching');
-			window.setTimeout(function () { root.classList.remove('theme-switching'); }, 400);
+			window.setTimeout(function () { root.classList.remove('theme-switching'); }, 550);
 		}
 		root.setAttribute('data-theme', theme);
 		const next = theme === 'dark' ? 'light' : 'dark';
@@ -318,24 +318,14 @@
 		if (themeColor) themeColor.setAttribute('content', theme === 'dark' ? '#0e1626' : '#f6f5f0');
 	}
 
-	// New theme spreads out in a circle from the toggle. Browsers without the
-	// View Transitions API, and reduced-motion visitors, get the cross-fade or an instant switch.
-	function revealTheme(theme) {
+	// Whole page cross-fades to the new theme (timing in style.css). Browsers without the
+	// View Transitions API get the per-element colour fade; reduced-motion visitors switch instantly.
+	function fadeTheme(theme) {
 		if (reduceMotion || typeof document.startViewTransition !== 'function') {
 			applyTheme(theme, true);
 			return;
 		}
-		const box = themeToggle.getBoundingClientRect();
-		const x = box.left + box.width / 2;
-		const y = box.top + box.height / 2;
-		const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-		const transition = document.startViewTransition(function () { applyTheme(theme, false); });
-		transition.ready.then(function () {
-			root.animate(
-				{ clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'] },
-				{ duration: 600, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
-			);
-		}).catch(function () { /* transition skipped; the theme is already applied */ });
+		document.startViewTransition(function () { applyTheme(theme, false); });
 	}
 
 	if (themeToggle) {
@@ -343,7 +333,7 @@
 
 		themeToggle.addEventListener('click', function () {
 			const theme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-			revealTheme(theme);
+			fadeTheme(theme);
 			try { localStorage.setItem('theme', theme); } catch (e) { /* storage blocked; theme lasts for this visit */ }
 		});
 

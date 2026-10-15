@@ -80,24 +80,24 @@
 	border-block: 1px solid var(--color-border);
 }
 
-/* Short colour cross-fade while switching themes */
+/* Theme switch: the whole page cross-fades through a view transition.
+   Browsers without view transitions fade each element's colours instead. */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 0.5s;
+	animation-timing-function: ease-in-out;
+}
+
 .theme-switching,
 .theme-switching *,
 .theme-switching *::before,
 .theme-switching *::after {
-	transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, fill 0.35s ease !important;
+	transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out, border-color 0.5s ease-in-out, fill 0.5s ease-in-out !important;
 }
 
-/* Keep the toggle icon's turn during the cross-fade */
+/* Keep the toggle icon's turn during the colour fade */
 .theme-switching .theme-toggle .bi {
 	transition: transform 0.5s var(--ease), opacity 0.3s ease !important;
-}
-
-/* Circular theme reveal (scripts.js animates the clip-path); drop the default fade */
-::view-transition-old(root),
-::view-transition-new(root) {
-	animation: none;
-	mix-blend-mode: normal;
 }
 
 /* 2. Base
