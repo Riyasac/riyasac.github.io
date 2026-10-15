@@ -1893,6 +1893,7 @@ p:last-child {
 }
 
 .post-body ul:not([class]),
+.post-body ol:not([class]),
 .callout ul {
 	padding-left: 1.3rem;
 }
@@ -1900,6 +1901,11 @@ p:last-child {
 .post-body ul:not([class]) li,
 .callout ul li {
 	list-style: disc;
+	margin-top: 0.3rem;
+}
+
+.post-body ol:not([class]) li {
+	list-style: decimal;
 	margin-top: 0.3rem;
 }
 
