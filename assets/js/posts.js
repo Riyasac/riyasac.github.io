@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'fastapi-for-beginners',
+		title: 'FastAPI for Beginners: Build Your First Python API',
+		description: 'Install FastAPI, build and run your first Python API, add a path parameter and request validation, and see how it compares with Django REST Framework.',
+		date: '2026-10-15',
+		readingTime: 5,
+		level: 'Beginner',
+		tags: ['FastAPI', 'Python', 'APIs'],
+		url: '/blog/fastapi-for-beginners/',
+		cover: '/assets/img/blog/fastapi-for-beginners/cover.webp',
+		coverAlt: 'FastAPI for Beginners cover: a main.py file with a FastAPI app and a /hello/{name} endpoint, run with fastapi dev, returning 200 for GET /hello/Riyas and /docs and 422 for bad input'
+	},
+	{
 		slug: 'git-for-backend-developers',
 		title: 'Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes',
 		description: 'Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.',

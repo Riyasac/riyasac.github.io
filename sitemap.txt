@@ -1,5 +1,6 @@
 https://riyasac.github.io/
 https://riyasac.github.io/blog/
+https://riyasac.github.io/blog/fastapi-for-beginners/
 https://riyasac.github.io/blog/git-for-backend-developers/
 https://riyasac.github.io/blog/python-concurrency-threads-asyncio-processes/
 https://riyasac.github.io/blog/lazy-imports-in-python/

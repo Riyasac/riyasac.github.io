@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>FastAPI for Beginners: Build Your First Python API | Riyas A C</title>
+	<meta name="description" content="FastAPI for beginners: install FastAPI, build your first Python API, add path parameters and request validation, and compare it with Django REST Framework.">
+	<meta name="keywords" content="FastAPI for beginners, Python FastAPI tutorial, build a REST API with Python, FastAPI example, FastAPI installation, FastAPI vs Django REST Framework, Pydantic, Uvicorn">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/fastapi-for-beginners/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/fastapi-for-beginners/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="FastAPI for Beginners: Build Your First Python API">
+	<meta property="og:description" content="A beginner-friendly Python FastAPI tutorial: install it, build and run your first API, and see automatic docs and validation in action.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/fastapi-for-beginners/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="FastAPI for Beginners cover: a main.py file with a FastAPI app and a /hello/{name} endpoint, run with fastapi dev, returning 200 for GET /hello/Riyas and /docs and 422 for bad input">
+	<meta property="article:published_time" content="2026-10-15T20:00:00Z">
+	<meta property="article:modified_time" content="2026-10-15T20:00:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="FastAPI">
+	<meta property="article:tag" content="Python">
+	<meta property="article:tag" content="APIs">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="FastAPI for Beginners: Build Your First Python API">
+	<meta name="twitter:description" content="A beginner-friendly Python FastAPI tutorial: install it, build and run your first API, and see automatic docs and validation in action.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/fastapi-for-beginners/cover.jpg">
+	<meta name="twitter:image:alt" content="FastAPI for Beginners cover: a main.py file with a FastAPI app and a /hello/{name} endpoint, run with fastapi dev, returning 200 for GET /hello/Riyas and /docs and 422 for bad input">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/fastapi-for-beginners/#article",
+		"url": "https://riyasac.github.io/blog/fastapi-for-beginners/",
+		"headline": "FastAPI for Beginners: Build Your First Python API",
+		"description": "FastAPI for beginners: install FastAPI, build your first Python API, add path parameters and request validation, and compare it with Django REST Framework.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/fastapi-for-beginners/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T20:00:00Z",
+		"dateModified": "2026-10-15T20:00:00Z",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["FastAPI", "Python", "APIs", "FastAPI for beginners", "Python FastAPI tutorial", "REST API", "Pydantic", "FastAPI vs Django REST Framework"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/fastapi-for-beginners/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "FastAPI for Beginners: Build Your First Python API",
+				"item": "https://riyasac.github.io/blog/fastapi-for-beginners/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">FastAPI</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">FastAPI for Beginners: Build Your First Python API</h1>
+					<p class="post-lead">Install FastAPI, build and run your first Python API, and see automatic docs and request validation in action. No previous FastAPI experience needed.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 5 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Python, FastAPI</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>FastAPI</li><li>Python</li><li>APIs</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/fastapi-for-beginners/cover.webp" width="1024" height="535" alt="FastAPI for Beginners cover: a main.py file with a FastAPI app and a /hello/{name} endpoint, run with fastapi dev, returning 200 for GET /hello/Riyas and /docs and 422 for bad input" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+					<p>Every app you use talks to a server through an API. When your phone shows the weather, it asks an API for it and gets data back.</p>
+					<p><strong>FastAPI</strong> is a Python framework for building those APIs. This guide covers <strong>FastAPI for beginners</strong>: you will install it, build your first API, and test it in your browser in a few minutes. No previous FastAPI experience is needed. If you know basic Python, you are ready.</p>
+
+					<h2 id="what-is-fastapi">What Is FastAPI?</h2>
+					<p>Think of an API as a waiter in a restaurant. You (the client) ask for something, the waiter takes the request to the kitchen (the server), and brings back your order (the data).</p>
+					<p>FastAPI helps you build that waiter in Python. You write normal Python functions, and FastAPI turns them into web endpoints that return JSON.</p>
+					<ul>
+						<li><strong>What it does:</strong> receives HTTP requests, runs your Python function, and sends back a response.</li>
+						<li><strong>Why it is useful:</strong> very little code gets you a working, documented API.</li>
+						<li><strong>Where it is used:</strong> backends for web and mobile apps, microservices, and serving machine learning models.</li>
+					</ul>
+
+					<h2 id="why-fastapi">Why Choose FastAPI?</h2>
+					<ul class="list-check">
+						<li><strong>High performance:</strong> it is built on Starlette and Pydantic and is one of the faster Python frameworks. Your database and code still decide real-world speed.</li>
+						<li><strong>Automatic API documentation:</strong> an interactive docs page is generated for you.</li>
+						<li><strong>Automatic request validation:</strong> bad input is rejected with a clear error before your code runs.</li>
+						<li><strong>Python type hints:</strong> you declare <code>name: str</code>, and FastAPI uses it for validation, docs and editor autocompletion.</li>
+						<li><strong>Async support:</strong> you can write <code>async def</code> endpoints when your code waits on other services.</li>
+					</ul>
+
+					<h2 id="fastapi-vs-drf">FastAPI vs Django REST Framework</h2>
+					<p>If you know Django, you may wonder how FastAPI compares with Django REST Framework (DRF). Both are good choices for different jobs.</p>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">FastAPI compared with Django REST Framework</caption>
+							<thead><tr><th scope="col"></th><th scope="col">FastAPI</th><th scope="col">Django REST Framework</th></tr></thead>
+							<tbody>
+								<tr><th scope="row">Main purpose</th><td>A lightweight framework built for APIs</td><td>An API toolkit added to a full Django project</td></tr>
+								<tr><th scope="row">Learning curve</th><td>Small to start; one file is enough</td><td>Learn Django first, then DRF</td></tr>
+								<tr><th scope="row">Built-in features</th><td>Validation, API docs, async. You choose your own database tools</td><td>Django's ORM, admin panel, authentication and permissions</td></tr>
+								<tr><th scope="row">API development</th><td>Type hints and Pydantic models</td><td>Serializers, viewsets and routers</td></tr>
+								<tr><th scope="row">Common use cases</th><td>Microservices, ML model serving, async-heavy APIs</td><td>Database-heavy apps that also need an admin and full web features</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="install-fastapi">Install FastAPI</h2>
+					<p>First, create a virtual environment. It keeps this project's packages separate from the rest of your system.</p>
+<pre><code class="language-bash">python -m venv .venv</code></pre>
+					<p>Activate it. The command depends on your operating system:</p>
+<pre><code class="language-bash"># macOS and Linux
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate</code></pre>
+					<p>Then install FastAPI. The <code>[standard]</code> extra adds Uvicorn (the server that runs your app) and the <code>fastapi</code> command:</p>
+<pre><code class="language-bash">pip install "fastapi[standard]"</code></pre>
+
+					<h2 id="first-app">Build Your First FastAPI Application</h2>
+					<p>Create a file named <code>main.py</code>:</p>
+<pre><code class="language-python">from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return {"message": "Hello, FastAPI!"}</code></pre>
+					<ul>
+						<li><code>from fastapi import FastAPI</code> imports the framework.</li>
+						<li><code>app = FastAPI()</code> creates your application.</li>
+						<li><code>@app.get("/")</code> says "run the function below when someone sends a GET request to <code>/</code>".</li>
+						<li><code>return {...}</code> sends a Python dictionary, which FastAPI converts to JSON.</li>
+					</ul>
+
+					<h2 id="run-the-app">Run the Application</h2>
+					<p>Start the development server from the folder that contains <code>main.py</code>:</p>
+<pre><code class="language-bash">fastapi dev main.py</code></pre>
+<pre class="diagram"> 🌐 Server started at http://127.0.0.1:8000
+    Documentation at http://127.0.0.1:8000/docs</pre>
+					<p>Open <a href="http://127.0.0.1:8000/" rel="nofollow">http://127.0.0.1:8000/</a> in your browser. You will see:</p>
+<pre><code class="language-json">{"message": "Hello, FastAPI!"}</code></pre>
+					<p>Now open <a href="http://127.0.0.1:8000/docs" rel="nofollow">http://127.0.0.1:8000/docs</a>. This is the interactive API documentation FastAPI built for you. Click an endpoint, then <strong>Try it out</strong> and <strong>Execute</strong> to call it from the page.</p>
+					<p><code>fastapi dev</code> reloads automatically when you save a file, so keep it running while you code. Press <code>Ctrl+C</code> to stop it.</p>
+
+					<h2 id="path-parameters">Create a Simple API Endpoint</h2>
+					<p>Let's greet people by name. Add this to <code>main.py</code>:</p>
+<pre><code class="language-python">@app.get("/hello/{name}")
+def say_hello(name: str):
+    return {"message": f"Hello, {name}!"}</code></pre>
+					<p><code>{name}</code> is a <strong>path parameter</strong>: a variable part of the URL. Whatever the user puts there is passed to your function as <code>name</code>. It works like a fill-in-the-blank form.</p>
+					<p>Request:</p>
+<pre class="diagram">GET http://127.0.0.1:8000/hello/Riyas</pre>
+					<p>Response:</p>
+<pre><code class="language-json">{"message": "Hello, Riyas!"}</code></pre>
+
+					<h2 id="what-makes-it-special">What Makes FastAPI Special?</h2>
+					<p>Open <code>/docs</code> again. Your new endpoint is already there, with its <code>name</code> parameter. You wrote no documentation; FastAPI read it from your code.</p>
+					<p>Validation works the same way. To accept JSON data, describe its shape with a <strong>Pydantic model</strong>, a class that lists each field and its type. FastAPI checks every request against it.</p>
+					<p>Here is the complete <code>main.py</code> with all three endpoints:</p>
+<pre><code class="language-python">from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+
+class Book(BaseModel):
+    title: str
+    author: str
+    price: float
+
+
+@app.get("/")
+def home():
+    return {"message": "Hello, FastAPI!"}
+
+
+@app.get("/hello/{name}")
+def say_hello(name: str):
+    return {"message": f"Hello, {name}!"}
+
+
+@app.post("/books")
+def create_book(book: Book):
+    return {"saved": book}</code></pre>
+					<p>Send a valid book to <code>POST /books</code> (use <strong>Try it out</strong> on the docs page):</p>
+<pre><code class="language-json">{"title": "Python Basics", "author": "Asha", "price": 299.0}</code></pre>
+					<p>FastAPI returns it with status <code>200</code>. Now send bad data, with no author and a price that is not a number:</p>
+<pre><code class="language-json">{"title": "Python Basics", "price": "cheap"}</code></pre>
+					<p>Your function never runs. FastAPI replies with status <code>422</code> and explains each problem (shortened here):</p>
+<pre><code class="language-json">{
+  "detail": [
+    {"type": "missing", "loc": ["body", "author"], "msg": "Field required"},
+    {"type": "float_parsing", "loc": ["body", "price"],
+     "msg": "Input should be a valid number, unable to parse string as a number"}
+  ]
+}</code></pre>
+					<p>Three typed fields in a class gave you validation, clear error messages and documentation.</p>
+
+					<h2 id="conclusion">Conclusion</h2>
+					<p>You installed FastAPI, built an API with three endpoints, used a path parameter, and validated JSON with a Pydantic model. You also saw the free interactive docs at <code>/docs</code>.</p>
+					<p>A good next step is a small <strong>CRUD API</strong>: a to-do list with endpoints to create, read, update and delete tasks. Store them in a Python list first, then add a database. The official <a href="https://fastapi.tiangolo.com/tutorial/" target="_blank" rel="noopener">FastAPI tutorial</a> walks through each step, and my post on <a href="/blog/api-fundamentals/">API fundamentals</a> covers REST design and security for when your API grows.</p>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="fastapi-for-beginners">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>
