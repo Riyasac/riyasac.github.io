@@ -103,7 +103,7 @@ window.BLOG_POSTS = [
 		tags: ['APIs', 'REST', 'Security'],
 		url: '/blog/api-fundamentals/',
 		cover: '/assets/img/blog/api-fundamentals/cover.webp',
-		coverAlt: 'Four slide covers from the API series: architectures, authentication, REST best practices and security'
+		coverAlt: 'API Fundamentals cover: a versioned, paginated GET request with a Bearer token and a 200 OK JSON response, covering 6 architectures, 4 auth methods and 10 security checks'
 	},
 	{
 		slug: 'django-middleware-explained',
