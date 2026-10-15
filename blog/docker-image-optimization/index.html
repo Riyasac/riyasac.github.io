@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Docker Image Optimization: Build Smaller, Faster Images | Riyas A C</title>
+	<meta name="description" content="Docker image optimization for beginners: slim base images, multi-stage builds, .dockerignore, cache mounts and non-root users, with measured results.">
+	<meta name="keywords" content="Docker image optimization, Dockerfile best practices, smaller Docker images, multi-stage builds, Docker image size, Docker performance, .dockerignore, BuildKit cache mount, Docker non-root user, Docker commands cheat sheet">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/docker-image-optimization/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/docker-image-optimization/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Docker Image Optimization: Build Smaller, Faster and Safer Images">
+	<meta property="og:description" content="Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/docker-image-optimization/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Docker Image Optimization cover: an optimized Dockerfile using a pinned slim Python base image, a pip cache mount and a non-root user, with measured results of 1.15 GB before, 124 MB after and a 2.2 second rebuild">
+	<meta property="article:published_time" content="2026-10-15T23:00:00Z">
+	<meta property="article:modified_time" content="2026-10-15T23:00:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Docker">
+	<meta property="article:tag" content="DevOps">
+	<meta property="article:tag" content="Python">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Docker Image Optimization: Build Smaller, Faster and Safer Images">
+	<meta name="twitter:description" content="Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/docker-image-optimization/cover.jpg">
+	<meta name="twitter:image:alt" content="Docker Image Optimization cover: an optimized Dockerfile using a pinned slim Python base image, a pip cache mount and a non-root user, with measured results of 1.15 GB before, 124 MB after and a 2.2 second rebuild">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/docker-image-optimization/#article",
+		"url": "https://riyasac.github.io/blog/docker-image-optimization/",
+		"headline": "Docker Image Optimization: Build Smaller, Faster and Safer Images",
+		"description": "Docker image optimization for beginners: slim base images, multi-stage builds, .dockerignore, cache mounts and non-root users, with measured results.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/docker-image-optimization/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T23:00:00Z",
+		"dateModified": "2026-10-15T23:00:00Z",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Docker", "DevOps", "Python", "Docker image optimization", "Dockerfile best practices", "Multi-stage builds", "Docker image size", "Docker commands cheat sheet"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/docker-image-optimization/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Docker Image Optimization: Build Smaller, Faster and Safer Images",
+				"item": "https://riyasac.github.io/blog/docker-image-optimization/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Docker</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Docker Image Optimization: Build Smaller, Faster and Safer Images</h1>
+					<p class="post-lead">Practical Dockerfile best practices for beginners: smaller base images, .dockerignore, multi-stage builds, cache mounts and non-root users, with measured results and a Docker commands cheat sheet.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 8 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Docker, Python</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Docker</li><li>DevOps</li><li>Python</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/docker-image-optimization/cover.webp" width="1024" height="535" alt="Docker Image Optimization cover: an optimized Dockerfile using a pinned slim Python base image, a pip cache mount and a non-root user, with measured results of 1.15 GB before, 124 MB after and a 2.2 second rebuild" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+
+					<p><strong>Docker image optimization</strong> means building images that contain only what your app needs to run. Nothing more.</p>
+
+					<p>It matters because every extra megabyte has a cost. Big images take longer to push, pull and deploy. They use more disk and bandwidth. They also ship more software, and more software means more security vulnerabilities to patch.</p>
+
+					<p>In this guide, we take a simple Python app from <strong>1.15 GB to 124 MB</strong>, and cut rebuild time from 31.5 seconds to 2.2 seconds. Every number below was measured, not estimated.</p>
+
+					<h2 id="techniques">Key Optimization Techniques</h2>
+
+					<h3>1. Use Minimal Base Images</h3>
+
+					<p>The base image is the starting point in your <code>FROM</code> line. The default <code>python:3.12</code> image includes compilers and many system tools. The <code>slim</code> variant keeps only what Python needs to run.</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Base image</th><th scope="col">Size on my machine</th></tr></thead>
+							<tbody>
+								<tr><td><code>python:3.12</code></td><td>1.11 GB</td></tr>
+								<tr><td><code>python:3.12-slim</code></td><td>119 MB</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Start with <code>slim</code>. Alpine images are smaller still, but they use a different C library (musl), so some Python packages need compiling. That can make builds slower and less predictable.</p>
+
+					<h3>2. Use Multi-Stage Builds</h3>
+
+					<p>A multi-stage build uses one image to <strong>build</strong> and a second, smaller image to <strong>run</strong>. You copy only the finished result into the final image. Compilers and build tools stay behind.</p>
+
+<pre><code class="language-docker">FROM python:3.12.15-trixie AS builder
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+FROM python:3.12.15-slim-trixie
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+# ...then copy app.py, add the non-root user and CMD, as in the full example below</code></pre>
+
+					<p>An honest note: for my small Flask app, this produced a <strong>135 MB</strong> image, slightly <em>larger</em> than the single-stage slim build (124 MB). The copied virtual environment includes its own <code>pip</code>. Multi-stage builds pay off when packages need compilers or system libraries to install, or for compiled languages like Go.</p>
+
+					<h3>3. Optimize Dockerfile Layers</h3>
+
+					<p>Each <code>RUN</code>, <code>COPY</code> and <code>ADD</code> instruction creates a <strong>layer</strong>, which is like a saved snapshot. Docker reuses unchanged layers from cache.</p>
+
+					<p>Two rules help most:</p>
+
+					<ul>
+						<li><strong>Order from least to most often changed.</strong> Copy <code>requirements.txt</code> and install dependencies <em>before</em> copying your code. Then a code change does not reinstall every package.</li>
+						<li><strong>Combine commands that create and clean up files</strong> in the same <code>RUN</code>, so temporary files never reach a layer.</li>
+					</ul>
+
+					<h3>4. Use .dockerignore</h3>
+
+					<p><code>COPY . .</code> sends your whole folder to Docker, including things the app never uses. A <code>.dockerignore</code> file works like <code>.gitignore</code>:</p>
+
+<pre class="diagram">.git
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+Dockerfile*
+.dockerignore</pre>
+
+					<p>Without it, my basic image contained a 36 MB local <code>.venv</code> and the <code>.git</code> folder. Excluding <code>.env</code> also keeps secrets out of the image.</p>
+
+					<h3>5. Use BuildKit Cache Mounts</h3>
+
+					<p>BuildKit is Docker's build engine, enabled by default since Docker Engine 23.0. A <strong>cache mount</strong> keeps pip's download cache between builds, but outside the image:</p>
+
+<pre><code class="language-docker">RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt</code></pre>
+
+					<p>Rebuilds after a dependency change download less, and the cache adds nothing to the image size.</p>
+
+					<h3>6. Remove Unnecessary Dependencies</h3>
+
+					<p>Install only what production needs. Keep test and lint tools such as <code>pytest</code> in a separate <code>requirements-dev.txt</code>, and install that only in development or CI.</p>
+
+					<h3>7. Run as a Non-Root User</h3>
+
+					<p>Containers run as <code>root</code> by default. If an attacker breaks into your app, root makes the damage worse. Create a normal user and switch to it:</p>
+
+<pre><code class="language-docker">RUN useradd --create-home --uid 10001 appuser
+USER appuser</code></pre>
+
+					<h3>8. Pin Base Image Versions</h3>
+
+					<p><code>python:3.12</code> silently changes when a new patch release comes out. Pin the full version and OS release, for example <code>python:3.12.15-slim-trixie</code>, so builds are reproducible. For strict reproducibility, also pin the image digest (<code>@sha256:...</code>), and update it on purpose.</p>
+
+					<h2 id="practical-example">Practical Example: Optimizing a Python App</h2>
+
+					<p>Our app is a small Flask service (<code>app.py</code>) with <code>flask==3.1.2</code> in <code>requirements.txt</code>.</p>
+
+					<h3>Before: a basic Dockerfile</h3>
+
+<pre><code class="language-docker">FROM python:3.12
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python", "app.py"]</code></pre>
+
+					<p>It works, but it uses a 1.11 GB base image, copies everything in the folder, reinstalls packages on every code change and runs as root.</p>
+
+					<h3>After: an optimized Dockerfile</h3>
+
+<pre><code class="language-docker"># syntax=docker/dockerfile:1
+FROM python:3.12.15-slim-trixie
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install dependencies first so this layer is reused when only code changes
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+# Create an unprivileged user to run the app
+RUN useradd --create-home --uid 10001 appuser
+
+COPY app.py .
+
+USER appuser
+
+EXPOSE 8000
+CMD ["python", "app.py"]</code></pre>
+
+					<p>What changed:</p>
+
+					<ul>
+						<li><strong>Pinned slim base image:</strong> smaller and reproducible.</li>
+						<li>**<code>PYTHONDONTWRITEBYTECODE</code>** stops Python writing <code>.pyc</code> files into the image. **<code>PYTHONUNBUFFERED</code>** shows logs immediately.</li>
+						<li><strong>Dependencies before code:</strong> code changes reuse the cached install layer.</li>
+						<li><strong>Cache mount:</strong> faster dependency installs, with no pip cache left in the image.</li>
+						<li>**<code>COPY app.py .</code>** copies only the code, together with the <code>.dockerignore</code> above.</li>
+						<li><strong>Non-root user:</strong> the container runs as <code>appuser</code>.</li>
+					</ul>
+
+					<p>For a real deployment, run the app with a production server such as Gunicorn instead of Flask's built-in server.</p>
+
+					<h2 id="measure-results">Measure the Results</h2>
+
+					<p>Build each version with its own tag, then compare:</p>
+
+<pre><code class="language-bash">docker build -f Dockerfile.basic -t my-app:before .
+docker build -f Dockerfile -t my-app:after .
+
+docker images my-app
+docker image inspect my-app:after --format '{{.Size}}'
+docker history my-app:after</code></pre>
+
+					<p><code>docker images</code> shows a readable size. <code>docker image inspect</code> gives the exact size in bytes. <code>docker history</code> shows how much each layer adds, which points you at the biggest step.</p>
+
+					<p>My results (Docker 29.6.1, Linux, same app and dependencies):</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Version</th><th scope="col">Image size</th><th scope="col">Rebuild after a code change</th></tr></thead>
+							<tbody>
+								<tr><td>Basic Dockerfile</td><td>1.15 GB</td><td>31.5 s</td></tr>
+								<tr><td>Basic + <code>.dockerignore</code></td><td>1.12 GB</td><td>n/a</td></tr>
+								<tr><td>Optimized (above)</td><td>124 MB</td><td>2.2 s</td></tr>
+								<tr><td>Multi-stage</td><td>135 MB</td><td>n/a</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>To compare fairly:</p>
+
+					<ul>
+						<li>Build from the <strong>same code and dependencies</strong>.</li>
+						<li>Compare the <strong>same metric</strong>. Local size is uncompressed; registry size is compressed and smaller.</li>
+						<li>Change <strong>one thing at a time</strong> to see what each step contributes.</li>
+						<li>Measure rebuild time after a <strong>code-only change</strong>, since that is what you do all day.</li>
+					</ul>
+
+					<h2 id="common-mistakes">Common Mistakes</h2>
+
+					<ul class="list-cross">
+						<li><strong>Large base images by default.</strong> Most apps do not need a full OS toolchain at runtime.</li>
+						<li><strong>Copying the entire project.</strong> Without <code>.dockerignore</code>, <code>.git</code>, <code>.venv</code> and even <code>.env</code> end up in the image.</li>
+						<li><strong>Development dependencies in production.</strong> Test tools add size and attack surface.</li>
+						<li><strong>Ignoring build cache.</strong> Copying code before installing dependencies makes every build reinstall everything.</li>
+						<li><strong>Deleting files in a later layer.</strong> A file added in one <code>RUN</code> stays in that layer even if a later <code>RUN</code> deletes it. In my test, creating a 100 MB file and deleting it in a separate step left the image at <strong>219 MB</strong>. Doing both in one <code>RUN</code> kept it at <strong>119 MB</strong>. Avoid adding the file in the first place.</li>
+					</ul>
+
+					<h2 id="cheat-sheet">Docker Commands Cheat Sheet</h2>
+
+					<p>The commands you need most while building and optimizing images. Replace <code>my-app</code> with your image name.</p>
+
+					<h3>Build images</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+							<tbody>
+								<tr><td><code>docker build -t my-app:1.0 .</code></td><td>Build an image from the <code>Dockerfile</code> in this folder and tag it</td></tr>
+								<tr><td><code>docker build -f Dockerfile.prod -t my-app .</code></td><td>Build from a different Dockerfile</td></tr>
+								<tr><td><code>docker build --no-cache -t my-app .</code></td><td>Rebuild every layer, ignoring the cache</td></tr>
+								<tr><td><code>docker build --target builder -t my-app:build .</code></td><td>Build only up to one stage of a multi-stage build</td></tr>
+								<tr><td><code>docker build --progress=plain .</code></td><td>Show full build output, useful for debugging</td></tr>
+								<tr><td><code>docker build --platform linux/amd64 -t my-app .</code></td><td>Build for a specific CPU architecture</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Inspect images</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+							<tbody>
+								<tr><td><code>docker images</code></td><td>List images and their sizes</td></tr>
+								<tr><td><code>docker image ls --filter reference='my-app*'</code></td><td>List only matching images</td></tr>
+								<tr><td><code>docker history my-app</code></td><td>Show each layer and how much it adds</td></tr>
+								<tr><td><code>docker image inspect my-app --format '{{.Size}}'</code></td><td>Exact image size in bytes</td></tr>
+								<tr><td><code>docker system df</code></td><td>Disk used by images, containers, volumes and build cache</td></tr>
+								<tr><td><code>docker scout quickview my-app</code></td><td>Summary of known vulnerabilities, if Docker Scout is installed</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Run and manage containers</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+							<tbody>
+								<tr><td><code>docker run --rm -p 8000:8000 my-app</code></td><td>Run a container, map port 8000, remove it on exit</td></tr>
+								<tr><td><code>docker run -d --name web -p 8000:8000 my-app</code></td><td>Run in the background with a name</td></tr>
+								<tr><td><code>docker run --env-file .env my-app</code></td><td>Pass environment variables from a file at runtime</td></tr>
+								<tr><td><code>docker run -it --rm my-app sh</code></td><td>Open a shell in a new container</td></tr>
+								<tr><td><code>docker ps</code> / <code>docker ps -a</code></td><td>List running / all containers</td></tr>
+								<tr><td><code>docker logs -f --tail 100 web</code></td><td>Follow the last 100 log lines</td></tr>
+								<tr><td><code>docker exec -it web sh</code></td><td>Open a shell in a running container</td></tr>
+								<tr><td><code>docker exec web whoami</code></td><td>Check which user the app runs as</td></tr>
+								<tr><td><code>docker stats --no-stream</code></td><td>One snapshot of CPU and memory use</td></tr>
+								<tr><td><code>docker stop web</code> / <code>docker rm web</code></td><td>Stop / remove a container</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Share images</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+							<tbody>
+								<tr><td><code>docker login</code></td><td>Sign in to a registry</td></tr>
+								<tr><td><code>docker tag my-app:1.0 user/my-app:1.0</code></td><td>Add a registry name to an image</td></tr>
+								<tr><td><code>docker push user/my-app:1.0</code></td><td>Upload an image</td></tr>
+								<tr><td><code>docker pull python:3.12.15-slim-trixie</code></td><td>Download an image</td></tr>
+								<tr><td><code>docker buildx imagetools inspect python:3.12.15-slim-trixie</code></td><td>Show an image's digest for pinning, without pulling it</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Clean up</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Command</th><th scope="col">What it does</th></tr></thead>
+							<tbody>
+								<tr><td><code>docker rmi my-app:old</code></td><td>Remove an image</td></tr>
+								<tr><td><code>docker image prune</code></td><td>Remove dangling (untagged) images</td></tr>
+								<tr><td><code>docker image prune -a</code></td><td>Remove every image not used by a container</td></tr>
+								<tr><td><code>docker builder prune</code></td><td>Clear the build cache, including cache mounts</td></tr>
+								<tr><td><code>docker system prune</code></td><td>Remove stopped containers, unused networks, dangling images and build cache</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Prune commands ask for confirmation and cannot be undone. Add <code>--volumes</code> to <code>docker system prune</code> only if you are sure: it also deletes unused anonymous volumes, which can hold data.</p>
+
+					<h2 id="checklist">Docker Image Optimization Checklist</h2>
+
+					<ul class="list-check">
+						<li>Use a <code>slim</code> base image, pinned to a full version</li>
+						<li>Add a <code>.dockerignore</code> (<code>.git</code>, <code>.venv</code>, caches, <code>.env</code>)</li>
+						<li>Copy dependency files and install them before copying code</li>
+						<li>Use a BuildKit cache mount for package downloads</li>
+						<li>Install production dependencies only</li>
+						<li>Use a multi-stage build when installs need compilers</li>
+						<li>Run as a non-root user</li>
+						<li>Check results with <code>docker images</code> and <code>docker history</code></li>
+						<li>Confirm the user with <code>docker exec &lt;container&gt; whoami</code></li>
+					</ul>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>Docker image optimization is a handful of small habits with large results. A smaller base image and a <code>.dockerignore</code> cut image size. Smart layer order and cache mounts make builds faster. Smaller images deploy faster, and a non-root user with fewer packages reduces security risk. Measure before and after, and let the numbers guide each change.</p>
+
+					<p><strong>Related posts:</strong></p>
+
+					<ul>
+						<li><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a>, a good app to containerize next</li>
+						<li><a href="/blog/git-for-backend-developers/">Git for Backend Developers</a>, including <code>.gitignore</code> and keeping secrets out of repositories</li>
+						<li><a href="/blog/api-fundamentals/">API Fundamentals</a>, on where secrets should live</li>
+					</ul>
+
+					<h2 id="references">References</h2>
+
+					<ul>
+						<li><a href="https://docs.docker.com/build/building/best-practices/" target="_blank" rel="noopener">Docker: Building best practices</a></li>
+						<li><a href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">Docker: Multi-stage builds</a></li>
+						<li><a href="https://docs.docker.com/build/cache/optimize/" target="_blank" rel="noopener">Docker: Optimize cache usage in builds</a></li>
+						<li><a href="https://docs.docker.com/build/concepts/context/" target="_blank" rel="noopener">Docker: Build context and .dockerignore files</a></li>
+						<li><a href="https://hub.docker.com/_/python" target="_blank" rel="noopener">Official Python image on Docker Hub</a></li>
+						<li><a href="https://docs.docker.com/reference/cli/docker/" target="_blank" rel="noopener">Docker CLI reference</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="docker-image-optimization">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-docker.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

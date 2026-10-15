@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'docker-image-optimization',
+		title: 'Docker Image Optimization: Build Smaller, Faster and Safer Images',
+		description: 'Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.',
+		date: '2026-10-15',
+		readingTime: 8,
+		level: 'Beginner',
+		tags: ['Docker', 'DevOps', 'Python'],
+		url: '/blog/docker-image-optimization/',
+		cover: '/assets/img/blog/docker-image-optimization/cover.webp',
+		coverAlt: 'Docker Image Optimization cover: an optimized Dockerfile using a pinned slim Python base image, a pip cache mount and a non-root user, with measured results of 1.15 GB before, 124 MB after and a 2.2 second rebuild'
+	},
+	{
 		slug: 'fastapi-for-beginners',
 		title: 'FastAPI for Beginners: Build Your First Python API',
 		description: 'Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.',
