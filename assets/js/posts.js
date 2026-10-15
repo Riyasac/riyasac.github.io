@@ -9,9 +9,9 @@ window.BLOG_POSTS = [
 	{
 		slug: 'git-for-backend-developers',
 		title: 'Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes',
-		description: 'Clean commits, branching strategies, merge vs rebase, conflict resolution, undoing mistakes with the reflog, git bisect and hooks that block secrets.',
+		description: 'Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.',
 		date: '2026-10-15',
-		readingTime: 14,
+		readingTime: 16,
 		level: 'Beginner to Intermediate',
 		tags: ['Git', 'Workflow', 'Best Practices'],
 		url: '/blog/git-for-backend-developers/',
