@@ -351,10 +351,10 @@ CMD ["python", "app.py"]</code></pre>
 
 					<ul>
 						<li><strong>Pinned slim base image:</strong> smaller and reproducible.</li>
-						<li>**<code>PYTHONDONTWRITEBYTECODE</code>** stops Python writing <code>.pyc</code> files into the image. **<code>PYTHONUNBUFFERED</code>** shows logs immediately.</li>
+						<li><strong><code>PYTHONDONTWRITEBYTECODE</code></strong> stops Python writing <code>.pyc</code> files into the image. <strong><code>PYTHONUNBUFFERED</code></strong> shows logs immediately.</li>
 						<li><strong>Dependencies before code:</strong> code changes reuse the cached install layer.</li>
 						<li><strong>Cache mount:</strong> faster dependency installs, with no pip cache left in the image.</li>
-						<li>**<code>COPY app.py .</code>** copies only the code, together with the <code>.dockerignore</code> above.</li>
+						<li><strong><code>COPY app.py .</code></strong> copies only the code, together with the <code>.dockerignore</code> above.</li>
 						<li><strong>Non-root user:</strong> the container runs as <code>appuser</code>.</li>
 					</ul>
 

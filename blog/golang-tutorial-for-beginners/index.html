@@ -860,11 +860,11 @@ func main() {
 					<p>What the important parts do:</p>
 
 					<ul>
-						<li>**<code>Book</code> struct tags.** <code>json:"title"</code> sets the JSON field name. <code>binding:"required"</code> and <code>gte</code>/<code>lte</code> are validation rules that Gin checks for you.</li>
-						<li>**<code>store</code> with <code>sync.RWMutex</code>.** Gin handles each request in its own goroutine, so the shared map needs a lock. <code>RLock</code> lets many readers in at once; <code>Lock</code> gives a writer exclusive access.</li>
-						<li>**<code>gin.Default()</code>** creates a router with logging and panic-recovery middleware.</li>
-						<li>**<code>ShouldBindJSON</code>** parses the request body into <code>Book</code> and runs the validation rules.</li>
-						<li>**<code>SetTrustedProxies(nil)</code>** tells Gin not to trust <code>X-Forwarded-For</code> headers, which removes its startup warning. Set real proxy addresses if you run behind a load balancer.</li>
+						<li><strong><code>Book</code> struct tags.</strong> <code>json:"title"</code> sets the JSON field name. <code>binding:"required"</code> and <code>gte</code>/<code>lte</code> are validation rules that Gin checks for you.</li>
+						<li><strong><code>store</code> with <code>sync.RWMutex</code>.</strong> Gin handles each request in its own goroutine, so the shared map needs a lock. <code>RLock</code> lets many readers in at once; <code>Lock</code> gives a writer exclusive access.</li>
+						<li><strong><code>gin.Default()</code></strong> creates a router with logging and panic-recovery middleware.</li>
+						<li><strong><code>ShouldBindJSON</code></strong> parses the request body into <code>Book</code> and runs the validation rules.</li>
+						<li><strong><code>SetTrustedProxies(nil)</code></strong> tells Gin not to trust <code>X-Forwarded-For</code> headers, which removes its startup warning. Set real proxy addresses if you run behind a load balancer.</li>
 					</ul>
 
 					<h3>Run the application</h3>

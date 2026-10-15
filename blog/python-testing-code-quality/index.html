@@ -401,7 +401,7 @@ def service(repo):
 					<ul>
 						<li><strong>Setup and teardown.</strong> Code before <code>yield</code> runs before the test; code after <code>yield</code> runs after it, pass or fail.</li>
 						<li><strong>Dependency management.</strong> <code>service</code> needs <code>repo</code>, which needs <code>db</code>. pytest builds the chain for you.</li>
-						<li>**<code>conftest.py</code>.** Fixtures defined here are available to every test in the folder, with no imports.</li>
+						<li><strong><code>conftest.py</code>.</strong> Fixtures defined here are available to every test in the folder, with no imports.</li>
 						<li><strong>Scope.</strong> By default a fixture is created fresh for each test. <code>@pytest.fixture(scope="session")</code> creates it once per run, useful for expensive resources, but shared state can leak between tests.</li>
 					</ul>
 
@@ -465,8 +465,8 @@ def convert_price(amount: Decimal, base: str, target: str) -&gt; Decimal:
     return (amount * rate).quantize(Decimal("0.01"))</code></pre>
 
 					<ul>
-						<li>**<code>Mock</code>** creates a fake object. Any attribute or call returns another mock, and you set what it returns with <code>return_value</code> or make it raise with <code>side_effect</code>.</li>
-						<li>**<code>patch</code>** temporarily replaces a real object with a mock during a test, as a decorator or a <code>with</code> block.</li>
+						<li><strong><code>Mock</code></strong> creates a fake object. Any attribute or call returns another mock, and you set what it returns with <code>return_value</code> or make it raise with <code>side_effect</code>.</li>
+						<li><strong><code>patch</code></strong> temporarily replaces a real object with a mock during a test, as a decorator or a <code>with</code> block.</li>
 					</ul>
 
 <pre><code class="language-python"># tests/test_rates.py
@@ -836,8 +836,8 @@ jobs:
 
 					<ul>
 						<li><strong>Two jobs</strong> run in parallel: code quality, and tests on three Python versions (a <strong>matrix</strong>).</li>
-						<li>**<code>cache: pip</code>** reuses downloaded packages between runs.</li>
-						<li>**<code>requirements-dev.txt</code>** pins exact tool versions, so CI and your laptop give the same results.</li>
+						<li><strong><code>cache: pip</code></strong> reuses downloaded packages between runs.</li>
+						<li><strong><code>requirements-dev.txt</code></strong> pins exact tool versions, so CI and your laptop give the same results.</li>
 						<li>Any failing step (a lint error, or coverage under 90%) marks the run red. Add a branch protection rule on GitHub to require it before merging.</li>
 					</ul>
 

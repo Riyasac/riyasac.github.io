@@ -647,10 +647,10 @@ after delete: 0</pre>
 					<p>What the important parts do:</p>
 
 					<ul>
-						<li>**<code>json.dumps</code> / <code>json.loads</code>.** Redis stores strings, so the dict is serialized to JSON.</li>
-						<li>**<code>ex=CACHE_TTL</code>.** The entry expires after 5 minutes, so stale data cannot live forever.</li>
-						<li>**<code>invalidate_product</code>.** Delete the key whenever the product changes in the database. This is the hard part of caching: every write path must invalidate or update the cache.</li>
-						<li>**<code>try</code> / <code>except redis.RedisError</code>.** If Redis is down, the app logs a warning and serves from the database. The cache makes the app faster; it must never make it fail.</li>
+						<li><strong><code>json.dumps</code> / <code>json.loads</code>.</strong> Redis stores strings, so the dict is serialized to JSON.</li>
+						<li><strong><code>ex=CACHE_TTL</code>.</strong> The entry expires after 5 minutes, so stale data cannot live forever.</li>
+						<li><strong><code>invalidate_product</code>.</strong> Delete the key whenever the product changes in the database. This is the hard part of caching: every write path must invalidate or update the cache.</li>
+						<li><strong><code>try</code> / <code>except redis.RedisError</code>.</strong> If Redis is down, the app logs a warning and serves from the database. The cache makes the app faster; it must never make it fail.</li>
 					</ul>
 
 					<h3>When Redis is down</h3>
