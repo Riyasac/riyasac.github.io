@@ -9,9 +9,9 @@ window.BLOG_POSTS = [
 	{
 		slug: 'fastapi-for-beginners',
 		title: 'FastAPI for Beginners: Build Your First Python API',
-		description: 'Install FastAPI, build and run your first Python API, add a path parameter and request validation, and see how it compares with Django REST Framework.',
+		description: 'Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.',
 		date: '2026-10-15',
-		readingTime: 5,
+		readingTime: 7,
 		level: 'Beginner',
 		tags: ['FastAPI', 'Python', 'APIs'],
 		url: '/blog/fastapi-for-beginners/',

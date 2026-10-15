@@ -5,8 +5,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>FastAPI for Beginners: Build Your First Python API | Riyas A C</title>
-	<meta name="description" content="FastAPI for beginners: install FastAPI, build your first Python API, add path parameters and request validation, and compare it with Django REST Framework.">
-	<meta name="keywords" content="FastAPI for beginners, Python FastAPI tutorial, build a REST API with Python, FastAPI example, FastAPI installation, FastAPI vs Django REST Framework, Pydantic, Uvicorn">
+	<meta name="description" content="FastAPI for beginners: install FastAPI, build your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with DRF.">
+	<meta name="keywords" content="FastAPI for beginners, Python FastAPI tutorial, build a REST API with Python, FastAPI example, FastAPI installation, FastAPI vs Django REST Framework, FastAPI CRUD example, Pydantic, Uvicorn">
 	<meta name="author" content="Riyas A C">
 	<meta name="theme-color" content="#f6f5f0" id="themeColor">
 	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
@@ -29,14 +29,14 @@
 	<meta property="og:url" content="https://riyasac.github.io/blog/fastapi-for-beginners/">
 	<meta property="og:site_name" content="Riyas A C">
 	<meta property="og:title" content="FastAPI for Beginners: Build Your First Python API">
-	<meta property="og:description" content="A beginner-friendly Python FastAPI tutorial: install it, build and run your first API, and see automatic docs and validation in action.">
+	<meta property="og:description" content="A beginner-friendly Python FastAPI tutorial: install it, build your first API, see automatic docs and validation, and build a CRUD to-do API.">
 	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/fastapi-for-beginners/cover.jpg">
 	<meta property="og:image:type" content="image/jpeg">
 	<meta property="og:image:width" content="1024">
 	<meta property="og:image:height" content="535">
 	<meta property="og:image:alt" content="FastAPI for Beginners cover: a main.py file with a FastAPI app and a /hello/{name} endpoint, run with fastapi dev, returning 200 for GET /hello/Riyas and /docs and 422 for bad input">
 	<meta property="article:published_time" content="2026-10-15T20:00:00Z">
-	<meta property="article:modified_time" content="2026-10-15T20:00:00Z">
+	<meta property="article:modified_time" content="2026-10-15T22:00:00Z">
 	<meta property="article:author" content="Riyas A C">
 	<meta property="article:tag" content="FastAPI">
 	<meta property="article:tag" content="Python">
@@ -45,7 +45,7 @@
 	<!-- Twitter / X -->
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="FastAPI for Beginners: Build Your First Python API">
-	<meta name="twitter:description" content="A beginner-friendly Python FastAPI tutorial: install it, build and run your first API, and see automatic docs and validation in action.">
+	<meta name="twitter:description" content="A beginner-friendly Python FastAPI tutorial: install it, build your first API, see automatic docs and validation, and build a CRUD to-do API.">
 	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/fastapi-for-beginners/cover.jpg">
 	<meta name="twitter:image:alt" content="FastAPI for Beginners cover: a main.py file with a FastAPI app and a /hello/{name} endpoint, run with fastapi dev, returning 200 for GET /hello/Riyas and /docs and 422 for bad input">
 
@@ -73,7 +73,7 @@
 		"@id": "https://riyasac.github.io/blog/fastapi-for-beginners/#article",
 		"url": "https://riyasac.github.io/blog/fastapi-for-beginners/",
 		"headline": "FastAPI for Beginners: Build Your First Python API",
-		"description": "FastAPI for beginners: install FastAPI, build your first Python API, add path parameters and request validation, and compare it with Django REST Framework.",
+		"description": "FastAPI for beginners: install FastAPI, build your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with DRF.",
 		"image": {
 			"@type": "ImageObject",
 			"url": "https://riyasac.github.io/assets/img/blog/fastapi-for-beginners/cover.jpg",
@@ -81,7 +81,7 @@
 			"height": 535
 		},
 		"datePublished": "2026-10-15T20:00:00Z",
-		"dateModified": "2026-10-15T20:00:00Z",
+		"dateModified": "2026-10-15T22:00:00Z",
 		"inLanguage": "en",
 		"author": {
 			"@type": "Person",
@@ -96,7 +96,7 @@
 			"url": "https://riyasac.github.io/"
 		},
 		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
-		"keywords": ["FastAPI", "Python", "APIs", "FastAPI for beginners", "Python FastAPI tutorial", "REST API", "Pydantic", "FastAPI vs Django REST Framework"],
+		"keywords": ["FastAPI", "Python", "APIs", "FastAPI for beginners", "Python FastAPI tutorial", "REST API", "Pydantic", "FastAPI vs Django REST Framework", "FastAPI CRUD"],
 		"mainEntityOfPage": "https://riyasac.github.io/blog/fastapi-for-beginners/"
 	}
 	</script>
@@ -187,10 +187,10 @@
 						</ol>
 					</nav>
 					<h1 class="post-title">FastAPI for Beginners: Build Your First Python API</h1>
-					<p class="post-lead">Install FastAPI, build and run your first Python API, and see automatic docs and request validation in action. No previous FastAPI experience needed.</p>
+					<p class="post-lead">Install FastAPI, build and run your first Python API, and see automatic docs and request validation, and build a CRUD to-do API. No previous FastAPI experience needed.</p>
 					<ul class="post-meta">
 						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
-						<li><i class="bi bi-clock" aria-hidden="true"></i> 5 min read</li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 7 min read</li>
 						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
 						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Python, FastAPI</li>
 					</ul>
@@ -342,9 +342,115 @@ def create_book(book: Book):
 }</code></pre>
 					<p>Three typed fields in a class gave you validation, clear error messages and documentation.</p>
 
+					<h2 id="crud-example">Build a CRUD API: A To-Do List</h2>
+					<p><strong>CRUD</strong> stands for Create, Read, Update and Delete, the four things most apps do with data. Think of a to-do list: you add tasks, view them, tick them off and remove them.</p>
+					<p>Each action maps to an HTTP method:</p>
+					<div class="table-wrap">
+						<table>
+							<caption class="visually-hidden">CRUD actions mapped to HTTP methods and endpoints</caption>
+							<thead><tr><th scope="col">Action</th><th scope="col">Method</th><th scope="col">Endpoint</th><th scope="col">Success status</th></tr></thead>
+							<tbody>
+								<tr><td>Create a task</td><td><code>POST</code></td><td><code>/tasks</code></td><td><code>201 Created</code></td></tr>
+								<tr><td>List all tasks</td><td><code>GET</code></td><td><code>/tasks</code></td><td><code>200 OK</code></td></tr>
+								<tr><td>Read one task</td><td><code>GET</code></td><td><code>/tasks/{task_id}</code></td><td><code>200 OK</code></td></tr>
+								<tr><td>Update a task</td><td><code>PUT</code></td><td><code>/tasks/{task_id}</code></td><td><code>200 OK</code></td></tr>
+								<tr><td>Delete a task</td><td><code>DELETE</code></td><td><code>/tasks/{task_id}</code></td><td><code>204 No Content</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Create a new file named <code>todo.py</code>:</p>
+<pre><code class="language-python">from itertools import count
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+
+class TaskIn(BaseModel):
+    title: str
+    done: bool = False
+
+
+class Task(TaskIn):
+    id: int
+
+
+tasks: dict[int, Task] = {}
+ids = count(1)
+
+
+def find_task(task_id: int) -&gt; Task:
+    if task_id not in tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return tasks[task_id]
+
+
+@app.post("/tasks", status_code=201)
+def create_task(data: TaskIn) -&gt; Task:
+    task = Task(id=next(ids), **data.model_dump())
+    tasks[task.id] = task
+    return task
+
+
+@app.get("/tasks")
+def list_tasks() -&gt; list[Task]:
+    return list(tasks.values())
+
+
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int) -&gt; Task:
+    return find_task(task_id)
+
+
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, data: TaskIn) -&gt; Task:
+    find_task(task_id)
+    tasks[task_id] = Task(id=task_id, **data.model_dump())
+    return tasks[task_id]
+
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int) -&gt; None:
+    find_task(task_id)
+    del tasks[task_id]</code></pre>
+					<ul>
+						<li><code>TaskIn</code> is what the client sends: a title, and <code>done</code>, which defaults to <code>False</code>.</li>
+						<li><code>Task</code> adds the <code>id</code> that the server assigns.</li>
+						<li><code>tasks</code> is a dictionary that stores tasks in memory, and <code>count(1)</code> hands out IDs 1, 2, 3 and so on.</li>
+						<li><code>find_task()</code> returns a task or stops the request with <code>404 Not Found</code>. Four endpoints share it.</li>
+						<li><code>-&gt; Task</code> after a function tells FastAPI the shape of the response, which also appears in <code>/docs</code>.</li>
+					</ul>
+					<p>Stop the earlier server with <code>Ctrl+C</code> and start this one:</p>
+<pre><code class="language-bash">fastapi dev todo.py</code></pre>
+					<p>Try each step on the <code>/docs</code> page, or with <code>curl</code> in a second terminal. These are the real responses:</p>
+<pre class="diagram">POST   /tasks    {"title": "Learn FastAPI"}
+201    {"title":"Learn FastAPI","done":false,"id":1}
+
+POST   /tasks    {"title": "Build a CRUD API"}
+201    {"title":"Build a CRUD API","done":false,"id":2}
+
+GET    /tasks
+200    [{"title":"Learn FastAPI","done":false,"id":1},{"title":"Build a CRUD API","done":false,"id":2}]
+
+PUT    /tasks/1  {"title": "Learn FastAPI", "done": true}
+200    {"title":"Learn FastAPI","done":true,"id":1}
+
+DELETE /tasks/2
+204    (no body)
+
+GET    /tasks/2
+404    {"detail":"Task not found"}</pre>
+					<p>The same command with <code>curl</code>, for the first request:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:8000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Learn FastAPI"}'</code></pre>
+					<p>Validation still works for free. A task with no title gets <code>422</code> and <code>"msg": "Field required"</code>, just like the book example.</p>
+					<p>The tasks live in memory, so they disappear when the server restarts. That keeps the example simple. Real apps store data in a database.</p>
+
 					<h2 id="conclusion">Conclusion</h2>
-					<p>You installed FastAPI, built an API with three endpoints, used a path parameter, and validated JSON with a Pydantic model. You also saw the free interactive docs at <code>/docs</code>.</p>
-					<p>A good next step is a small <strong>CRUD API</strong>: a to-do list with endpoints to create, read, update and delete tasks. Store them in a Python list first, then add a database. The official <a href="https://fastapi.tiangolo.com/tutorial/" target="_blank" rel="noopener">FastAPI tutorial</a> walks through each step, and my post on <a href="/blog/api-fundamentals/">API fundamentals</a> covers REST design and security for when your API grows.</p>
+					<p>You installed FastAPI, built your first endpoints, used a path parameter, and validated JSON with a Pydantic model. Then you built a full CRUD API for a to-do list, with the right status codes and a 404 for missing tasks. FastAPI documented all of it at <code>/docs</code>.</p>
+					<p>A good next step is to save the tasks in a database so they survive a restart. SQLModel, from the creator of FastAPI, is a beginner-friendly way to do it. The official <a href="https://fastapi.tiangolo.com/tutorial/" target="_blank" rel="noopener">FastAPI tutorial</a> walks through each step, and my post on <a href="/blog/api-fundamentals/">API fundamentals</a> covers REST design and security for when your API grows.</p>
 				</div>
 			</div>
 
