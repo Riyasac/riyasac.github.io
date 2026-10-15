@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin | Riyas A C</title>
+	<meta name="description" content="Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.">
+	<meta name="keywords" content="Golang tutorial, Go programming language, Go features, goroutines, Go REST API, Golang for beginners, Gin, Go concurrency, Go channels, Go error handling">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/golang-tutorial-for-beginners/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/golang-tutorial-for-beginners/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin">
+	<meta property="og:description" content="Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/golang-tutorial-for-beginners/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Golang for Beginners cover: a main.go snippet that starts three goroutines with sync.WaitGroup.Go and waits for them, with measured results of 300 ms sequential, about 100 ms with goroutines, and 100% test coverage">
+	<meta property="article:published_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Go">
+	<meta property="article:tag" content="APIs">
+	<meta property="article:tag" content="Concurrency">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin">
+	<meta name="twitter:description" content="Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/golang-tutorial-for-beginners/cover.jpg">
+	<meta name="twitter:image:alt" content="Golang for Beginners cover: a main.go snippet that starts three goroutines with sync.WaitGroup.Go and waits for them, with measured results of 300 ms sequential, about 100 ms with goroutines, and 100% test coverage">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/golang-tutorial-for-beginners/#article",
+		"url": "https://riyasac.github.io/blog/golang-tutorial-for-beginners/",
+		"headline": "Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin",
+		"description": "Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/golang-tutorial-for-beginners/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T09:00:00+05:30",
+		"dateModified": "2026-10-15T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Go", "APIs", "Concurrency", "Golang", "Gin", "REST API", "Goroutines"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/golang-tutorial-for-beginners/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin",
+				"item": "https://riyasac.github.io/blog/golang-tutorial-for-beginners/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Golang Tutorial</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin</h1>
+					<p class="post-lead">Go's key features, the fundamentals with working code, goroutines and channels, testing, and a small REST API with Gin. Every example was compiled and run.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 15 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Go 1.27, Gin</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Go</li><li>APIs</li><li>Concurrency</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/golang-tutorial-for-beginners/cover.webp" width="1024" height="535" alt="Golang for Beginners cover: a main.go snippet that starts three goroutines with sync.WaitGroup.Go and waits for them, with measured results of 300 ms sequential, about 100 ms with goroutines, and 100% test coverage" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+					<h2 id="introduction">Introduction</h2>
+
+					<p><strong>Go</strong>, often called <strong>Golang</strong>, is an open-source programming language created at Google. Robert Griesemer, Rob Pike and Ken Thompson started it in 2007, it went public in 2009 and Go 1.0 shipped in 2012.</p>
+
+					<p>They built it to fix real problems with large codebases at Google: slow builds, complex dependencies and code that was hard to read. The result is a small language that compiles fast, runs fast and makes concurrent code simple to write.</p>
+
+					<p>Today Go powers much of the cloud. Docker, Kubernetes, Terraform and Prometheus are all written in Go. It is a common choice for REST APIs, microservices, CLI tools and infrastructure software.</p>
+
+					<aside class="callout">
+						<p class="callout-title">How this was tested</p>
+						<p>Every example in this Golang tutorial was compiled and run on Go 1.27.2 (Linux), with <code>gofmt</code> and <code>go vet</code> passing. The REST API uses Gin v1.12.0. All outputs below are real.</p>
+					</aside>
+
+					<h2 id="key-features">Key Features of Go</h2>
+
+					<ul>
+						<li><strong>Simple, readable syntax.</strong> Go has 25 keywords. There is usually one obvious way to write something, so Go code from different teams looks alike.</li>
+						<li><strong>Compiled to a single binary.</strong> Go compiles to native machine code. You ship one file with no runtime to install, which makes Docker images and deployments small.</li>
+						<li><strong>Static typing.</strong> Every variable has a type that is checked at compile time, so many bugs are caught before the program runs. Type inference (<code>x := 10</code>) keeps code short.</li>
+						<li><strong>Garbage collection.</strong> Go frees unused memory for you. Its garbage collector runs alongside your program to keep pauses short.</li>
+						<li><strong>Goroutines.</strong> A goroutine is a function running concurrently with others. It is far cheaper than an operating system thread, so a program can run thousands of them.</li>
+						<li><strong>Channels.</strong> Channels let goroutines send values to each other safely, without sharing variables.</li>
+						<li><strong>Interfaces.</strong> An interface lists methods. Any type that has those methods satisfies the interface automatically; no <code>implements</code> keyword.</li>
+						<li><strong>Explicit error handling.</strong> Functions return errors as normal values. There are no exceptions to forget to catch.</li>
+						<li><strong>Built-in testing.</strong> <code>go test</code> runs tests, benchmarks and coverage with no extra framework.</li>
+						<li><strong>Large standard library and cross-platform builds.</strong> HTTP servers, JSON, crypto and testing are built in. <code>GOOS=windows go build</code> builds a Windows binary from Linux or macOS.</li>
+					</ul>
+
+					<h2 id="installation">Go Installation and Setup</h2>
+
+					<h3>Install Go</h3>
+
+					<p>Download the installer for your system from <a href="https://go.dev/dl/" target="_blank" rel="noopener">go.dev/dl</a>.</p>
+
+					<ul>
+						<li><strong>macOS and Windows:</strong> run the package or MSI installer.</li>
+						<li><strong>Linux:</strong> remove any old version, extract the archive into <code>/usr/local</code>, and add Go to your <code>PATH</code>:</li>
+					</ul>
+
+<pre><code class="language-bash">sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.27.2.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' &gt;&gt; ~/.profile
+source ~/.profile</code></pre>
+
+					<h3>Verify the installation</h3>
+
+<pre><code class="language-bash">go version</code></pre>
+
+<pre class="diagram">go version go1.27.2 linux/amd64</pre>
+
+					<h3>Create and run your first program</h3>
+
+					<p>A <strong>module</strong> is a Go project with a <code>go.mod</code> file that records its name and dependencies.</p>
+
+<pre><code class="language-bash">mkdir hello &amp;&amp; cd hello
+go mod init example.com/hello</code></pre>
+
+					<p>Create <code>main.go</code>:</p>
+
+<pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, Go!")
+}</code></pre>
+
+<pre><code class="language-bash">go run .</code></pre>
+
+<pre class="diagram">Hello, Go!</pre>
+
+					<p><code>package main</code> and <code>func main()</code> mark the program's entry point. <code>go run .</code> compiles and runs it; <code>go build</code> creates a binary you can ship.</p>
+
+					<h2 id="fundamentals">Go Fundamentals with Examples</h2>
+
+					<h3>Variables and constants</h3>
+
+<pre><code class="language-go">const maxRetries = 3
+
+var name string = "Riyas" // explicit type
+var age = 30              // type inferred: int
+city := "Kochi"           // short form, only inside functions
+var count int             // zero value: 0
+
+fmt.Println(name, age, city, count, maxRetries)</code></pre>
+
+<pre class="diagram">Riyas 30 Kochi 0 3</pre>
+
+					<p>Variables you declare without a value get a <strong>zero value</strong>: <code>0</code>, <code>""</code>, <code>false</code> or <code>nil</code>. Go refuses to compile if you declare a local variable and never use it.</p>
+
+					<h3>Data types</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Type</th><th scope="col">Example</th><th scope="col">Notes</th></tr></thead>
+							<tbody>
+								<tr><td><code>int</code>, <code>int64</code></td><td><code>42</code></td><td>Whole numbers</td></tr>
+								<tr><td><code>float64</code></td><td><code>19.99</code></td><td>Decimal numbers</td></tr>
+								<tr><td><code>string</code></td><td><code>"Go"</code></td><td>Immutable UTF-8 text</td></tr>
+								<tr><td><code>bool</code></td><td><code>true</code></td><td><code>true</code> or <code>false</code></td></tr>
+								<tr><td><code>rune</code></td><td><code>'G'</code></td><td>One Unicode character</td></tr>
+								<tr><td><code>byte</code></td><td><code>'A'</code></td><td>One byte (alias for <code>uint8</code>)</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Go never converts types silently. You convert explicitly:</p>
+
+<pre><code class="language-go">id, price := 42, 19.99
+total := float64(id) * price
+fmt.Printf("%.2f %T\n", total, total)
+
+n, err := strconv.Atoi("123") // string to int can fail, so it returns an error
+fmt.Println(n+1, err)</code></pre>
+
+<pre class="diagram">839.58 float64
+124 &lt;nil&gt;</pre>
+
+					<h3>If-else and switch</h3>
+
+<pre><code class="language-go">if n, err := strconv.Atoi("42"); err != nil {
+	fmt.Println("not a number")
+} else if n &gt; 40 {
+	fmt.Println(n, "is big")
+}
+
+day := "sat"
+switch day {
+case "sat", "sun":
+	fmt.Println("weekend")
+default:
+	fmt.Println("weekday")
+}</code></pre>
+
+					<p>An <code>if</code> can start with a short statement; <code>n</code> and <code>err</code> exist only inside the <code>if</code>. A <code>switch</code> case does not fall through to the next one, so there is no <code>break</code> to forget. A <code>switch</code> with no value replaces long <code>if-else</code> chains:</p>
+
+<pre><code class="language-go">func grade(score int) string {
+	switch {
+	case score &gt;= 90:
+		return "A"
+	case score &gt;= 75:
+		return "B"
+	default:
+		return "C"
+	}
+}</code></pre>
+
+					<h3>For loops</h3>
+
+					<p><code>for</code> is Go's only loop keyword. It covers every kind of loop:</p>
+
+<pre><code class="language-go">for i := 0; i &lt; 3; i++ { // classic loop
+	fmt.Print(i, " ")
+}
+
+for i := range 3 { // same thing, Go 1.22+
+	fmt.Print(i, " ")
+}
+
+n := 1
+for n &lt; 100 { // works like while
+	n *= 2
+}
+
+for i, lang := range []string{"Go", "Python"} { // index and value
+	fmt.Println(i, lang)
+}</code></pre>
+
+<pre class="diagram">0 1 2
+0 1 2
+0 Go
+1 Python</pre>
+
+					<p><code>n</code> ends at 128. Use <code>for { ... }</code> with <code>break</code> for an infinite loop.</p>
+
+					<h3>Functions and multiple return values</h3>
+
+<pre><code class="language-go">func divide(a, b float64) (float64, error) {
+	if b == 0 {
+		return 0, errors.New("division by zero")
+	}
+	return a / b, nil
+}
+
+result, err := divide(10, 4)
+fmt.Println(result, err) // 2.5 &lt;nil&gt;
+
+_, err = divide(1, 0)
+fmt.Println(err)         // division by zero</code></pre>
+
+					<p>Returning a value and an error together is the standard Go pattern. Use <code>_</code> to ignore a value you do not need.</p>
+
+					<h3>Arrays, slices and maps</h3>
+
+<pre><code class="language-go">ports := [3]int{80, 443, 8080} // array: fixed length
+fmt.Println(ports, len(ports))
+
+langs := []string{"Go", "Python"} // slice: grows as needed
+langs = append(langs, "Rust")
+fmt.Println(langs, len(langs), langs[1:])
+
+stock := map[string]int{"apple": 5, "banana": 0} // map: key-value pairs
+stock["cherry"] = 12
+if _, ok := stock["mango"]; !ok {
+	fmt.Println("mango not found")
+}
+delete(stock, "banana")</code></pre>
+
+<pre class="diagram">[80 443 8080] 3
+[Go Python Rust] 3 [Python Rust]
+mango not found</pre>
+
+					<p>You will use <strong>slices</strong> far more than arrays. Always use the <code>value, ok</code> form when a missing map key matters; reading a missing key returns the zero value, not an error.</p>
+
+					<h3>Structs and methods</h3>
+
+					<p>A <strong>struct</strong> groups related fields. A <strong>method</strong> is a function attached to a type.</p>
+
+<pre><code class="language-go">type User struct {
+	Name  string
+	Email string
+	Age   int
+}
+
+func (u User) Greeting() string { // value receiver: reads a copy
+	return "Hi, " + u.Name
+}
+
+func (u *User) Birthday() { // pointer receiver: changes the original
+	u.Age++
+}
+
+u := User{Name: "Asha", Email: "asha@example.com", Age: 29}
+fmt.Println(u.Greeting())
+u.Birthday()
+fmt.Printf("%+v\n", u)</code></pre>
+
+<pre class="diagram">Hi, Asha
+{Name:Asha Email:asha@example.com Age:30}</pre>
+
+					<p>Names that start with a capital letter (<code>User</code>, <code>Name</code>) are <strong>exported</strong>: other packages can use them. Lowercase names are private to the package.</p>
+
+					<h3>Pointers</h3>
+
+					<p>A <strong>pointer</strong> holds the memory address of a value. <code>&amp;x</code> gets the address; <code>*p</code> reads or changes the value at it.</p>
+
+<pre><code class="language-go">func resetValue(n int)    { n = 0 }  // gets a copy
+func resetPointer(n *int) { *n = 0 } // gets the address
+
+x := 10
+resetValue(x)
+fmt.Println(x) // 10, the copy changed, not x
+resetPointer(&amp;x)
+fmt.Println(x) // 0</code></pre>
+
+					<p>Use pointers when a function must change its argument, or to avoid copying a large struct. There is no pointer arithmetic, so they are much safer than in C.</p>
+
+					<h3>Interfaces</h3>
+
+<pre><code class="language-go">type Shape interface {
+	Area() float64
+}
+
+type Rectangle struct{ Width, Height float64 }
+type Circle struct{ Radius float64 }
+
+func (r Rectangle) Area() float64 { return r.Width * r.Height }
+func (c Circle) Area() float64    { return math.Pi * c.Radius * c.Radius }
+
+func printArea(s Shape) {
+	fmt.Printf("%T area: %.2f\n", s, s.Area())
+}
+
+for _, s := range []Shape{Rectangle{Width: 3, Height: 4}, Circle{Radius: 1}} {
+	printArea(s)
+}</code></pre>
+
+<pre class="diagram">main.Rectangle area: 12.00
+main.Circle area: 3.14</pre>
+
+					<p>Neither type mentions <code>Shape</code>. They satisfy it because they have an <code>Area()</code> method. Keep interfaces small; the standard library's <code>io.Reader</code> has one method.</p>
+
+					<h3>Error handling</h3>
+
+					<p>An <strong>error</strong> in Go is any value with an <code>Error() string</code> method. You check it right after each call.</p>
+
+<pre><code class="language-go">var ErrNotFound = errors.New("user not found")
+
+type ValidationError struct{ Field string }
+
+func (e *ValidationError) Error() string { return e.Field + " is required" }
+
+func findUser(id int) (User, error) {
+	if id != 1 {
+		return User{}, fmt.Errorf("find user %d: %w", id, ErrNotFound) // wrap with context
+	}
+	return User{Name: "Asha"}, nil
+}
+
+func validate(u User) error {
+	if u.Email == "" {
+		return &amp;ValidationError{Field: "email"}
+	}
+	return nil
+}
+
+_, err := findUser(42)
+fmt.Println(err)
+fmt.Println(errors.Is(err, ErrNotFound)) // is ErrNotFound anywhere in the chain?
+
+var vErr *ValidationError
+if errors.As(validate(User{Name: "Ravi"}), &amp;vErr) { // is it this error type?
+	fmt.Println("invalid field:", vErr.Field)
+}</code></pre>
+
+<pre class="diagram">find user 42: user not found
+true
+invalid field: email</pre>
+
+					<p><code>%w</code> wraps the original error so callers can still detect it with <code>errors.Is</code> and <code>errors.As</code>.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p>ignoring errors with <code>_</code> or comparing wrapped errors with <code>==</code>. Always handle the error, and use <code>errors.Is</code> instead of <code>==</code>.</p>
+					</aside>
+
+					<h2 id="advanced-features">Advanced Go Features</h2>
+
+					<h3>Goroutines and channels</h3>
+
+					<p>Start a <strong>goroutine</strong> with the <code>go</code> keyword, or with <code>sync.WaitGroup.Go</code> (Go 1.25+), which also waits for it:</p>
+
+<pre><code class="language-go">func fetch(url string) string {
+	time.Sleep(100 * time.Millisecond) // pretend network call
+	return "done: " + url
+}
+
+urls := []string{"/users", "/orders", "/products"}
+results := make([]string, len(urls))
+
+var wg sync.WaitGroup
+for i, url := range urls {
+	wg.Go(func() {
+		results[i] = fetch(url) // each goroutine writes its own slot
+	})
+}
+wg.Wait() // block until all three finish</code></pre>
+
+<pre class="diagram">[done: /users done: /orders done: /products]
+took about 100ms</pre>
+
+					<p>Three 100 ms calls finished in about 100 ms because they ran at the same time. Called one after another, they took 301 ms.</p>
+
+					<p>A <strong>channel</strong> passes values between goroutines. Sending (<code>ch &lt;- v</code>) and receiving (<code>&lt;-ch</code>) wait for each other, which keeps the hand-off safe:</p>
+
+<pre><code class="language-go">func square(nums []int, out chan&lt;- int) {
+	for _, n := range nums {
+		out &lt;- n * n
+	}
+	close(out) // tell the receiver no more values are coming
+}
+
+ch := make(chan int)
+go square([]int{1, 2, 3, 4}, ch)
+for v := range ch { // loop ends when the channel is closed
+	fmt.Print(v, " ")
+}</code></pre>
+
+<pre class="diagram">1 4 9 16</pre>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistakes</p>
+						<p>a goroutine that waits forever on a channel nobody writes to (a goroutine leak), and two goroutines writing the same variable without a lock. Run <code>go test -race</code> or <code>go run -race</code> to catch data races.</p>
+					</aside>
+
+					<h3>Concurrency vs parallelism</h3>
+
+					<ul>
+						<li><strong>Concurrency</strong> is about <em>structure</em>: a program is split into tasks that can make progress independently, like a cook switching between three dishes.</li>
+						<li><strong>Parallelism</strong> is about <em>execution</em>: tasks literally run at the same instant on different CPU cores, like three cooks.</li>
+					</ul>
+
+					<p>Goroutines give you concurrency. The Go runtime then runs them in parallel across up to <code>GOMAXPROCS</code> cores, which defaults to the number of CPUs available. The fetch example above gains speed even on one core, because the goroutines spend their time waiting, not computing.</p>
+
+					<h3>Packages and modules</h3>
+
+					<p>A <strong>package</strong> is a folder of <code>.go</code> files that share a <code>package</code> name. A <strong>module</strong> is a collection of packages with a <code>go.mod</code> file.</p>
+
+<pre class="diagram">greeter/
+├── go.mod                  module example.com/greeter
+├── main.go                 package main
+└── internal/text/
+    ├── slug.go             package text
+    └── slug_test.go</pre>
+
+<pre><code class="language-go">// internal/text/slug.go
+package text
+
+import "strings"
+
+// Slugify turns a title into a URL slug: "Hello Go World" -&gt; "hello-go-world".
+func Slugify(title string) string {
+	return strings.Join(strings.Fields(strings.ToLower(title)), "-")
+}</code></pre>
+
+<pre><code class="language-go">// main.go
+package main
+
+import (
+	"fmt"
+
+	"example.com/greeter/internal/text"
+)
+
+func main() {
+	fmt.Println(text.Slugify("Golang Tutorial for Beginners"))
+}</code></pre>
+
+<pre class="diagram">golang-tutorial-for-beginners</pre>
+
+					<p>Packages under <code>internal/</code> can only be imported by code inside the same module. Add a third-party package with <code>go get</code>, and run <code>go mod tidy</code> to clean up <code>go.mod</code>.</p>
+
+					<h3>Defer, panic and recover</h3>
+
+					<ul>
+						<li><code>defer</code> schedules a call to run when the function returns. Deferred calls run last-in, first-out. Use it for cleanup: <code>defer file.Close()</code>, <code>defer mu.Unlock()</code>.</li>
+						<li><code>panic</code> stops normal execution, like a crash. It is for bugs and impossible states, not for normal errors.</li>
+						<li><code>recover</code>, called inside a deferred function, catches a panic.</li>
+					</ul>
+
+<pre><code class="language-go">func safeDivide(a, b int) (result int, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("recovered: %v", r)
+		}
+	}()
+	return a / b, nil
+}
+
+fmt.Println(safeDivide(10, 2))
+fmt.Println(safeDivide(1, 0))</code></pre>
+
+<pre class="diagram">5 &lt;nil&gt;
+0 recovered: runtime error: integer divide by zero</pre>
+
+					<p>Web frameworks use <code>recover</code> so one bad request does not crash the server. In your own code, return errors instead of panicking.</p>
+
+					<h3>Context package</h3>
+
+					<p>A <code>context.Context</code> carries a deadline and a cancel signal across function calls and goroutines. Every HTTP request in Go has one, and database drivers and HTTP clients accept one.</p>
+
+<pre><code class="language-go">func slowQuery(ctx context.Context) (string, error) {
+	select {
+	case &lt;-time.After(2 * time.Second): // the "query" takes 2 s
+		return "rows", nil
+	case &lt;-ctx.Done(): // the caller gave up
+		return "", ctx.Err()
+	}
+}
+
+ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+defer cancel() // always release the context's resources
+
+_, err := slowQuery(ctx)
+fmt.Println(err, errors.Is(err, context.DeadlineExceeded))</code></pre>
+
+<pre class="diagram">context deadline exceeded true</pre>
+
+					<p>The call returned after 500 ms instead of 2 s. Pass <code>ctx</code> as the first parameter of any function that does I/O.</p>
+
+					<h3>Unit testing</h3>
+
+					<p>Test files end in <code>_test.go</code>. Test functions start with <code>Test</code> and take <code>*testing.T</code>. Go developers usually write <strong>table-driven tests</strong>: a list of cases run in a loop.</p>
+
+<pre><code class="language-go">// internal/text/slug_test.go
+package text
+
+import "testing"
+
+func TestSlugify(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"simple", "Hello Go", "hello-go"},
+		{"extra spaces", "  Go   is  fun ", "go-is-fun"},
+		{"empty", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Slugify(tt.input)
+			if got != tt.want {
+				t.Errorf("Slugify(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func BenchmarkSlugify(b *testing.B) {
+	for b.Loop() { // Go 1.24+
+		Slugify("Golang Tutorial for Beginners")
+	}
+}</code></pre>
+
+<pre><code class="language-bash">go test ./...                       # run all tests
+go test -cover ./internal/text      # with coverage
+go test -bench=. -benchmem ./internal/text</code></pre>
+
+<pre class="diagram">ok  	example.com/greeter/internal/text	0.001s	coverage: 100.0% of statements
+BenchmarkSlugify-8   	 5945242	       199.4 ns/op	     128 B/op	       3 allocs/op</pre>
+
+					<p>The benchmark ran about 200 ns per call on my laptop, with 3 memory allocations. Your numbers will differ.</p>
+
+					<h2 id="rest-api-with-gin">Practical Example: Build a Go REST API with Gin</h2>
+
+					<p>We will build a small book API. <strong>Gin</strong> is a popular HTTP web framework for Go: it adds routing with path parameters, JSON binding, validation and middleware on top of the standard library's <code>net/http</code>.</p>
+
+					<h3>Project setup</h3>
+
+<pre><code class="language-bash">mkdir bookapi &amp;&amp; cd bookapi
+go mod init example.com/bookapi
+go get github.com/gin-gonic/gin@v1.12.0</code></pre>
+
+					<p>Gin v1.12.0 needs Go 1.25 or newer. It is the only dependency; Go downloads the packages Gin needs and records them in <code>go.mod</code> and <code>go.sum</code>.</p>
+
+					<h3>API endpoints</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Method</th><th scope="col">Path</th><th scope="col">Does</th></tr></thead>
+							<tbody>
+								<tr><td>GET</td><td><code>/health</code></td><td>Health check</td></tr>
+								<tr><td>GET</td><td><code>/books</code></td><td>List all books</td></tr>
+								<tr><td>GET</td><td><code>/books/:id</code></td><td>Get one book</td></tr>
+								<tr><td>POST</td><td><code>/books</code></td><td>Create a book</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Implementation</h3>
+
+<pre><code class="language-go">package main
+
+import (
+	"net/http"
+	"strconv"
+	"sync"
+
+	"github.com/gin-gonic/gin"
+)
+
+// Book is the JSON shape clients send and receive.
+type Book struct {
+	ID     int    `json:"id"`
+	Title  string `json:"title" binding:"required"`
+	Author string `json:"author" binding:"required"`
+	Year   int    `json:"year" binding:"gte=1450,lte=2100"`
+}
+
+// store is an in-memory, concurrency-safe book store.
+type store struct {
+	mu     sync.RWMutex
+	books  map[int]Book
+	nextID int
+}
+
+func newStore() *store {
+	return &amp;store{books: make(map[int]Book), nextID: 1}
+}
+
+func (s *store) list() []Book {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	books := make([]Book, 0, len(s.books))
+	for id := 1; id &lt; s.nextID; id++ {
+		if b, ok := s.books[id]; ok {
+			books = append(books, b)
+		}
+	}
+	return books
+}
+
+func (s *store) get(id int) (Book, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	b, ok := s.books[id]
+	return b, ok
+}
+
+func (s *store) add(b Book) Book {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	b.ID = s.nextID
+	s.books[b.ID] = b
+	s.nextID++
+	return b
+}
+
+func setupRouter(s *store) *gin.Engine {
+	r := gin.Default()
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	r.GET("/books", func(c *gin.Context) {
+		c.JSON(http.StatusOK, s.list())
+	})
+
+	r.GET("/books/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "id must be a number"})
+			return
+		}
+		book, ok := s.get(id)
+		if !ok {
+			c.JSON(http.StatusNotFound, gin.H{"error": "book not found"})
+			return
+		}
+		c.JSON(http.StatusOK, book)
+	})
+
+	r.POST("/books", func(c *gin.Context) {
+		var input Book
+		if err := c.ShouldBindJSON(&amp;input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusCreated, s.add(input))
+	})
+
+	return r
+}
+
+func main() {
+	r := setupRouter(newStore())
+	if err := r.SetTrustedProxies(nil); err != nil { // not behind a proxy
+		panic(err)
+	}
+	if err := r.Run(":8080"); err != nil {
+		panic(err)
+	}
+}</code></pre>
+
+					<p>What the important parts do:</p>
+
+					<ul>
+						<li>**<code>Book</code> struct tags.** <code>json:"title"</code> sets the JSON field name. <code>binding:"required"</code> and <code>gte</code>/<code>lte</code> are validation rules that Gin checks for you.</li>
+						<li>**<code>store</code> with <code>sync.RWMutex</code>.** Gin handles each request in its own goroutine, so the shared map needs a lock. <code>RLock</code> lets many readers in at once; <code>Lock</code> gives a writer exclusive access.</li>
+						<li>**<code>gin.Default()</code>** creates a router with logging and panic-recovery middleware.</li>
+						<li>**<code>ShouldBindJSON</code>** parses the request body into <code>Book</code> and runs the validation rules.</li>
+						<li>**<code>SetTrustedProxies(nil)</code>** tells Gin not to trust <code>X-Forwarded-For</code> headers, which removes its startup warning. Set real proxy addresses if you run behind a load balancer.</li>
+					</ul>
+
+					<h3>Run the application</h3>
+
+<pre><code class="language-bash">go run .</code></pre>
+
+					<p>Gin starts in debug mode and lists the routes. For production, set <code>GIN_MODE=release</code> and build a binary with <code>go build -o bookapi .</code>.</p>
+
+					<h3>Sample requests and responses</h3>
+
+					<p>Create a book:</p>
+
+<pre><code class="language-bash">curl -X POST localhost:8080/books \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"The Go Programming Language","author":"Alan Donovan","year":2015}'</code></pre>
+
+<pre><code class="language-json">{"id":1,"title":"The Go Programming Language","author":"Alan Donovan","year":2015}</code></pre>
+
+					<p>The status is <code>201 Created</code>. Get it back with <code>curl localhost:8080/books/1</code>. A missing book returns <code>404</code> with <code>{"error":"book not found"}</code>, and <code>/books/abc</code> returns <code>400</code> with <code>{"error":"id must be a number"}</code>.</p>
+
+					<p>Send invalid data:</p>
+
+<pre><code class="language-bash">curl -X POST localhost:8080/books \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"No author"}'</code></pre>
+
+<pre class="diagram">HTTP 400
+{"error":"Key: 'Book.Author' Error:Field validation for 'Author' failed on the 'required' tag\nKey: 'Book.Year' Error:Field validation for 'Year' failed on the 'gte' tag"}</pre>
+
+					<p>The validation rules rejected the request before it reached the store. In a real API, turn these messages into friendlier field errors, and replace the map with a database.</p>
+
+					<h2 id="use-cases">Popular Go Use Cases</h2>
+
+					<ul>
+						<li><strong>REST APIs and backend services.</strong> The standard library includes a production-grade HTTP server, and one binary is easy to deploy.</li>
+						<li><strong>Microservices.</strong> Fast startup, low memory use and small container images suit many small services.</li>
+						<li><strong>Cloud-native applications.</strong> Kubernetes, Docker, containerd and etcd are written in Go, so their client libraries are first-class in Go.</li>
+						<li><strong>CLI tools.</strong> A single binary that cross-compiles to every platform. The GitHub CLI (<code>gh</code>) and Hugo are examples.</li>
+						<li><strong>DevOps and infrastructure tools.</strong> Terraform, Prometheus and Grafana's backend.</li>
+						<li><strong>Distributed systems.</strong> Goroutines, channels and <code>context</code> make network-heavy code with timeouts manageable.</li>
+						<li><strong>Concurrent applications.</strong> Workers, queue consumers, crawlers and proxies that handle many connections at once.</li>
+					</ul>
+
+					<h2 id="benefits-and-limitations">Benefits and Limitations</h2>
+
+					<h3>Advantages of Go</h3>
+
+					<ul class="list-check">
+						<li>Easy to learn and easy to read, even in a large codebase</li>
+						<li>Fast compilation and fast execution</li>
+						<li>Concurrency built into the language</li>
+						<li>One static binary to deploy, cross-compiled from any machine</li>
+						<li>Strong standard library and tooling (<code>gofmt</code>, <code>go test</code>, <code>go vet</code>) included</li>
+						<li>Strict backward compatibility: Go 1 code keeps compiling on new releases</li>
+					</ul>
+
+					<h3>Limitations and trade-offs</h3>
+
+					<ul class="list-cross">
+						<li><strong>Verbose error handling.</strong> <code>if err != nil</code> appears often.</li>
+						<li><strong>Fewer language features</strong> than Java or Python, by design. Generics arrived only in Go 1.18 (2022), and there are no exceptions, inheritance or default arguments.</li>
+						<li><strong>Smaller ecosystem</strong> for data science, machine learning and GUI apps.</li>
+						<li><strong>Garbage collection</strong> means less control over memory than Rust or C++.</li>
+						<li><strong>No built-in ORM or full-stack framework</strong> like Django; you assemble libraries yourself.</li>
+					</ul>
+
+					<h3>When to choose Go over Python, Java or Node.js</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Choose Go when</th><th scope="col">Choose the other when</th></tr></thead>
+							<tbody>
+								<tr><td>You need many concurrent connections with low memory use</td><td><strong>Python:</strong> data science, ML, scripting, or Django's admin and ORM speed up your project</td></tr>
+								<tr><td>You want a single binary and small Docker images</td><td><strong>Java:</strong> your company runs on the JVM and Spring, or you need its huge enterprise ecosystem</td></tr>
+								<tr><td>You build CLI tools, infrastructure or cloud services</td><td><strong>Node.js:</strong> your team writes TypeScript on both front end and back end</td></tr>
+								<tr><td>CPU-bound work must be faster than interpreted code</td><td>Prototyping speed matters more than runtime speed</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="tools-and-ecosystem">Popular Go Tools and Ecosystem</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Tool</th><th scope="col">What it does</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Go modules</strong></td><td>Dependency management with <code>go.mod</code> and <code>go.sum</code>, built into the <code>go</code> command</td></tr>
+								<tr><td><strong>gofmt</strong></td><td>Formats code in the one standard Go style. Most editors run it on save</td></tr>
+								<tr><td><strong>go test</strong></td><td>Runs tests, benchmarks, fuzz tests and coverage</td></tr>
+								<tr><td><strong>go vet</strong></td><td>Finds likely bugs the compiler allows, such as wrong <code>Printf</code> arguments</td></tr>
+								<tr><td><strong>Gin</strong></td><td>Fast, popular HTTP framework with routing, binding and middleware</td></tr>
+								<tr><td><strong>Echo</strong></td><td>HTTP framework similar to Gin, with a clean API and built-in middleware</td></tr>
+								<tr><td><strong>Fiber</strong></td><td>Express.js-style framework built on <code>fasthttp</code>, not <code>net/http</code>, so some standard middleware does not plug in directly</td></tr>
+								<tr><td><strong>GORM</strong></td><td>ORM: maps structs to tables, with associations, hooks and migrations</td></tr>
+								<tr><td><strong>sqlc</strong></td><td>You write SQL; it generates type-safe Go functions. No ORM magic</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Since Go 1.22, the standard library's <code>http.ServeMux</code> supports methods and path parameters (<code>mux.HandleFunc("GET /books/{id}", ...)</code>), so small APIs can skip a framework entirely.</p>
+
+					<h2 id="best-practices">Go Best Practices</h2>
+
+					<ul class="list-check">
+						<li><strong>Follow Go naming conventions.</strong> <code>camelCase</code> for private names, <code>PascalCase</code> for exported ones. Short names for short scopes (<code>i</code>, <code>r</code>, <code>ctx</code>). Package names are short, lowercase, single words.</li>
+						<li><strong>Format code with gofmt.</strong> Never argue about style; run <code>gofmt</code> (or <code>go fmt ./...</code>) on save.</li>
+						<li><strong>Handle errors explicitly.</strong> Check every error, add context with <code>fmt.Errorf("...: %w", err)</code>, and handle it once: log it or return it, not both.</li>
+						<li><strong>Write small, reusable functions</strong> with clear inputs and outputs. Accept interfaces, return concrete types.</li>
+						<li><strong>Avoid unnecessary goroutines.</strong> Plain sequential code is easier to debug. Add concurrency when it solves a measured problem, and make sure every goroutine can stop.</li>
+						<li><strong>Use context for cancellation and timeouts.</strong> Pass <code>ctx</code> to every database call, HTTP call and long-running function.</li>
+						<li><strong>Write tests and benchmark performance.</strong> Use table-driven tests, <code>go test -race</code> in CI, and <code>testing.B</code> benchmarks before optimizing.</li>
+						<li><strong>Keep dependencies manageable.</strong> Prefer the standard library, review what you add with <code>go mod graph</code>, and run <code>go mod tidy</code> regularly.</li>
+					</ul>
+
+					<h2 id="faq">Frequently Asked Questions</h2>
+
+					<h3>Is Go fast?</h3>
+
+					<p>Go compiles to native code, so it is usually much faster than interpreted languages like Python for CPU-heavy work. It is typically a little slower than C, C++ or Rust because of garbage collection. For web services, the database is usually the bottleneck, not Go.</p>
+
+					<h3>Is Go hard to learn?</h3>
+
+					<p>No. Go is one of the easier languages to learn because it is small. A developer who knows another language can write useful Go within a few days. The parts that take longer are concurrency patterns and idiomatic error handling.</p>
+
+					<h3>Is Go object-oriented?</h3>
+
+					<p>Partly. Go has types, methods and interfaces, but no classes or inheritance. You build behaviour by <strong>composition</strong>: embedding one struct in another and satisfying small interfaces.</p>
+
+					<h3>How is Go's concurrency different from threads?</h3>
+
+					<p>Goroutines are managed by the Go runtime, not the operating system. They start with a small stack that grows as needed, so a program can run many thousands of them. The runtime spreads them across a few OS threads.</p>
+
+					<h3>Which Go web framework should I use?</h3>
+
+					<p>Start with the standard library's <code>net/http</code>. Choose <strong>Gin</strong> or <strong>Echo</strong> when you want built-in binding, validation and middleware. Use <strong>Fiber</strong> only if its Express-style API matters more than <code>net/http</code> compatibility.</p>
+
+					<h3>Is Go good for a career?</h3>
+
+					<p>Go is widely used in backend, cloud, platform and DevOps engineering, especially at companies that run Kubernetes and microservices. It pairs well with Python: many backend teams use Python for product features and Go for performance-sensitive services and tooling.</p>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>Go gives you a short list of features that work well together: simple syntax, static types, fast compiled binaries, built-in concurrency with goroutines and channels, and tooling that formats, tests and vets your code out of the box. That is why it runs so much of today's cloud infrastructure.</p>
+
+					<p>Next steps:</p>
+
+					<ol>
+						<li>Take the official <a href="https://go.dev/tour/" target="_blank" rel="noopener">Tour of Go</a> to practise the basics in your browser.</li>
+						<li>Read <a href="https://go.dev/doc/effective_go" target="_blank" rel="noopener">Effective Go</a> for idiomatic style.</li>
+						<li>Extend the book API: add <code>PUT</code> and <code>DELETE</code>, store books in PostgreSQL with <code>sqlc</code>, and write handler tests with <code>net/http/httptest</code>.</li>
+						<li>Build a small CLI tool and cross-compile it for Linux, macOS and Windows.</li>
+					</ol>
+
+					<h3>Related reading</h3>
+
+					<ul>
+						<li><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></li>
+						<li><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></li>
+						<li><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="golang-tutorial-for-beginners">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/database-optimization-guide/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 12 min read</p>
+								<h3><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></h3>
+								<p class="post-card-desc">PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>PostgreSQL</li><li>Django</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

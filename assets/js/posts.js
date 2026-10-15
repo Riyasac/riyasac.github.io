@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'golang-tutorial-for-beginners',
+		title: 'Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin',
+		description: 'Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.',
+		date: '2026-10-15',
+		readingTime: 15,
+		level: 'Beginner',
+		tags: ['Go', 'APIs', 'Concurrency'],
+		url: '/blog/golang-tutorial-for-beginners/',
+		cover: '/assets/img/blog/golang-tutorial-for-beginners/cover.webp',
+		coverAlt: 'Golang for Beginners cover: a main.go snippet that starts three goroutines with sync.WaitGroup.Go and waits for them, with measured results of 300 ms sequential, about 100 ms with goroutines, and 100% test coverage'
+	},
+	{
 		slug: 'database-optimization-guide',
 		title: 'Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM',
 		description: 'PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.',
