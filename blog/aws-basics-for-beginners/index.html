@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>AWS Basics for Beginners: Essential Services Explained with Examples | Riyas A C</title>
+	<meta name="description" content="AWS basics for beginners: what cloud computing is, the essential AWS services explained with examples, real architectures, the AWS CLI and a learning roadmap.">
+	<meta name="keywords" content="AWS basics for beginners, AWS services explained, Amazon Web Services tutorial, AWS cloud computing basics, AWS services with examples, AWS learning roadmap, AWS for backend developers, AWS deployment guide, AWS CLI">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/aws-basics-for-beginners/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/aws-basics-for-beginners/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="AWS Basics for Beginners: Essential Services Explained with Examples">
+	<meta property="og:description" content="28 essential AWS services explained with examples, four beginner architectures, the AWS CLI, key cloud concepts and a step-by-step AWS learning roadmap.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/aws-basics-for-beginners/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="AWS Basics for Beginners cover: three architecture flows, Client to API Gateway to Lambda to DynamoDB, User to ELB to EC2 to RDS, and App to SQS to Lambda, with 28 services, 4 examples and 7 learning stages">
+	<meta property="article:published_time" content="2026-10-15T23:30:00Z">
+	<meta property="article:modified_time" content="2026-10-15T23:30:00Z">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="AWS">
+	<meta property="article:tag" content="Cloud">
+	<meta property="article:tag" content="DevOps">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="AWS Basics for Beginners: Essential Services Explained with Examples">
+	<meta name="twitter:description" content="28 essential AWS services explained with examples, four beginner architectures, the AWS CLI, key cloud concepts and a step-by-step AWS learning roadmap.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/aws-basics-for-beginners/cover.jpg">
+	<meta name="twitter:image:alt" content="AWS Basics for Beginners cover: three architecture flows, Client to API Gateway to Lambda to DynamoDB, User to ELB to EC2 to RDS, and App to SQS to Lambda, with 28 services, 4 examples and 7 learning stages">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/aws-basics-for-beginners/#article",
+		"url": "https://riyasac.github.io/blog/aws-basics-for-beginners/",
+		"headline": "AWS Basics for Beginners: Essential Services Explained with Examples",
+		"description": "AWS basics for beginners: what cloud computing is, the essential AWS services explained with examples, real architectures, the AWS CLI and a learning roadmap.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/aws-basics-for-beginners/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T23:30:00Z",
+		"dateModified": "2026-10-15T23:30:00Z",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["AWS", "Cloud", "DevOps", "AWS basics for beginners", "AWS services explained", "AWS cloud computing basics", "AWS learning roadmap", "AWS for backend developers"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/aws-basics-for-beginners/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "AWS Basics for Beginners: Essential Services Explained with Examples",
+				"item": "https://riyasac.github.io/blog/aws-basics-for-beginners/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC_Resume.pdf" download="Riyas_AC_Resume.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">AWS</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">AWS Basics for Beginners: Essential Services Explained with Examples</h1>
+					<p class="post-lead">What cloud computing is, the essential AWS services with simple examples, how they fit together in real architectures, and which ones to learn first.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 10 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> AWS, AWS CLI</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>AWS</li><li>Cloud</li><li>DevOps</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" width="1024" height="535" alt="AWS Basics for Beginners cover: three architecture flows, Client to API Gateway to Lambda to DynamoDB, User to ELB to EC2 to RDS, and App to SQS to Lambda, with 28 services, 4 examples and 7 learning stages" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+
+					<p><strong>Cloud computing</strong> means renting computers, storage and databases over the internet instead of buying your own. You pay for what you use.</p>
+
+					<p><strong>Amazon Web Services (AWS)</strong> is Amazon's cloud platform, with hundreds of services. Companies use it to launch faster, scale when traffic grows, and avoid running data centres. You pick a service and a location, and AWS runs the hardware; you control it through the web console, the command line or code.</p>
+
+					<p>For example, an online store keeps product images in Amazon S3, runs its site on Amazon EC2 and stores orders in Amazon RDS. During a sale it adds servers for a few hours, then removes them.</p>
+
+					<p>This guide covers <strong>AWS basics for beginners</strong>: the essential services, how they fit together, key concepts, and what to learn first. Most applications use only a handful of services.</p>
+
+					<h2 id="essential-services">Essential AWS Services</h2>
+
+					<p>Each table gives a short definition, an everyday comparison and a developer use case.</p>
+
+					<h3>Compute</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Amazon EC2</strong></td><td>Virtual servers. You choose the OS, CPU and memory.</td><td>Renting a computer instead of buying one</td><td>Run a Django or FastAPI app on Linux</td></tr>
+								<tr><td><strong>AWS Lambda</strong></td><td>Runs a function when an event happens, with no servers to manage. Billed per request and run time.</td><td>A light that turns on only when someone enters</td><td>Resize each image uploaded to S3</td></tr>
+								<tr><td><strong>Amazon ECS</strong></td><td>AWS's service for running Docker containers, on EC2 or serverless Fargate.</td><td>A port scheduling containers onto ships</td><td>Run a containerized API</td></tr>
+								<tr><td><strong>Amazon EKS</strong></td><td>Managed Kubernetes. AWS runs the control plane.</td><td>The same port, using an industry-standard system</td><td>Teams already using Kubernetes</td></tr>
+								<tr><td><strong>AWS Elastic Beanstalk</strong></td><td>Upload code; it sets up servers, load balancing and scaling.</td><td>Renting a furnished flat</td><td>Deploy a Python web app quickly</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>ECS or EKS?</strong> Both run containers. ECS is simpler and AWS-specific; EKS is Kubernetes, with more to learn. Beginners should start with ECS, Elastic Beanstalk or Lambda.</p>
+
+					<h3>Storage</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Amazon S3</strong></td><td>Object storage: files ("objects") kept in buckets.</td><td>A labelled storage unit with no size limit</td><td>User uploads, backups, static websites</td></tr>
+								<tr><td><strong>Amazon EBS</strong></td><td>A virtual disk attached to an EC2 instance.</td><td>The SSD in your laptop</td><td>The server's OS and app disk</td></tr>
+								<tr><td><strong>Amazon EFS</strong></td><td>A file system many servers share at once.</td><td>An office network drive</td><td>Several servers reading one media folder</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>S3, EBS or EFS?</strong> S3 stores files accessed through an API. EBS is one server's disk. EFS is a folder shared by many servers.</p>
+
+					<h3>Databases</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Amazon RDS</strong></td><td>Managed SQL databases such as PostgreSQL and MySQL. AWS handles backups and patching.</td><td>Hiring someone to look after your filing cabinet</td><td>PostgreSQL for a Django app</td></tr>
+								<tr><td><strong>Amazon DynamoDB</strong></td><td>Serverless NoSQL key-value and document database, fast at any scale.</td><td>A huge, fast lookup table</td><td>Shopping carts, sessions, game scores</td></tr>
+								<tr><td><strong>Amazon Aurora</strong></td><td>AWS's MySQL- and PostgreSQL-compatible database, in the RDS family.</td><td>A stronger engine for the same car</td><td>A PostgreSQL app outgrowing standard RDS</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>RDS or Aurora?</strong> Both are managed SQL databases. Aurora is built for higher performance and availability, and can cost more for small workloads. Start with standard RDS.</p>
+
+					<h3>Networking and Content Delivery</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Amazon VPC</strong></td><td>Your private, isolated network in AWS.</td><td>A gated community</td><td>Keep the database off the public internet</td></tr>
+								<tr><td><strong>Elastic Load Balancing (ELB)</strong></td><td>Spreads traffic across servers or containers.</td><td>A host seating guests at many tables</td><td>Share traffic across three healthy servers</td></tr>
+								<tr><td><strong>Amazon Route 53</strong></td><td>DNS and domain registration.</td><td>The internet's phone book</td><td>Point <code>api.example.com</code> at your app</td></tr>
+								<tr><td><strong>Amazon CloudFront</strong></td><td>A CDN that caches content close to users.</td><td>Local warehouses for faster delivery</td><td>Serve images and JavaScript quickly worldwide</td></tr>
+								<tr><td><strong>Amazon API Gateway</strong></td><td>Creates and secures APIs in front of your backend.</td><td>A reception desk checking visitors</td><td>A REST API in front of Lambda</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Security and Identity</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>AWS IAM</strong></td><td>Controls who can access which resources.</td><td>Key cards that open certain doors</td><td>Let an app read one S3 bucket only</td></tr>
+								<tr><td><strong>AWS Secrets Manager</strong></td><td>Stores and rotates passwords and API keys.</td><td>A vault for passwords</td><td>Read the DB password at startup, not from code</td></tr>
+								<tr><td><strong>AWS Key Management Service (KMS)</strong></td><td>Creates and manages encryption keys.</td><td>The master key cabinet</td><td>Encrypt S3, EBS and RDS data</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Monitoring and Management</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Amazon CloudWatch</strong></td><td>Metrics, logs and alarms.</td><td>A car dashboard</td><td>Alert when errors spike</td></tr>
+								<tr><td><strong>AWS CloudTrail</strong></td><td>Records who did what in your account, and when.</td><td>Security camera footage</td><td>Find who deleted a bucket</td></tr>
+								<tr><td><strong>AWS CloudFormation</strong></td><td>Infrastructure as code: YAML or JSON templates that create resources.</td><td>An architect's blueprint</td><td>Identical staging and production</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>CloudWatch or CloudTrail?</strong> CloudWatch watches how <em>resources</em> behave; CloudTrail records what <em>people and services</em> did.</p>
+
+					<h3>Messaging and Integration</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Amazon SQS</strong></td><td>A queue holding tasks until a worker takes them.</td><td>A bakery ticket queue</td><td>Queue welcome emails so signup stays fast</td></tr>
+								<tr><td><strong>Amazon SNS</strong></td><td>Publish-subscribe: one message to many subscribers, including email and SMS.</td><td>A group announcement</td><td>Tell several services about a new order</td></tr>
+								<tr><td><strong>Amazon EventBridge</strong></td><td>Routes events between services by rules, and runs schedules.</td><td>A switchboard</td><td>Run a nightly cleanup job</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>SQS or SNS?</strong> SQS: each message is processed by one worker. SNS: one message goes to many subscribers.</p>
+
+					<h3>Developer and Deployment Tools</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Service</th><th scope="col">What it is</th><th scope="col">Real-world example</th><th scope="col">Developer use case</th></tr></thead>
+							<tbody>
+								<tr><td><strong>AWS CodeBuild</strong></td><td>Runs builds and tests, and creates artifacts like Docker images.</td><td>A test kitchen</td><td>Run <code>pytest</code> on every push</td></tr>
+								<tr><td><strong>AWS CodeDeploy</strong></td><td>Automates deployments to EC2, Lambda and ECS.</td><td>A delivery team with a checklist</td><td>Gradual rollouts with automatic rollback</td></tr>
+								<tr><td><strong>AWS CodePipeline</strong></td><td>Chains source, build, test and deploy steps.</td><td>An assembly line</td><td>Push to GitHub, then build and deploy automatically</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="practical-examples">Practical Examples</h2>
+
+					<h3>Example 1: Hosting a website</h3>
+
+<pre class="diagram">User → Route 53 (DNS) → CloudFront (CDN) → S3 (static files)
+                                          → EC2 (dynamic pages)</pre>
+
+					<p>Route 53 points your domain at CloudFront, which serves cached files from S3 and forwards dynamic requests to EC2. A purely static site needs only S3 and CloudFront.</p>
+
+					<h3>Example 2: Deploying a Django or FastAPI application</h3>
+
+<pre class="diagram">User → Load balancer → EC2 or Elastic Beanstalk (Django/FastAPI)
+                          ├── RDS for PostgreSQL (data)
+                          └── S3 (user uploads)</pre>
+
+					<ul>
+						<li>Run the app on EC2, or let Elastic Beanstalk manage the servers.</li>
+						<li>Keep data in <strong>RDS for PostgreSQL</strong> in a private subnet, reachable only from the app.</li>
+						<li>Save uploads to <strong>S3</strong>, not the server's disk, so they survive server replacement.</li>
+						<li>Use an <strong>IAM role</strong> for S3 access and <strong>Secrets Manager</strong> for the database password.</li>
+					</ul>
+
+					<h3>Example 3: Building a serverless API</h3>
+
+<pre class="diagram">Client → API Gateway → Lambda → DynamoDB</pre>
+
+					<p>API Gateway receives the request and calls Lambda, which reads or writes DynamoDB and returns JSON. No servers to manage, and costs follow traffic, which suits uneven workloads.</p>
+
+					<h3>Example 4: Processing background tasks</h3>
+
+<pre class="diagram">Web app → SQS queue → Lambda (worker) → result saved or email sent</pre>
+
+					<p>The app adds a message to SQS and responds immediately. Lambda picks it up and does the slow work. If processing fails, the message returns to the queue for a retry.</p>
+
+					<h2 id="concepts">Important AWS Concepts</h2>
+
+					<ul>
+						<li><strong>Regions and Availability Zones:</strong> a Region is a geographic area, such as Mumbai or Ireland. It contains several Availability Zones (AZs): separate data centres with independent power and networking. Pick a Region near your users.</li>
+						<li><strong>Scalability and elasticity:</strong> scalability is handling more load; elasticity is adding and removing capacity automatically as load changes.</li>
+						<li><strong>High availability:</strong> running across at least two AZs, so one failing data centre does not take your app down.</li>
+						<li><strong>Pay-as-you-go pricing:</strong> prices depend on the service, usage, Region and configuration. Check pricing before you launch anything.</li>
+						<li><strong>Shared Responsibility Model:</strong> AWS secures the cloud itself (hardware, facilities, network). You secure what you put in it: data, permissions, network rules and code.</li>
+						<li><strong>IAM users, roles and policies:</strong> a <em>user</em> has long-term credentials. A <em>role</em> grants temporary permissions to whatever assumes it, such as an EC2 instance. A <em>policy</em> is a JSON document of allowed or denied actions.</li>
+						<li><strong>AWS Free Tier and charges:</strong> new accounts can start on a free plan with promotional credits, and some services have always-free monthly limits. These come with eligibility rules, time and usage limits, and not every service is included. On a paid plan, usage beyond your credits is billed. Terms change, so read the <a href="https://aws.amazon.com/free/" target="_blank" rel="noopener">official Free Tier page</a>.</li>
+					</ul>
+
+					<h2 id="deployment-workflow">Basic AWS Deployment Workflow</h2>
+
+					<p>These are the usual steps for a backend app. Not every app needs every service.</p>
+
+					<ol>
+						<li><strong>Create an AWS account,</strong> protect the root user with multi-factor authentication (MFA), and do not use it for daily work.</li>
+						<li><strong>Configure IAM permissions</strong> with least privilege.</li>
+						<li><strong>Choose a compute service:</strong> Elastic Beanstalk or EC2 for a traditional app, ECS for containers, Lambda for event-driven code.</li>
+						<li><strong>Configure networking:</strong> private subnets for databases, and security groups that open only the ports you need.</li>
+						<li><strong>Set up the database,</strong> if needed.</li>
+						<li><strong>Configure environment variables and secrets,</strong> never in code.</li>
+						<li><strong>Deploy the application,</strong> by hand first, then through a pipeline.</li>
+						<li><strong>Configure logging and monitoring</strong> with CloudWatch.</li>
+						<li><strong>Review costs and security settings.</strong></li>
+					</ol>
+
+					<h2 id="aws-cli">AWS CLI Example</h2>
+
+					<p>The AWS CLI controls AWS from your terminal. Install version 2 on Linux (x86_64):</p>
+
+<pre><code class="language-bash">curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version</code></pre>
+
+					<p>The <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener">installation guide</a> covers macOS and Windows.</p>
+
+					<p>Sign in with short-term credentials instead of storing access keys. From AWS CLI 2.32.0, <code>aws login</code> uses your console sign-in in the browser and keeps temporary credentials refreshed for up to 12 hours:</p>
+
+<pre><code class="language-bash">aws login
+aws s3 ls</code></pre>
+
+					<p><code>aws s3 ls</code> lists your S3 buckets, one per line with its creation date. Before you sign in, it fails safely (output from AWS CLI 2.38.1):</p>
+
+<pre class="diagram">$ aws s3 ls
+aws: [ERROR]: An error occurred (NoCredentials): Unable to locate credentials. You can configure credentials by running "aws login".</pre>
+
+					<p>Organizations using IAM Identity Center use <code>aws configure sso</code> instead. Avoid long-term access keys, never hardcode or commit them, and use IAM roles for code running on AWS.</p>
+
+					<h2 id="best-practices">AWS Best Practices</h2>
+
+					<ul class="list-check">
+						<li><strong>Least-privilege IAM permissions,</strong> with roles instead of long-term keys.</li>
+						<li><strong>No credentials or secrets in Git.</strong> Use Secrets Manager or environment variables.</li>
+						<li><strong>Monitoring and logging</strong> with CloudWatch, and CloudTrail left on.</li>
+						<li><strong>Encryption</strong> at rest (KMS) and in transit (HTTPS).</li>
+						<li><strong>Budgets and billing alerts</strong> in AWS Budgets, before you build anything.</li>
+						<li><strong>Unused resources removed:</strong> idle instances, old snapshots, unused load balancers.</li>
+						<li><strong>Managed services when they fit,</strong> such as RDS instead of PostgreSQL on EC2.</li>
+						<li><strong>Minimal network exposure:</strong> private databases, only the ports you need.</li>
+					</ul>
+
+					<h2 id="common-mistakes">Common Beginner Mistakes</h2>
+
+					<ul class="list-cross">
+						<li><strong>Learning every service at once.</strong> Start with five or six.</li>
+						<li><strong>Excessive IAM permissions,</strong> such as <code>AdministratorAccess</code> for an app.</li>
+						<li><strong>Leaving resources running.</strong> Many keep charging while idle.</li>
+						<li><strong>Public databases.</strong> An open database port invites attacks.</li>
+						<li><strong>Ignoring billing</strong> until a surprise bill arrives.</li>
+						<li><strong>Treating S3 as a filesystem.</strong> S3 stores whole objects through an API; you cannot mount and edit files in place.</li>
+						<li><strong>Complex infrastructure for a simple app.</strong> A small Django app does not need Kubernetes.</li>
+					</ul>
+
+					<h2 id="learning-path">Recommended Learning Path</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Stage</th><th scope="col">Learn</th><th scope="col">Hands-on project</th></tr></thead>
+							<tbody>
+								<tr><td>1</td><td>Cloud computing fundamentals</td><td>Explore the console; read the pricing page for EC2 and S3</td></tr>
+								<tr><td>2</td><td>IAM and account security</td><td>Enable MFA on the root user, create a separate admin identity for daily work, and set a budget alert</td></tr>
+								<tr><td>3</td><td>EC2, S3 and VPC</td><td>Host a static site on S3; run a small app on EC2</td></tr>
+								<tr><td>4</td><td>RDS and DynamoDB</td><td>Connect a Django or FastAPI app to RDS for PostgreSQL</td></tr>
+								<tr><td>5</td><td>Lambda and API Gateway</td><td>Build the serverless API from Example 3</td></tr>
+								<tr><td>6</td><td>CloudWatch and deployment automation</td><td>Add alarms and a CodePipeline or GitHub Actions deploy</td></tr>
+								<tr><td>7</td><td>A real project</td><td>Deploy a full app with a database, file uploads and monitoring</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>AWS looks huge, but most apps use a small core: EC2 or Lambda, S3, RDS or DynamoDB, IAM and CloudWatch. Learn those, understand Regions, pricing and shared responsibility, and build something real. Projects teach more than memorizing service names.</p>
+
+					<p><strong>Summary:</strong></p>
+
+					<ul>
+						<li>Start with EC2, S3, RDS, Lambda, IAM and CloudWatch.</li>
+						<li>Secure your account first: MFA, least privilege, no keys in code.</li>
+						<li>Pricing varies by service, usage, Region and configuration; the Free Tier has limits.</li>
+						<li>Learn by building, one project per stage.</li>
+					</ul>
+
+					<p><strong>Related posts:</strong></p>
+
+					<ul>
+						<li><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners</a>, an app you can deploy with Example 2 or 3</li>
+						<li><a href="/blog/docker-image-optimization/">Docker Image Optimization</a>, before running containers on ECS</li>
+						<li><a href="/blog/django-optimization-at-scale/">Scaling Django Applications</a>, for when your RDS tables grow</li>
+						<li><a href="/blog/api-fundamentals/">API Fundamentals</a>, on authentication and API security</li>
+					</ul>
+
+					<h2 id="faq">Frequently Asked Questions</h2>
+
+					<h3>Is AWS free for beginners?</h3>
+
+					<p>Partly. New accounts can use a free plan with credits, and some services have always-free monthly limits. Both have eligibility rules and limits. Set a budget alert before you start.</p>
+
+					<h3>Which AWS services should I learn first?</h3>
+
+					<p>IAM, EC2, S3, RDS, Lambda and CloudWatch. They cover most beginner projects.</p>
+
+					<h3>What is the difference between EC2 and Lambda?</h3>
+
+					<p>EC2 is a server you manage that runs continuously. Lambda runs code only when an event triggers it. Use EC2 for long-running apps and Lambda for short, event-driven tasks.</p>
+
+					<h3>Do I need to know Linux to use AWS?</h3>
+
+					<p>It helps for EC2, since most servers run Linux. Lambda and managed services like RDS need much less.</p>
+
+					<h3>How do I avoid an unexpected AWS bill?</h3>
+
+					<p>Create a budget alert in AWS Budgets, check the Billing console weekly, delete unused resources, and read pricing before launching a service.</p>
+
+					<h2 id="references">References</h2>
+
+					<ul>
+						<li><a href="https://aws.amazon.com/what-is-aws/" target="_blank" rel="noopener">What is AWS?</a></li>
+						<li><a href="https://aws.amazon.com/free/" target="_blank" rel="noopener">AWS Free Tier</a></li>
+						<li><a href="https://aws.amazon.com/compliance/shared-responsibility-model/" target="_blank" rel="noopener">AWS Shared Responsibility Model</a></li>
+						<li><a href="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions.html" target="_blank" rel="noopener">AWS Regions and Availability Zones</a></li>
+						<li><a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener">Installing the AWS CLI</a></li>
+						<li><a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sign-in.html" target="_blank" rel="noopener">Signing in to the AWS CLI with console credentials</a></li>
+						<li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html" target="_blank" rel="noopener">IAM security best practices</a></li>
+						<li><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank" rel="noopener">AWS Well-Architected Framework</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="aws-basics-for-beginners">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

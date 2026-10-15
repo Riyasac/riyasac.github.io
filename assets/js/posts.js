@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'aws-basics-for-beginners',
+		title: 'AWS Basics for Beginners: Essential Services Explained with Examples',
+		description: '28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.',
+		date: '2026-10-15',
+		readingTime: 10,
+		level: 'Beginner',
+		tags: ['AWS', 'Cloud', 'DevOps'],
+		url: '/blog/aws-basics-for-beginners/',
+		cover: '/assets/img/blog/aws-basics-for-beginners/cover.webp',
+		coverAlt: 'AWS Basics for Beginners cover: three architecture flows, Client to API Gateway to Lambda to DynamoDB, User to ELB to EC2 to RDS, and App to SQS to Lambda, with 28 services, 4 examples and 7 learning stages'
+	},
+	{
 		slug: 'docker-image-optimization',
 		title: 'Docker Image Optimization: Build Smaller, Faster and Safer Images',
 		description: 'Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.',

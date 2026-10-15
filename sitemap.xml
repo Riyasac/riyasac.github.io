@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url><loc>https://riyasac.github.io/</loc></url>
 	<url><loc>https://riyasac.github.io/blog/</loc><lastmod>2026-10-15</lastmod></url>
+	<url><loc>https://riyasac.github.io/blog/aws-basics-for-beginners/</loc><lastmod>2026-10-15</lastmod></url>
 	<url><loc>https://riyasac.github.io/blog/docker-image-optimization/</loc><lastmod>2026-10-15</lastmod></url>
 	<url><loc>https://riyasac.github.io/blog/fastapi-for-beginners/</loc><lastmod>2026-10-15</lastmod></url>
 	<url><loc>https://riyasac.github.io/blog/git-for-backend-developers/</loc><lastmod>2026-10-15</lastmod></url>
