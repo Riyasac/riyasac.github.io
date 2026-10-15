@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples | Riyas A C</title>
+	<meta name="description" content="Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.">
+	<meta name="keywords" content="Redis tutorial, Redis caching, Redis commands, Redis data types, Redis with Python, Redis use cases, redis-py, Django Redis cache, Redis persistence, Redis eviction policy">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/redis-tutorial-for-beginners/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/redis-tutorial-for-beginners/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples">
+	<meta property="og:description" content="Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/redis-tutorial-for-beginners/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Redis Tutorial for Beginners cover: redis-cli commands SET with a 300 second expiry, TTL, ZADD and INCR, with measured results of 501 ms on a cache miss and 0.7 ms on a cache hit">
+	<meta property="article:published_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Redis">
+	<meta property="article:tag" content="Caching">
+	<meta property="article:tag" content="Python">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples">
+	<meta name="twitter:description" content="Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/redis-tutorial-for-beginners/cover.jpg">
+	<meta name="twitter:image:alt" content="Redis Tutorial for Beginners cover: redis-cli commands SET with a 300 second expiry, TTL, ZADD and INCR, with measured results of 501 ms on a cache miss and 0.7 ms on a cache hit">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/redis-tutorial-for-beginners/#article",
+		"url": "https://riyasac.github.io/blog/redis-tutorial-for-beginners/",
+		"headline": "Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples",
+		"description": "Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/redis-tutorial-for-beginners/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T09:00:00+05:30",
+		"dateModified": "2026-10-15T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Redis", "Caching", "Python", "Django", "redis-py", "Redis Commands", "Redis Data Types"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/redis-tutorial-for-beginners/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples",
+				"item": "https://riyasac.github.io/blog/redis-tutorial-for-beginners/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Redis Tutorial</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples</h1>
+					<p class="post-lead">What Redis is, its data types and essential commands, caching with Python and Django, persistence, eviction and security. Every command was run on Redis 8.10.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 15 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Redis 8.10, redis-py, Django 6.1</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Redis</li><li>Caching</li><li>Python</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/redis-tutorial-for-beginners/cover.webp" width="1024" height="535" alt="Redis Tutorial for Beginners cover: redis-cli commands SET with a 300 second expiry, TTL, ZADD and INCR, with measured results of 501 ms on a cache miss and 0.7 ms on a cache hit" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+					<h2 id="introduction">Introduction</h2>
+
+					<p><strong>Redis</strong> is an open-source, in-memory data store. It keeps data in RAM instead of on disk, so reads and writes usually take well under a millisecond inside the server.</p>
+
+					<p><strong>How it works:</strong> your application connects to the Redis server over the network and sends commands such as <code>SET</code> and <code>GET</code>. Every piece of data is stored under a <strong>key</strong> (a name such as <code>user:42</code>). Redis runs commands one at a time on its main thread, so each single command is <strong>atomic</strong>: it finishes completely before the next one starts, with no half-done states.</p>
+
+					<p>Backend developers use Redis for work that must be fast and does not need a full database: <strong>caching</strong> query results, storing <strong>sessions</strong>, <strong>rate limiting</strong>, <strong>counters</strong>, <strong>leaderboards</strong>, short-lived codes such as <strong>OTPs</strong>, and passing messages between services.</p>
+
+					<aside class="callout">
+						<p class="callout-title">How this was tested</p>
+						<p>Every command and output in this Redis tutorial comes from Redis 8.10.2 (official Docker image), redis-py 8.1.0, Python 3.12 and Django 6.1.2. Redis features and defaults depend on its version, configuration and deployment, so check yours with <code>INFO server</code> and <code>CONFIG GET</code>.</p>
+					</aside>
+
+					<h2 id="key-features">Key Features of Redis</h2>
+
+					<ul>
+						<li><strong>In-memory storage.</strong> Data lives in RAM, which is why Redis is fast, and also why memory size limits how much you can store.</li>
+						<li><strong>Key-value model.</strong> Every value is stored under a unique key. Keys are strings; a common naming style is <code>object:id:field</code>, such as <code>user:42:profile</code>.</li>
+						<li><strong>Fast data access.</strong> Most commands work on one key and run in constant or near-constant time. In practice the network round trip is often the slowest part.</li>
+						<li><strong>Rich data structures.</strong> A value can be a string, hash, list, set, sorted set, stream and more. Redis does the work on the server, so you do not read, change and write back whole objects.</li>
+						<li><strong>TTL and key expiration.</strong> <strong>TTL (time to live)</strong> is how long a key lives. Give a key a TTL and Redis deletes it automatically when it runs out.</li>
+						<li><strong>Persistence.</strong> Redis can save data to disk with <strong>RDB</strong> snapshots, an <strong>AOF</strong> log of writes, or both, so it survives a restart.</li>
+						<li><strong>Pub/Sub messaging.</strong> Clients can publish messages to a channel and every subscriber receives them instantly.</li>
+						<li><strong>Transactions and atomic operations.</strong> <code>INCR</code>, <code>SET ... NX</code> and <code>MULTI</code>/<code>EXEC</code> let many clients update shared data without race conditions.</li>
+						<li><strong>Replication and high availability.</strong> Replicas keep copies of the data; Sentinel and Redis Cluster handle failover and sharding.</li>
+						<li><strong>Caching and distributed coordination.</strong> TTLs, eviction policies and atomic commands make Redis a natural cache, and a simple tool for locks and job coordination across servers.</li>
+					</ul>
+
+					<h2 id="installation">Redis Installation and Setup</h2>
+
+					<h3>Install and start the Redis server</h3>
+
+					<p>The quickest way, on any OS, is Docker:</p>
+
+<pre><code class="language-bash">docker run -d --name redis -p 127.0.0.1:6379:6379 redis:8.10.2</code></pre>
+
+					<p>Other options from the official docs:</p>
+
+					<ul>
+						<li><strong>Ubuntu/Debian:</strong> add the <code>packages.redis.io</code> APT repository, then <code>sudo apt-get install redis</code>.</li>
+						<li><strong>macOS:</strong> <code>brew install redis</code>, then <code>brew services start redis</code>.</li>
+						<li><strong>Windows:</strong> use Docker Desktop (or WSL). Redis does not run natively on Windows.</li>
+					</ul>
+
+					<aside class="callout">
+						<p class="callout-title">Important</p>
+						<p>note the <code>127.0.0.1:</code> in the Docker command. The official image runs with <code>protected-mode no</code> and a default user with no password. A plain <code>-p 6379:6379</code> publishes that open server on every network interface of your machine.</p>
+					</aside>
+
+					<h3>Connect using redis-cli</h3>
+
+					<p><code>redis-cli</code> is the command-line client that ships with Redis.</p>
+
+<pre><code class="language-bash">docker exec -it redis redis-cli      # Docker
+redis-cli                            # local install</code></pre>
+
+					<h3>Basic commands: PING, SET, GET, DEL and EXPIRE</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; PING
+PONG
+127.0.0.1:6379&gt; SET greeting "Hello, Redis"
+OK
+127.0.0.1:6379&gt; GET greeting
+"Hello, Redis"
+127.0.0.1:6379&gt; EXPIRE greeting 60
+(integer) 1
+127.0.0.1:6379&gt; TTL greeting
+(integer) 60
+127.0.0.1:6379&gt; DEL greeting
+(integer) 1
+127.0.0.1:6379&gt; GET greeting
+(nil)</pre>
+
+					<p><code>(integer) 1</code> means one key was affected. <code>(nil)</code> means the key does not exist.</p>
+
+					<h2 id="redis-data-types">Redis Data Types</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Type</th><th scope="col">Stores</th><th scope="col">Typical use</th></tr></thead>
+							<tbody>
+								<tr><td>String</td><td>Text, numbers or bytes (up to 512 MB)</td><td>Cache entries, counters, flags</td></tr>
+								<tr><td>Hash</td><td>Field-value pairs under one key</td><td>User profiles, objects</td></tr>
+								<tr><td>List</td><td>Ordered sequence</td><td>Queues, recent items</td></tr>
+								<tr><td>Set</td><td>Unique, unordered members</td><td>Tags, unique visitors</td></tr>
+								<tr><td>Sorted set</td><td>Unique members ordered by score</td><td>Leaderboards, priority queues</td></tr>
+								<tr><td>Stream</td><td>Append-only log of entries</td><td>Event logs, job queues with acknowledgements</td></tr>
+								<tr><td>Geospatial</td><td>Members with longitude and latitude</td><td>"Stores near me"</td></tr>
+								<tr><td>Bitmap, HyperLogLog</td><td>Bits; approximate unique counts</td><td>Daily active users, unique visitors</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Strings</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; SET user:1:name "Asha"
+OK
+127.0.0.1:6379&gt; APPEND user:1:name " Kumar"
+(integer) 10
+127.0.0.1:6379&gt; GET user:1:name
+"Asha Kumar"</pre>
+
+					<h3>Hashes</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; HSET user:1 name "Asha" email "asha@example.com" plan "pro"
+(integer) 3
+127.0.0.1:6379&gt; HINCRBY user:1 logins 1
+(integer) 1
+127.0.0.1:6379&gt; HDEL user:1 plan
+(integer) 1</pre>
+
+					<p>Use a hash when you often read or update one field of an object; you avoid rewriting a whole JSON string.</p>
+
+					<h3>Lists</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; RPUSH queue:emails "welcome:1" "reset:2" "invoice:3"
+(integer) 3
+127.0.0.1:6379&gt; LPOP queue:emails
+"welcome:1"
+127.0.0.1:6379&gt; LRANGE queue:emails 0 -1
+1) "reset:2"
+2) "invoice:3"</pre>
+
+					<p><code>RPUSH</code> adds to the end and <code>LPOP</code> takes from the front: a simple first-in, first-out queue.</p>
+
+					<h3>Sets</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; SADD post:1:tags redis cache backend
+(integer) 3
+127.0.0.1:6379&gt; SADD post:2:tags redis python
+(integer) 2
+127.0.0.1:6379&gt; SINTER post:1:tags post:2:tags
+1) "redis"
+127.0.0.1:6379&gt; SISMEMBER post:1:tags cache
+(integer) 1</pre>
+
+					<h3>Sorted sets</h3>
+
+					<p>Each member has a numeric <strong>score</strong>, and Redis keeps members ordered by it.</p>
+
+<pre class="diagram">127.0.0.1:6379&gt; ZADD leaderboard 1200 "asha" 950 "ravi" 1500 "meera"
+(integer) 3
+127.0.0.1:6379&gt; ZINCRBY leaderboard 100 "ravi"
+"1050"
+127.0.0.1:6379&gt; ZREVRANK leaderboard meera
+(integer) 0</pre>
+
+					<h3>Streams</h3>
+
+					<p>A stream is an append-only log. <strong>Consumer groups</strong> let several workers share the entries, and each entry stays pending until a worker acknowledges it with <code>XACK</code>.</p>
+
+<pre class="diagram">127.0.0.1:6379&gt; XADD orders * order_id 1001 status paid
+"1792066092800-0"
+127.0.0.1:6379&gt; XGROUP CREATE orders mailers 0
+OK
+127.0.0.1:6379&gt; XREADGROUP GROUP mailers worker-1 COUNT 1 STREAMS orders &gt;
+1) 1) "orders"
+   2) 1) 1) "1792066092800-0"
+         2) 1) "order_id"
+            2) "1001"
+            3) "status"
+            4) "paid"</pre>
+
+					<p><code>*</code> asks Redis to generate the entry ID, which is a millisecond timestamp plus a sequence number.</p>
+
+					<h3>Geospatial indexes</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; GEOADD stores 76.2673 9.9312 "kochi" 76.9366 8.5241 "trivandrum" 77.5946 12.9716 "bangalore"
+(integer) 3
+127.0.0.1:6379&gt; GEODIST stores kochi trivandrum km
+"172.8968"
+127.0.0.1:6379&gt; GEOSEARCH stores FROMLONLAT 76.30 9.95 BYRADIUS 200 km ASC WITHDIST
+1) 1) "kochi"
+   2) "4.1479"
+2) 1) "trivandrum"
+   2) "173.3126"</pre>
+
+					<p>Longitude comes first, then latitude.</p>
+
+					<h3>Bitmaps and HyperLogLogs</h3>
+
+					<p>A <strong>bitmap</strong> treats a string as a row of bits; here bit number = user ID. A <strong>HyperLogLog</strong> estimates how many unique items it has seen, using at most about 12 KB however many items you add (with a standard error of 0.81%).</p>
+
+<pre class="diagram">127.0.0.1:6379&gt; SETBIT active:2026-10-15 1001 1
+(integer) 0
+127.0.0.1:6379&gt; SETBIT active:2026-10-15 1002 1
+(integer) 0
+127.0.0.1:6379&gt; BITCOUNT active:2026-10-15
+(integer) 2
+127.0.0.1:6379&gt; PFADD visitors:2026-10-15 ip1 ip2 ip3 ip2
+(integer) 1
+127.0.0.1:6379&gt; PFCOUNT visitors:2026-10-15
+(integer) 3</pre>
+
+					<h2 id="commands">Important Redis Commands</h2>
+
+					<h3>SET and GET</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; SET session:abc "user:1" EX 1800
+OK
+127.0.0.1:6379&gt; GET session:abc
+"user:1"</pre>
+
+					<p><code>EX 1800</code> sets a 30-minute TTL in the same command. Add <code>NX</code> to set the key only if it does not already exist.</p>
+
+					<h3>MSET and MGET</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; MSET city "Kochi" country "India"
+OK
+127.0.0.1:6379&gt; MGET city country missing
+1) "Kochi"
+2) "India"
+3) (nil)</pre>
+
+					<p>One round trip instead of three.</p>
+
+					<h3>HSET and HGET</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; HSET user:2 name "Ravi" email "ravi@example.com"
+(integer) 2
+127.0.0.1:6379&gt; HGET user:2 email
+"ravi@example.com"</pre>
+
+					<h3>LPUSH and LRANGE</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; LPUSH recent:products 101 102 103
+(integer) 3
+127.0.0.1:6379&gt; LRANGE recent:products 0 -1
+1) "103"
+2) "102"
+3) "101"
+127.0.0.1:6379&gt; LTRIM recent:products 0 1
+OK</pre>
+
+					<p><code>LPUSH</code> adds to the front, so the newest item comes first. <code>LTRIM</code> keeps only the latest items: a "recently viewed" list.</p>
+
+					<h3>SADD and SMEMBERS</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; SADD post:3:tags django celery
+(integer) 2
+127.0.0.1:6379&gt; SMEMBERS post:3:tags
+1) "django"
+2) "celery"</pre>
+
+					<p>Sets have no order. Do not rely on the order <code>SMEMBERS</code> returns.</p>
+
+					<h3>ZADD and ZRANGE</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; ZRANGE leaderboard 0 -1 REV WITHSCORES
+1) "meera"
+2) "1500"
+3) "asha"
+4) "1200"
+5) "ravi"
+6) "1050"</pre>
+
+					<p><code>REV</code> returns the highest score first. <code>0 -1</code> means "from the first to the last".</p>
+
+					<h3>EXPIRE and TTL</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; TTL session:abc
+(integer) 1800
+127.0.0.1:6379&gt; PERSIST session:abc
+(integer) 1
+127.0.0.1:6379&gt; TTL session:abc
+(integer) -1
+127.0.0.1:6379&gt; TTL nokey
+(integer) -2</pre>
+
+					<p><code>-1</code> means the key exists with no expiry; <code>-2</code> means it does not exist. <code>PERSIST</code> removes a TTL.</p>
+
+					<h3>INCR and DECR</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; SET stock:101 5
+OK
+127.0.0.1:6379&gt; DECR stock:101
+(integer) 4
+127.0.0.1:6379&gt; DECRBY stock:101 2
+(integer) 2
+127.0.0.1:6379&gt; INCR page:views
+(integer) 1</pre>
+
+					<p>These are atomic. Two servers incrementing the same key at the same moment never lose an update. <code>INCR</code> on a missing key starts from 0.</p>
+
+					<h3>DEL and EXISTS</h3>
+
+<pre class="diagram">127.0.0.1:6379&gt; EXISTS city missing
+(integer) 1
+127.0.0.1:6379&gt; DEL city country
+(integer) 2
+127.0.0.1:6379&gt; EXISTS city
+(integer) 0</pre>
+
+					<p>Both accept several keys and return how many matched.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p>running <code>KEYS *</code> on a production server. It scans every key in one blocking call and stalls all other clients. Use <code>SCAN</code> to iterate in small batches.</p>
+					</aside>
+
+					<h2 id="use-cases">Redis Use Cases in Backend Development</h2>
+
+					<h3>API response caching</h3>
+
+					<p>Store the JSON of an expensive endpoint under a key such as <code>api:products:page:1</code> with a TTL of a few minutes. The full Python example is in the next section.</p>
+
+					<h3>Session storage</h3>
+
+					<p>Keep login sessions in Redis (<code>SET session:&lt;id&gt; ... EX 1800</code>) so any app server can read them, and they expire on their own.</p>
+
+					<h3>Rate limiting</h3>
+
+					<p>Count requests per user per time window with <code>INCR</code> and <code>EXPIRE</code>, and reject requests over the limit. There is a Python example below.</p>
+
+					<h3>OTP expiration</h3>
+
+					<p>Store a one-time code with a short TTL, and <code>NX</code> so a second request cannot overwrite it while the first code is valid:</p>
+
+<pre class="diagram">127.0.0.1:6379&gt; SET otp:user:42 "482913" EX 300 NX
+OK
+127.0.0.1:6379&gt; SET otp:user:42 "111111" EX 300 NX
+(nil)</pre>
+
+					<p>Key on a user or request ID, not on a phone number or email, so personal data does not appear in key names and monitoring tools.</p>
+
+					<h3>Leaderboards and ranking</h3>
+
+					<p>A sorted set gives you the top N, a player's rank and their score in single commands, as shown above.</p>
+
+					<h3>Real-time counters</h3>
+
+					<p>Page views, likes and stock levels with <code>INCR</code>, <code>HINCRBY</code> and <code>DECR</code>; unique visitors with HyperLogLog.</p>
+
+					<h3>Pub/Sub notifications</h3>
+
+					<p>Push "order paid" events to WebSocket servers so they can notify connected users. Pub/Sub does not store messages: a subscriber that is offline misses them. Use <strong>Streams</strong> when messages must not be lost.</p>
+
+					<h3>Background job coordination</h3>
+
+					<p>Task queues such as Celery and RQ can use Redis as a broker. For your own scheduled jobs, a Redis <strong>lock</strong> makes sure only one worker runs a task at a time (example below).</p>
+
+					<h2 id="redis-with-python">Practical Example: Redis Caching with Python</h2>
+
+					<p>We will cache a slow database call using the <strong>cache-aside</strong> pattern: check the cache first, load from the database on a miss, then store the result with a TTL.</p>
+
+					<h3>Install and connect</h3>
+
+<pre><code class="language-bash">pip install "redis==8.1.0"</code></pre>
+
+					<p><code>redis</code> is the official Python client, also called <strong>redis-py</strong>.</p>
+
+					<h3>The caching code</h3>
+
+<pre><code class="language-python">import json
+import logging
+import time
+
+import redis
+from redis.backoff import NoBackoff
+from redis.retry import Retry
+
+logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(message)s")
+log = logging.getLogger("cache")
+
+r = redis.Redis(
+    host="localhost",
+    port=6379,
+    decode_responses=True,       # return str instead of bytes
+    socket_connect_timeout=1,    # fail fast if Redis is down
+    socket_timeout=1,
+    retry=Retry(NoBackoff(), retries=1),  # default is 10 retries with backoff
+)
+
+CACHE_TTL = 300  # seconds
+
+
+def get_product_from_db(product_id: int) -&gt; dict:
+    """Pretend database query that takes 0.5 seconds."""
+    time.sleep(0.5)
+    return {"id": product_id, "name": "Mechanical Keyboard", "price": 49.99}
+
+
+def get_product(product_id: int) -&gt; dict:
+    key = f"product:{product_id}"
+
+    # 1. Try the cache
+    try:
+        cached = r.get(key)
+        if cached is not None:
+            print(f"cache hit  -&gt; {key}")
+            return json.loads(cached)
+    except redis.RedisError as exc:
+        log.warning("cache read failed, using database: %s", exc)
+
+    # 2. Cache miss: load from the database
+    print(f"cache miss -&gt; {key}")
+    product = get_product_from_db(product_id)
+
+    # 3. Store it with an expiry, but never fail the request because of the cache
+    try:
+        r.set(key, json.dumps(product), ex=CACHE_TTL)
+    except redis.RedisError as exc:
+        log.warning("cache write failed: %s", exc)
+
+    return product
+
+
+def invalidate_product(product_id: int) -&gt; None:
+    r.delete(f"product:{product_id}")
+
+
+if __name__ == "__main__":
+    print("PING:", r.ping())
+    r.delete("product:1")
+
+    for _ in range(2):
+        start = time.perf_counter()
+        product = get_product(1)
+        print(f"{product['name']} in {(time.perf_counter() - start) * 1000:.1f} ms")
+
+    print("TTL:", r.ttl("product:1"))
+    invalidate_product(1)
+    print("after delete:", r.exists("product:1"))</code></pre>
+
+					<h3>Output</h3>
+
+<pre class="diagram">PING: True
+cache miss -&gt; product:1
+Mechanical Keyboard in 501.4 ms
+cache hit  -&gt; product:1
+Mechanical Keyboard in 0.7 ms
+TTL: 300
+after delete: 0</pre>
+
+					<p>What the important parts do:</p>
+
+					<ul>
+						<li>**<code>json.dumps</code> / <code>json.loads</code>.** Redis stores strings, so the dict is serialized to JSON.</li>
+						<li>**<code>ex=CACHE_TTL</code>.** The entry expires after 5 minutes, so stale data cannot live forever.</li>
+						<li>**<code>invalidate_product</code>.** Delete the key whenever the product changes in the database. This is the hard part of caching: every write path must invalidate or update the cache.</li>
+						<li>**<code>try</code> / <code>except redis.RedisError</code>.** If Redis is down, the app logs a warning and serves from the database. The cache makes the app faster; it must never make it fail.</li>
+					</ul>
+
+					<h3>When Redis is down</h3>
+
+					<p>With Redis stopped, the same call printed:</p>
+
+<pre class="diagram">WARNING cache read failed, using database: Error 111 connecting to localhost:56399. Connection refused.
+WARNING cache write failed: Error 111 connecting to localhost:56399. Connection refused.
+cache miss -&gt; product:1
+Mechanical Keyboard in 502.6 ms</pre>
+
+					<aside class="callout">
+						<p class="callout-title">Watch the retry setting</p>
+						<p>without the <code>retry=</code> line, redis-py 8.1 retries a failed connection 10 times with backoff. In my test the same request took <strong>10.3 seconds</strong> to fall back to the database. Short timeouts and few retries keep an outage from turning into slow pages.</p>
+					</aside>
+
+					<h3>Rate limiting, transactions, Pub/Sub and locks</h3>
+
+<pre><code class="language-python"># Rate limiting: 5 requests per 60 s per user (fixed window)
+def allow_request(user_id: int, limit: int = 5, window: int = 60) -&gt; bool:
+    key = f"ratelimit:{user_id}:{int(time.time() // window)}"
+    pipe = r.pipeline()                # MULTI/EXEC: both commands run together
+    pipe.incr(key)
+    pipe.expire(key, window, nx=True)  # set the expiry only on the first request
+    count, _ = pipe.execute()
+    return count &lt;= limit
+
+print([allow_request(42) for _ in range(7)])
+# [True, True, True, True, True, False, False]
+
+
+# Transaction: move stock between warehouses atomically
+with r.pipeline() as pipe:             # transaction=True by default
+    pipe.decrby("stock:kochi", 3)
+    pipe.incrby("stock:chennai", 3)
+    print(pipe.execute())              # [7, 3]
+
+
+# Pub/Sub, process 1: subscribe and wait for messages
+pubsub = r.pubsub()
+pubsub.subscribe("orders")
+for message in pubsub.listen():
+    if message["type"] == "message":
+        print("received:", message["data"])
+
+# Pub/Sub, process 2: publish (returns the number of subscribers that got it)
+r.publish("orders", '{"order_id": 1001, "status": "paid"}')
+
+
+# Lock: only one worker runs the nightly report
+lock = r.lock("lock:nightly-report", timeout=30, blocking=False)
+if lock.acquire():
+    try:
+        run_report()               # your scheduled job
+    finally:
+        lock.release()</code></pre>
+
+					<p>With two workers started together, one printed <code>got the lock, running report</code> and the other <code>skipped, another worker holds the lock</code>. The <code>timeout=30</code> releases the lock automatically if a worker crashes.</p>
+
+					<p><code>MULTI</code>/<code>EXEC</code> runs queued commands together, with no other client's command in between. It does <strong>not</strong> roll back if one command fails. For "check, then write" logic, use <code>WATCH</code> or a Lua script.</p>
+
+					<h2 id="redis-with-django">Redis with Django</h2>
+
+					<p>Django 4.0 and later include a Redis cache backend; you only need <code>redis-py</code> installed.</p>
+
+<pre><code class="language-python"># settings.py
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",   # database 1
+        "TIMEOUT": 300,                           # default TTL in seconds
+        "KEY_PREFIX": "shop",
+    }
+}
+
+# Optional: keep sessions in Redis instead of the database
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"</code></pre>
+
+<pre><code class="language-python"># views.py
+from django.core.cache import cache
+from django.http import JsonResponse
+from django.views.decorators.cache import cache_page
+
+
+def dashboard_stats(request):
+    # Compute once, then serve from Redis for 60 seconds
+    data = cache.get_or_set("dashboard:stats", compute_stats, timeout=60)
+    return JsonResponse(data)
+
+
+@cache_page(60 * 5)  # cache the whole response for 5 minutes
+def product_list(request):
+    ...</code></pre>
+
+					<p>In testing, the first <code>/stats/</code> request took 306.6 ms (the slow function ran) and the second 2.4 ms (served from Redis). The <code>@cache_page</code> view ran once for two requests.</p>
+
+					<p>Use <code>SESSION_ENGINE = "...cache"</code> only if losing sessions on a Redis restart is acceptable. Otherwise use <code>cached_db</code>, which writes through to the database.</p>
+
+					<p><strong>When Redis is useful in Django:</strong> expensive queries or aggregations that many users request, rendered pages that rarely change, sessions on several app servers, rate limits, and Celery task queues. It is not useful for data that changes on every request, or pages that differ for every user. Fix slow queries first; caching hides them but does not remove them.</p>
+
+					<p>FastAPI works the same way with <code>redis.asyncio</code>, the async client in the same package.</p>
+
+					<h2 id="persistence-and-architecture">Redis Persistence and Architecture</h2>
+
+					<h3>RDB snapshots</h3>
+
+					<p><strong>RDB</strong> saves a point-in-time copy of all data to a compact file (<code>dump.rdb</code>). It is great for backups and fast restarts. You can lose the writes made since the last snapshot. Redis 8.10.2's default config saves after 3600 s if 1 key changed, 300 s if 100 changed, or 60 s if 10,000 changed.</p>
+
+					<h3>AOF persistence</h3>
+
+					<p><strong>AOF (Append Only File)</strong> logs every write command and replays them on restart. With the default <code>appendfsync everysec</code>, you lose at most about one second of writes. AOF is <strong>off</strong> by default (<code>appendonly no</code>). The Redis docs recommend using both RDB and AOF if you need data safety close to a traditional database.</p>
+
+					<h3>Replication</h3>
+
+					<p>A <strong>replica</strong> is a copy of a Redis server that receives every write from the primary. Replicas serve reads and act as standbys. Replication is <strong>asynchronous</strong>: the primary does not wait for replicas, so a failover can lose the most recent writes.</p>
+
+					<h3>Sentinel</h3>
+
+					<p><strong>Redis Sentinel</strong> monitors a primary and its replicas, and promotes a replica automatically if the primary fails. Run at least three Sentinel processes, on separate machines, so they can agree that a primary is really down.</p>
+
+					<h3>Redis Cluster</h3>
+
+					<p><strong>Redis Cluster</strong> splits data across several primaries (<strong>sharding</strong>), each with its own replicas. Keys are mapped to 16,384 hash slots. Commands that touch several keys work only if all keys are in the same slot; use <strong>hash tags</strong> such as <code>cart:{user42}</code> and <code>wishlist:{user42}</code> to keep related keys together.</p>
+
+					<h3>Eviction policies</h3>
+
+					<p><strong>Eviction</strong> means Redis deletes keys to free memory when it reaches the <code>maxmemory</code> limit.</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Policy</th><th scope="col">Evicts</th></tr></thead>
+							<tbody>
+								<tr><td><code>noeviction</code> (default)</td><td>Nothing; writes fail with an error when memory is full</td></tr>
+								<tr><td><code>allkeys-lru</code></td><td>Least recently used keys. A good default for a cache</td></tr>
+								<tr><td><code>allkeys-lfu</code></td><td>Least frequently used keys</td></tr>
+								<tr><td><code>allkeys-lrm</code></td><td>Least recently modified keys (Redis 8.6+)</td></tr>
+								<tr><td><code>allkeys-random</code></td><td>Random keys</td></tr>
+								<tr><td><code>volatile-lru</code>, <code>volatile-lfu</code>, <code>volatile-lrm</code>, <code>volatile-random</code></td><td>Same, but only keys that have a TTL</td></tr>
+								<tr><td><code>volatile-ttl</code></td><td>Keys with the shortest remaining TTL</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Memory management</h3>
+
+					<p><code>maxmemory</code> is <code>0</code> (no limit) by default on 64-bit systems, so Redis can grow until the operating system runs out of RAM. For a cache, set both:</p>
+
+<pre class="diagram">maxmemory 512mb
+maxmemory-policy allkeys-lru</pre>
+
+					<p>Check usage with <code>INFO memory</code>, and the size of one key with <code>MEMORY USAGE key</code>. If you use persistence or replicas, leave spare RAM: forking for snapshots and replication buffers need extra memory.</p>
+
+					<h2 id="redis-vs-others">Redis vs Other Technologies</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Redis</th><th scope="col">PostgreSQL / MySQL</th><th scope="col">Memcached</th><th scope="col">In-process dict</th></tr></thead>
+							<tbody>
+								<tr><td>Storage</td><td>RAM, optional disk</td><td>Disk, with RAM cache</td><td>RAM only</td><td>Your app's RAM</td></tr>
+								<tr><td>Data model</td><td>Keys with rich data types</td><td>Tables, SQL, joins</td><td>Keys with string values</td><td>Any Python object</td></tr>
+								<tr><td>Durability</td><td>Configurable (RDB, AOF)</td><td>Full ACID transactions</td><td>None</td><td>Lost on restart</td></tr>
+								<tr><td>Shared across servers</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No, one process only</td></tr>
+								<tr><td>Queries</td><td>By key</td><td>Any SQL query</td><td>By key</td><td>By key</td></tr>
+								<tr><td>Best for</td><td>Cache, sessions, counters, queues, real-time data</td><td>System of record</td><td>Simple, large string caches</td><td>Small, read-only lookups</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<ul>
+						<li><strong>Choose PostgreSQL or MySQL</strong> for your main data: users, orders, payments. They give you SQL queries, constraints, transactions and durable storage.</li>
+						<li><strong>Choose Redis</strong> next to the database, for data that is temporary, derived or needs to be very fast.</li>
+						<li><strong>Choose Memcached</strong> if you only need a simple, multi-threaded string cache with no persistence or data types.</li>
+						<li><strong>Choose an in-process dictionary</strong> (or <code>functools.lru_cache</code>) for small data that never changes, like a country list. With several Gunicorn workers or servers, each has its own copy, and they drift apart when data changes.</li>
+					</ul>
+
+					<h2 id="benefits-and-limitations">Benefits and Limitations</h2>
+
+					<h3>Benefits</h3>
+
+					<ul class="list-check">
+						<li><strong>Low latency.</strong> In-memory reads avoid disk and query planning. In the example above a cache hit took 0.7 ms against a 500 ms simulated query.</li>
+						<li><strong>Reduced database load.</strong> Every cache hit is a query your database does not run.</li>
+						<li><strong>Many data structures.</strong> Counters, queues, rankings and sets without extra infrastructure.</li>
+						<li><strong>Simple to run</strong> for a single instance, with clients for every major language.</li>
+					</ul>
+
+					<h3>Limitations</h3>
+
+					<ul class="list-cross">
+						<li><strong>Memory cost.</strong> RAM is more expensive than disk. The dataset, plus overhead, must fit in memory.</li>
+						<li><strong>Persistence trade-offs.</strong> With RDB alone you can lose minutes of writes; with AOF <code>everysec</code>, about a second. Recovery from a large AOF can be slow.</li>
+						<li><strong>Cache invalidation.</strong> Keeping the cache in sync with the database is the hardest part. Stale data bugs are common.</li>
+						<li><strong>Limited querying.</strong> No joins, no ad-hoc queries; you design keys around how you read the data.</li>
+						<li><strong>Risks as a primary database.</strong> Without careful persistence, replication and backups, a crash or failover can lose data. Keep the source of truth in a durable database unless you have planned for this.</li>
+					</ul>
+
+					<h2 id="security-best-practices">Redis Security and Best Practices</h2>
+
+					<ul class="list-check">
+						<li><strong>Never expose Redis to the public internet.</strong> Bind it to private interfaces (<code>bind 127.0.0.1</code> or a private IP), keep it behind a firewall or security group, and leave <code>protected-mode yes</code> on non-Docker installs.</li>
+						<li><strong>Configure authentication and access control.</strong> Set a strong password, and use <strong>ACL</strong> users with only the commands and keys they need (example below).</li>
+						<li><strong>Use TLS</strong> when traffic crosses a network you do not fully control. Managed services usually offer it; use <code>rediss://</code> URLs in clients.</li>
+						<li><strong>Set appropriate TTLs.</strong> Every cache key should expire. Add a little randomness (jitter) so thousands of keys do not expire at the same second.</li>
+						<li><strong>Choose a suitable eviction policy</strong> and set <code>maxmemory</code>, so a full cache evicts old keys instead of rejecting writes.</li>
+						<li><strong>Monitor memory and hit rate.</strong> <code>INFO stats</code> reports <code>keyspace_hits</code> and <code>keyspace_misses</code>; hit rate = hits ÷ (hits + misses). Watch <code>used_memory</code> and <code>evicted_keys</code> too.</li>
+						<li><strong>Handle cache failures gracefully.</strong> Short timeouts, few retries and a database fallback, as in the Python example.</li>
+						<li><strong>Avoid large keys and values.</strong> A multi-megabyte value or a list with millions of items is slow to read, copy and delete. Split them, and use <code>SCAN</code> instead of <code>KEYS</code>.</li>
+						<li><strong>Understand persistence and backups.</strong> Decide whether the data is a disposable cache or something you must restore, configure RDB/AOF to match, and copy backups off the server.</li>
+					</ul>
+
+					<p>An ACL user for a Django app that may only read and write cache and session keys:</p>
+
+<pre class="diagram">127.0.0.1:6379&gt; ACL SETUSER shop_app on &gt;change-me-long-random ~cache:* ~session:* +get +set +del +expire +ttl
+OK</pre>
+
+					<p>Logged in as <code>shop_app</code>, <code>SET user:1 1</code> returned <code>NOPERM No permissions to access a key</code>, and <code>FLUSHALL</code> was refused. Use a long random password from your secrets manager, not the one shown here.</p>
+
+					<h2 id="faq">Frequently Asked Questions</h2>
+
+					<h3>Is Redis a database or a cache?</h3>
+
+					<p>Both. Redis is an in-memory data store that is most often used as a cache, but with persistence and replication it can also hold data you keep. Whether it is "just a cache" depends on how you configure and use it.</p>
+
+					<h3>Is Redis always faster than PostgreSQL?</h3>
+
+					<p>No. For a simple lookup by key, Redis is usually faster because data is in memory. But PostgreSQL also caches hot data in RAM, an indexed query can be very fast, and a network round trip to Redis costs the same as one to PostgreSQL. Redis cannot run joins or ad-hoc queries at all. Measure your own workload.</p>
+
+					<h3>Does Redis store data permanently?</h3>
+
+					<p>Only if you configure it to. The default config writes RDB snapshots periodically, but writes since the last snapshot are lost on a crash. Enable AOF for stronger durability, and keep backups.</p>
+
+					<h3>What is TTL in Redis?</h3>
+
+					<p>TTL (time to live) is the number of seconds until a key is deleted automatically. Set it with <code>EXPIRE key seconds</code> or <code>SET key value EX seconds</code>, and check it with <code>TTL key</code>.</p>
+
+					<h3>Can Redis handle millions of requests?</h3>
+
+					<p>Redis can serve very high request rates, but the real number depends on hardware, network, command types, value sizes, pipelining, persistence settings and whether you use Redis Cluster. Benchmark your own setup with <code>redis-benchmark</code> and real traffic patterns instead of relying on published numbers.</p>
+
+					<h3>When should Redis not be used?</h3>
+
+					<p>Do not use Redis as the only store for data you cannot afford to lose, for data much larger than your RAM budget, or for data you need to query in flexible ways (reports, joins, full-text search across many fields). Also skip it when your database is already fast enough. Every extra service is something to run, secure and monitor.</p>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>Redis gives backend applications a fast, shared, in-memory layer next to the main database. Use it to cache expensive results, store sessions, count, rank, rate limit and coordinate workers. Keep your source of truth in PostgreSQL or MySQL, give cache keys a TTL, set <code>maxmemory</code> and an eviction policy, and make your app work when Redis is down.</p>
+
+					<p>Next steps:</p>
+
+					<ol>
+						<li>Run Redis in Docker and try every command in this tutorial with <code>redis-cli</code>.</li>
+						<li>Add the cache-aside pattern to one slow endpoint in your project, and measure the hit rate with <code>INFO stats</code>.</li>
+						<li>Move Django sessions or a rate limiter to Redis.</li>
+						<li>Read the official docs on <a href="https://redis.io/docs/latest/develop/data-types/" target="_blank" rel="noopener">data types</a> and <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/" target="_blank" rel="noopener">persistence</a>.</li>
+					</ol>
+
+					<h3>Related reading</h3>
+
+					<ul>
+						<li><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></li>
+						<li><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></li>
+						<li><a href="/blog/api-fundamentals/">API Fundamentals</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="redis-tutorial-for-beginners">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/golang-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/golang-tutorial-for-beginners/">Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin</a></h3>
+								<p class="post-card-desc">Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Go</li><li>APIs</li><li>Concurrency</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/database-optimization-guide/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 12 min read</p>
+								<h3><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></h3>
+								<p class="post-card-desc">PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>PostgreSQL</li><li>Django</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

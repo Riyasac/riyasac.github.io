@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'redis-tutorial-for-beginners',
+		title: 'Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples',
+		description: 'Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.',
+		date: '2026-10-15',
+		readingTime: 15,
+		level: 'Beginner',
+		tags: ['Redis', 'Caching', 'Python'],
+		url: '/blog/redis-tutorial-for-beginners/',
+		cover: '/assets/img/blog/redis-tutorial-for-beginners/cover.webp',
+		coverAlt: 'Redis Tutorial for Beginners cover: redis-cli commands SET with a 300 second expiry, TTL, ZADD and INCR, with measured results of 501 ms on a cache miss and 0.7 ms on a cache hit'
+	},
+	{
 		slug: 'golang-tutorial-for-beginners',
 		title: 'Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin',
 		description: 'Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.',

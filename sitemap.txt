@@ -1,5 +1,6 @@
 https://riyasac.github.io/
 https://riyasac.github.io/blog/
+https://riyasac.github.io/blog/redis-tutorial-for-beginners/
 https://riyasac.github.io/blog/golang-tutorial-for-beginners/
 https://riyasac.github.io/blog/database-optimization-guide/
 https://riyasac.github.io/blog/aws-basics-for-beginners/
