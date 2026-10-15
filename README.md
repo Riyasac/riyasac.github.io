@@ -22,7 +22,7 @@ blog/index.html                Blog index with tag filter
 blog/<slug>/index.html         One folder per post
 blog/_post-template.html       Starting point for new posts (noindex)
 assets/img/blog/<slug>/          Post images; cover.webp for the page, cover.jpg for link previews
-assets/docs/Riyas_AC_Resume.pdf  Resume served by the download buttons
+assets/docs/Riyas_AC.pdf  Resume served by the download buttons
 assets/img/riyas-portrait.webp   Hero portrait, background removed
 assets/img/favicon/            Favicons and logo files; riyas.jpeg is the link-preview image
 site.webmanifest               Web app manifest
@@ -77,7 +77,7 @@ Then open <http://localhost:8000>. The homepage also works opened directly from 
 
 | Change | Where |
 | --- | --- |
-| Resume PDF | Replace `assets/docs/Riyas_AC_Resume.pdf` (keep the file name) |
+| Resume PDF | Replace `assets/docs/Riyas_AC.pdf` (keep the file name) |
 | A metric (e.g. 60%) | `index.html`: hero chips, Impact `data-count`, Experience bullet, featured project. Update the resume PDF too |
 | Hero stat chips | `.float-chip` spans in `index.html`; positions are the `.chip-*` rules in `style.css` |
 | Typing stack lines | `data-typing` on the stack card `<code>`, lines separated by `\|` |
