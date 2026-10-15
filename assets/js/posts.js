@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'database-optimization-guide',
+		title: 'Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM',
+		description: 'PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.',
+		date: '2026-10-15',
+		readingTime: 12,
+		level: 'Beginner',
+		tags: ['PostgreSQL', 'Django', 'Performance'],
+		url: '/blog/database-optimization-guide/',
+		cover: '/assets/img/blog/database-optimization-guide/cover.webp',
+		coverAlt: 'Database Optimization cover: a CREATE INDEX on orders.customer_id and a Django query using select_related and prefetch_related, with measured results of 31.2 ms without an index, 0.11 ms with it, and N+1 cut from 101 queries to 3'
+	},
+	{
 		slug: 'aws-basics-for-beginners',
 		title: 'AWS Basics for Beginners: Essential Services Explained with Examples',
 		description: '28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.',

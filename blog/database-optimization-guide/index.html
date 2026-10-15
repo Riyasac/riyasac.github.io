@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM | Riyas A C</title>
+	<meta name="description" content="PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.">
+	<meta name="keywords" content="database optimization, PostgreSQL vs MySQL vs SQLite, Django ORM, database indexing, query optimization, N+1 query problem, select_related, prefetch_related, connection pooling, database normalization, Django performance">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/database-optimization-guide/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/database-optimization-guide/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM">
+	<meta property="og:description" content="PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/database-optimization-guide/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Database Optimization cover: a CREATE INDEX on orders.customer_id and a Django query using select_related and prefetch_related, with measured results of 31.2 ms without an index, 0.11 ms with it, and N+1 cut from 101 queries to 3">
+	<meta property="article:published_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-10-15T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="PostgreSQL">
+	<meta property="article:tag" content="Django">
+	<meta property="article:tag" content="Performance">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM">
+	<meta name="twitter:description" content="PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/database-optimization-guide/cover.jpg">
+	<meta name="twitter:image:alt" content="Database Optimization cover: a CREATE INDEX on orders.customer_id and a Django query using select_related and prefetch_related, with measured results of 31.2 ms without an index, 0.11 ms with it, and N+1 cut from 101 queries to 3">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/database-optimization-guide/#article",
+		"url": "https://riyasac.github.io/blog/database-optimization-guide/",
+		"headline": "Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM",
+		"description": "PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/database-optimization-guide/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-15T09:00:00+05:30",
+		"dateModified": "2026-10-15T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["PostgreSQL", "Django", "Performance", "MySQL", "SQLite", "Django ORM", "Database Indexing", "Query Optimization"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/database-optimization-guide/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM",
+				"item": "https://riyasac.github.io/blog/database-optimization-guide/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Database Optimization</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</h1>
+					<p class="post-lead">Choose the right database, design clean tables, and make Django queries fast with indexes, select_related, bulk operations and pooling. Every number is measured.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-15">15 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 12 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> PostgreSQL, MySQL, SQLite, Django 6.1</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>PostgreSQL</li><li>Django</li><li>Performance</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/database-optimization-guide/cover.webp" width="1024" height="535" alt="Database Optimization cover: a CREATE INDEX on orders.customer_id and a Django query using select_related and prefetch_related, with measured results of 31.2 ms without an index, 0.11 ms with it, and N+1 cut from 101 queries to 3" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+
+					<p>Most slow backends are slow because of the database. A missing index, a query inside a loop or a huge <code>OFFSET</code> can turn a 1 ms request into a 1 second one.</p>
+
+					<p>This guide covers the database skills a Django backend developer needs: choosing between <strong>PostgreSQL, MySQL and SQLite</strong>, using the <strong>Django ORM</strong>, designing tables, <strong>indexing</strong>, <strong>query optimization</strong> and fixing common performance problems such as the <strong>N+1 query problem</strong>.</p>
+
+					<aside class="callout">
+						<p class="callout-title">How the numbers were measured</p>
+						<p>SQL timings come from <code>EXPLAIN ANALYZE</code> on PostgreSQL 16.14 with a 1,000,000-row <code>orders</code> table, on a laptop, median of five runs. Django examples ran on Django 6.1.2 and Python 3.12 against SQLite 3.45 and PostgreSQL 18. MySQL syntax follows the MySQL 8.4 reference manual. Your times will differ; the ratios are what matter.</p>
+					</aside>
+
+					<h2 id="postgresql-mysql-sqlite">PostgreSQL vs MySQL vs SQLite</h2>
+
+					<p>All three are <strong>relational databases</strong>: they store data in tables and you query them with SQL. They differ in how they run and what they are good at.</p>
+
+					<ul>
+						<li><strong>PostgreSQL</strong> is a client-server database with strict data types and many advanced features: JSONB, full-text search, partial indexes and rich index types. It is the most common choice for Django projects.</li>
+						<li><strong>MySQL</strong> is a client-server database known for simple setup, fast reads and wide hosting support. Its default storage engine, InnoDB, supports transactions and foreign keys.</li>
+						<li><strong>SQLite</strong> is a database in a single file, built into Python. There is no server to run. It is ideal for development, tests, small apps and mobile or desktop software.</li>
+					</ul>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">PostgreSQL</th><th scope="col">MySQL</th><th scope="col">SQLite</th></tr></thead>
+							<tbody>
+								<tr><th scope="row">Runs as</th><td>Server</td><td>Server</td><td>File, inside your app</td></tr>
+								<tr><th scope="row">Concurrent writes</th><td>Many at once</td><td>Many at once</td><td>One writer at a time</td></tr>
+								<tr><th scope="row">Type checking</th><td>Strict</td><td>Strict in default SQL mode</td><td>Loose, unless the table is <code>STRICT</code></td></tr>
+								<tr><th scope="row">Auto-increment key</th><td><code>GENERATED ALWAYS AS IDENTITY</code></td><td><code>AUTO_INCREMENT</code></td><td><code>INTEGER PRIMARY KEY</code></td></tr>
+								<tr><th scope="row"><code>RETURNING</code> clause</th><td>Yes</td><td>No</td><td>Yes (3.35+)</td></tr>
+								<tr><th scope="row">Upsert</th><td><code>ON CONFLICT</code></td><td><code>ON DUPLICATE KEY UPDATE</code></td><td><code>ON CONFLICT</code></td></tr>
+								<tr><th scope="row">Django 6.1 minimum</th><td>15</td><td>8.4</td><td>3.37</td></tr>
+								<tr><th scope="row">Best for</th><td>Most production web apps</td><td>Read-heavy apps, existing MySQL stacks</td><td>Development, tests, small or embedded apps</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>The same table in each database</h3>
+
+<pre><code class="language-sql">-- PostgreSQL
+CREATE TABLE products (
+    id    bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sku   text UNIQUE NOT NULL,
+    price integer NOT NULL
+);
+
+-- MySQL
+CREATE TABLE products (
+    id    BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sku   VARCHAR(50) UNIQUE NOT NULL,
+    price INT NOT NULL
+);
+
+-- SQLite
+CREATE TABLE products (
+    id    INTEGER PRIMARY KEY,
+    sku   TEXT UNIQUE NOT NULL,
+    price INTEGER NOT NULL
+);</code></pre>
+
+					<h3>Upsert: insert, or update if it exists</h3>
+
+<pre><code class="language-sql">-- PostgreSQL and SQLite
+INSERT INTO products (sku, price) VALUES ('A1', 12)
+ON CONFLICT (sku) DO UPDATE SET price = excluded.price
+RETURNING id, price;
+
+-- MySQL 8.4 (no RETURNING; use LAST_INSERT_ID() for the new id)
+INSERT INTO products (sku, price) VALUES ('A1', 12) AS new
+ON DUPLICATE KEY UPDATE price = new.price;</code></pre>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake: trusting SQLite's types</p>
+						<p>SQLite accepted <code>'abc'</code> in an <code>INTEGER</code> column and stored it as text. PostgreSQL rejected the same insert with <code>invalid input syntax for type integer</code>. If you develop on SQLite and deploy on PostgreSQL, run your tests on PostgreSQL too.</p>
+					</aside>
+
+					<h2 id="django-orm">Django ORM Basics: CRUD with Examples</h2>
+
+					<p>An <strong>ORM</strong> (Object-Relational Mapper) lets you work with database rows as Python objects. You define a model class; Django creates the table and writes the SQL for you. The same code runs on PostgreSQL, MySQL and SQLite.</p>
+
+					<p>Every example in this post uses these models from a small shop app:</p>
+
+<pre><code class="language-python"># shop/models.py
+from django.db import models
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=200)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
+
+
+class Order(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending"
+        PAID = "paid"
+        SHIPPED = "shipped"
+
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name="orders")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["status", "created_at"])]
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)</code></pre>
+
+					<p>Run <code>python manage.py makemigrations</code> and <code>python manage.py migrate</code> to create the tables.</p>
+
+					<h3>Create, read, update, delete</h3>
+
+<pre><code class="language-python">from django.db.models import F
+from shop.models import Customer, Product
+
+# Create
+customer = Customer.objects.create(name="Asha", email="asha@example.com")
+
+# Read
+customer = Customer.objects.get(email="asha@example.com")       # exactly one row, or an exception
+active = Customer.objects.filter(name__startswith="As")         # a lazy QuerySet
+
+# Update one object: save only the changed field
+customer.name = "Asha K"
+customer.save(update_fields=["name"])
+
+# Update many rows in one query
+Customer.objects.filter(pk=customer.pk).update(name="Asha Kumar")
+
+# Update from the current value, inside the database (safe under concurrency)
+Product.objects.filter(pk=1).update(stock=F("stock") - 1)
+
+# Delete
+Customer.objects.filter(pk=customer.pk).delete()   # returns (1, {'shop.Customer': 1})</code></pre>
+
+					<ul class="list-check">
+						<li><strong>QuerySets are lazy.</strong> <code>filter()</code> builds a query; nothing runs until you loop, slice, call <code>list()</code> or similar.</li>
+						<li><strong><code>F()</code> expressions</strong> do the maths in SQL, so two requests cannot overwrite each other's stock change.</li>
+						<li><strong>Print the SQL</strong> with <code>print(queryset.query)</code> when you are unsure what Django will run.</li>
+					</ul>
+
+					<h2 id="database-design">Database Design: Tables, Keys and Normalization</h2>
+
+					<h3>Tables, primary keys and foreign keys</h3>
+
+					<ul>
+						<li>A <strong>table</strong> stores one kind of thing: customers, orders, products.</li>
+						<li>A <strong>primary key</strong> uniquely identifies each row. Django adds an auto-increment <code>id</code> by default.</li>
+						<li>A <strong>foreign key</strong> is a column that points at another table's primary key. <code>orders.customer_id</code> points at <code>customers.id</code>. The database refuses an order for a customer that does not exist.</li>
+					</ul>
+
+					<h3>Relationships</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Relationship</th><th scope="col">Example</th><th scope="col">Django field</th></tr></thead>
+							<tbody>
+								<tr><td>One-to-many</td><td>A customer has many orders</td><td><code>ForeignKey</code> on <code>Order</code></td></tr>
+								<tr><td>Many-to-many</td><td>A product has many tags; a tag has many products</td><td><code>ManyToManyField</code> (Django creates the join table)</td></tr>
+								<tr><td>One-to-one</td><td>A user has one profile</td><td><code>OneToOneField</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><code>OrderItem</code> above is a join table with extra data: it links orders and products, and stores the quantity and the price paid.</p>
+
+					<h3>Normalization</h3>
+
+					<p><strong>Normalization</strong> means storing each fact in one place. It prevents data that disagrees with itself. Here is a table that breaks the rules:</p>
+
+<pre class="diagram">orders
+id | customer_name | customer_email   | products
+1  | Asha          | asha@example.com | Keyboard, Mouse
+2  | Asha          | asha@old.com     | Monitor</pre>
+
+					<p>Asha's email is stored twice and already disagrees. The <code>products</code> column holds a list, so you cannot easily query "all orders containing a mouse". The three normal forms fix this:</p>
+
+					<ul>
+						<li><strong>1NF:</strong> one value per cell. Move the product list into an <code>order_items</code> table, one row per product.</li>
+						<li><strong>2NF:</strong> every column depends on the whole key. A product's name belongs in <code>products</code>, not repeated in every order item.</li>
+						<li><strong>3NF:</strong> no column depends on another non-key column. A customer's email depends on the customer, so it lives in <code>customers</code>, and orders store only <code>customer_id</code>.</li>
+					</ul>
+
+					<p>The models above are already in 3NF. One deliberate exception: <code>OrderItem.price</code> copies the product price at the time of purchase. That is history, not duplication. If the product price changes later, old orders keep the price the customer paid.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Tip</p>
+						<p>Normalize first. Denormalize (copy data on purpose) only when you have measured a slow query and a copy is the simplest fix.</p>
+					</aside>
+
+					<h2 id="indexing">Database Indexing Explained</h2>
+
+					<p>An <strong>index</strong> is a sorted copy of one or more columns, with pointers back to the rows. It works like the index at the back of a book: instead of reading every page, the database jumps straight to the right place. The default type, a <strong>B-tree</strong>, handles <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>, sorting and prefix matches like <code>LIKE 'abc%'</code>.</p>
+
+					<h3>Measured: finding one customer's orders in 1M rows</h3>
+
+<pre><code class="language-sql">EXPLAIN ANALYZE
+SELECT id, total FROM orders WHERE customer_id = 4242;
+
+CREATE INDEX orders_customer_id_idx ON orders (customer_id);</code></pre>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Plan</th><th scope="col">Time</th></tr></thead>
+							<tbody>
+								<tr><td>No index</td><td>Parallel Seq Scan (reads all 1M rows)</td><td>31.2 ms</td></tr>
+								<tr><td>With index</td><td>Bitmap Index Scan (reads 10 rows)</td><td>0.11 ms</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>About 280 times faster. <code>Seq Scan</code> in a plan means a full table scan; on a big table that is the first thing to look at.</p>
+
+					<h3>Indexes in Django</h3>
+
+<pre><code class="language-python">class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)  # indexed automatically
+    reference = models.CharField(max_length=20, unique=True)           # unique creates an index
+    status = models.CharField(max_length=20)
+    created_at = models.DateTimeField(db_index=True)                    # single-column index
+
+    class Meta:
+        indexes = [
+            # "WHERE status = ... ORDER BY created_at": one composite index serves both
+            models.Index(fields=["status", "created_at"]),
+        ]</code></pre>
+
+					<p>A <strong>composite index</strong> on <code>(status, created_at)</code> helps queries that filter on <code>status</code>, or on <code>status</code> and <code>created_at</code>. It is much less useful for a query that filters on <code>created_at</code> alone. Put the column you filter by equality first.</p>
+
+					<h3>When to add an index</h3>
+
+					<ul class="list-check">
+						<li>Columns in <code>WHERE</code>, <code>JOIN</code> and <code>ORDER BY</code> of frequent queries</li>
+						<li>Foreign keys (Django does this for you; raw SQL schemas often forget)</li>
+						<li>Columns that must be unique, such as email or SKU</li>
+					</ul>
+					<ul class="list-cross">
+						<li>Small tables: a scan of a few hundred rows is already fast</li>
+						<li>Columns you never filter or sort by</li>
+						<li>Write-heavy tables where the column is rarely read</li>
+					</ul>
+
+					<h3>Advantages and disadvantages</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Advantages</th><th scope="col">Disadvantages</th></tr></thead>
+							<tbody>
+								<tr><td>Much faster lookups, joins and sorting</td><td>Every insert, update and delete must update each index</td></tr>
+								<tr><td>Enforces uniqueness</td><td>Uses disk and memory (9 to 30 MB each on our 263 MB table)</td></tr>
+								<tr><td>Can make <code>ORDER BY ... LIMIT</code> nearly free</td><td>Unused indexes cost writes and give nothing back</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>The write cost is real. Inserting 200,000 rows took <strong>317 ms</strong> into a table with only a primary key, and <strong>1,226 ms</strong> into the same table with three extra indexes. Index what your queries need, not every column.</p>
+
+					<h2 id="query-optimization">Query Optimization: Slow vs Fast SQL</h2>
+
+					<p>Always check a slow query with <code>EXPLAIN ANALYZE</code> (PostgreSQL and MySQL 8) or <code>EXPLAIN QUERY PLAN</code> (SQLite). In Django, call <code>queryset.explain()</code>. All timings below are on the 1M-row table with indexes on <code>customer_id</code> and <code>created_at</code>.</p>
+
+					<h3>1. Do not wrap an indexed column in a function</h3>
+
+<pre><code class="language-sql">-- Slow: 52.6 ms, Seq Scan. The cast hides created_at from its index
+SELECT id FROM orders WHERE created_at::date = '2026-01-15';
+
+-- Fast: 2.6 ms, Index Scan. Compare the raw column with a range
+SELECT id FROM orders
+WHERE created_at &gt;= '2026-01-15' AND created_at &lt; '2026-01-16';</code></pre>
+
+					<p>This one catches Django developers. <code>filter(created_at__date=day)</code> generates <code>("created_at" AT TIME ZONE 'UTC')::date = ...</code>, the slow form. Use a range instead:</p>
+
+<pre><code class="language-python">start = timezone.make_aware(datetime(2026, 1, 15))
+Order.objects.filter(created_at__gte=start, created_at__lt=start + timedelta(days=1))</code></pre>
+
+					<h3>2. Select only the columns you need</h3>
+
+<pre><code class="language-sql">-- 231 ms to fetch 200,000 rows with every column
+SELECT * FROM orders WHERE customer_id BETWEEN 1 AND 20000;
+
+-- 146 ms for the same rows, two columns
+SELECT id, total FROM orders WHERE customer_id BETWEEN 1 AND 20000;</code></pre>
+
+					<p>Less data to read, send and turn into Python objects. In Django, use <code>.only("id", "total")</code> or <code>.values_list("id", "total")</code>.</p>
+
+					<h3>3. Use EXISTS, not COUNT, to check for rows</h3>
+
+<pre><code class="language-sql">-- 39.7 ms: counts all 250,000 matching rows
+SELECT count(*) FROM orders WHERE status = 'pending';
+
+-- 0.04 ms: stops at the first match
+SELECT EXISTS (SELECT 1 FROM orders WHERE status = 'pending');</code></pre>
+
+					<p>In Django, write <code>if Order.objects.filter(status="pending").exists():</code>, not <code>.count() &gt; 0</code> or <code>if queryset:</code> (which loads every row).</p>
+
+					<h3>4. Replace large OFFSET with keyset pagination</h3>
+
+<pre><code class="language-sql">-- 149 ms: reads and throws away 900,000 rows
+SELECT id, total FROM orders ORDER BY id LIMIT 20 OFFSET 900000;
+
+-- 0.06 ms: jumps straight to the right place using the index
+SELECT id, total FROM orders WHERE id &gt; 900000 ORDER BY id LIMIT 20;</code></pre>
+
+					<p>More on this in <a href="#pagination">pagination</a> below.</p>
+
+					<h2 id="performance-optimization">Django Performance Optimization Techniques</h2>
+
+					<h3 id="n-plus-one">The N+1 query problem</h3>
+
+					<p>N+1 happens when you run one query for a list, then one more query for each item in it. It is the most common Django performance bug because the code looks innocent:</p>
+
+<pre><code class="language-python"># 101 queries for 100 orders: 1 for the orders + 1 per order for its customer
+for order in Order.objects.all()[:100]:
+    print(order.customer.name)</code></pre>
+
+					<h3>select_related() and prefetch_related()</h3>
+
+<pre><code class="language-python"># select_related: 1 query. Uses a SQL JOIN
+for order in Order.objects.select_related("customer")[:100]:
+    print(order.customer.name)
+
+# prefetch_related: separate query per relation, joined in Python
+orders = (
+    Order.objects
+    .select_related("customer")
+    .prefetch_related("items__product")
+)[:100]
+for order in orders:                       # 3 queries in total, not 201
+    for item in order.items.all():
+        print(order.customer.name, item.product.name)</code></pre>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col"><code>select_related()</code></th><th scope="col"><code>prefetch_related()</code></th></tr></thead>
+							<tbody>
+								<tr><td>Use for</td><td><code>ForeignKey</code>, <code>OneToOneField</code> (one related object)</td><td>Reverse FK, <code>ManyToManyField</code> (many related objects)</td></tr>
+								<tr><td>How</td><td>SQL <code>JOIN</code>, one query</td><td>One extra <code>IN (...)</code> query per relation</td></tr>
+								<tr><td>Measured (100 orders)</td><td>101 queries → 1</td><td>101 queries → 2 (items), 3 with products</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<aside class="callout">
+						<p class="callout-title">Catch N+1 before production</p>
+						<p>Use django-debug-toolbar in development to see the query count per page. In tests, lock it in with <code>self.assertNumQueries(3)</code>, so a later change that adds N+1 fails the build.</p>
+					</aside>
+
+					<h3>Bulk operations</h3>
+
+					<p>Each <code>create()</code> or <code>save()</code> is a separate round trip to the database. Bulk methods send many rows in one query.</p>
+
+<pre><code class="language-python"># Slow: 1,000 INSERT queries
+for i in range(1000):
+    Customer.objects.create(name=f"User {i}", email=f"user{i}@example.com")
+
+# Fast: 2 INSERT queries of 500 rows each
+Customer.objects.bulk_create(
+    [Customer(name=f"User {i}", email=f"user{i}@example.com") for i in range(1000)],
+    batch_size=500,
+)
+
+# Update many objects with different values: one UPDATE ... CASE query
+for item in items:
+    item.quantity = 2
+OrderItem.objects.bulk_update(items, ["quantity"], batch_size=500)
+
+# Same change for every row: no objects loaded at all
+Order.objects.filter(status="pending").update(status="paid")</code></pre>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Insert 1,000 rows</th><th scope="col">Loop of <code>create()</code></th><th scope="col"><code>bulk_create()</code></th></tr></thead>
+							<tbody>
+								<tr><td>PostgreSQL 18</td><td>0.88 s</td><td>0.014 s</td></tr>
+								<tr><td>SQLite 3.45</td><td>1.69 s</td><td>0.011 s</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>Note:</strong> <code>bulk_create()</code>, <code>bulk_update()</code> and <code>update()</code> skip the model's <code>save()</code> method and do not send <code>pre_save</code> or <code>post_save</code> signals. If your app depends on those, handle that logic explicitly.</p>
+
+					<h3 id="pagination">Pagination</h3>
+
+					<p>Never return a whole table from an API. Django's <code>Paginator</code> is fine for small and medium tables:</p>
+
+<pre><code class="language-python">from django.core.paginator import Paginator
+
+orders = Order.objects.select_related("customer").order_by("-created_at", "-id")
+page = Paginator(orders, 20).get_page(request.GET.get("page"))</code></pre>
+
+					<p>It uses <code>OFFSET</code> and runs a <code>COUNT(*)</code> for the page total, and both get slower as the table grows. For large tables and infinite scroll, use <strong>keyset (cursor) pagination</strong>: remember the last id you sent and ask for rows after it.</p>
+
+<pre><code class="language-python">orders = Order.objects.filter(id__lt=last_seen_id).order_by("-id")[:20]</code></pre>
+
+					<p>Django REST Framework has this built in as <code>CursorPagination</code>. Always give paginated queries a stable <code>order_by</code>, ending in a unique column like <code>id</code>, or rows can repeat or vanish between pages.</p>
+
+					<h3>Database transactions</h3>
+
+					<p>A <strong>transaction</strong> groups several queries into one unit: either all succeed or none do. Use <code>transaction.atomic()</code> whenever a change touches more than one row that must stay consistent.</p>
+
+<pre><code class="language-python">from django.db import transaction
+from django.db.models import F
+
+
+def place_order(customer, product, quantity):
+    with transaction.atomic():
+        # Lock the product row until the transaction ends, so two buyers
+        # cannot both take the last item
+        product = Product.objects.select_for_update().get(pk=product.pk)
+        if product.stock &lt; quantity:
+            raise ValueError("Not enough stock")
+
+        order = Order.objects.create(customer=customer)
+        OrderItem.objects.create(order=order, product=product,
+                                 quantity=quantity, price=product.price)
+        product.stock = F("stock") - quantity
+        product.save(update_fields=["stock"])
+    return order</code></pre>
+
+					<p>If any line inside the block raises an exception, Django rolls back everything in it. In testing, an <code>IntegrityError</code> on the last statement left stock and order count exactly as before.</p>
+
+					<ul class="list-cross">
+						<li>Do not call external APIs or send emails inside <code>atomic()</code>. Locks stay held while you wait. Use <code>transaction.on_commit()</code> to run them after the commit.</li>
+						<li>Do not catch database exceptions inside an <code>atomic()</code> block and carry on; the transaction is already broken.</li>
+					</ul>
+
+					<h3>Connection pooling</h3>
+
+					<p>Opening a database connection takes time: network handshake, authentication and a new server process on PostgreSQL. By default (<code>CONN_MAX_AGE = 0</code>) Django opens a new connection for every request and closes it at the end. A <strong>connection pool</strong> keeps connections open and reuses them.</p>
+
+<pre><code class="language-python"># settings.py, Django 5.1+ with PostgreSQL
+# pip install "psycopg[binary,pool]"
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "shop",
+        "USER": "shop",
+        "PASSWORD": os.environ["DB_PASSWORD"],
+        "HOST": "db",
+        "PORT": "5432",
+        "OPTIONS": {
+            "pool": {"min_size": 2, "max_size": 10},
+        },
+    }
+}</code></pre>
+
+					<ul>
+						<li><strong>Built-in pool (PostgreSQL only):</strong> one pool per process. <code>CONN_MAX_AGE</code> must stay <code>0</code> when it is on.</li>
+						<li><strong>Persistent connections (all databases):</strong> set <code>CONN_MAX_AGE = 60</code> and <code>CONN_HEALTH_CHECKS = True</code> to reuse a connection for 60 seconds.</li>
+						<li><strong>PgBouncer:</strong> an external pooler. Use it when many processes or servers together would exceed PostgreSQL's <code>max_connections</code>.</li>
+					</ul>
+
+					<p><strong>Watch the maths:</strong> 4 servers × 8 Gunicorn workers × <code>max_size</code> 10 is 320 possible connections. PostgreSQL's default <code>max_connections</code> is 100.</p>
+
+					<h2 id="best-practices">Database Best Practices for Django Developers</h2>
+
+					<ol>
+						<li><strong>Use PostgreSQL in production, and test on it too.</strong> SQLite hides type and locking problems.</li>
+						<li><strong>Measure before you optimize.</strong> Use django-debug-toolbar, <code>queryset.explain()</code> and the database's slow-query log. Fix the slowest, most frequent query first.</li>
+						<li><strong>Fix N+1 everywhere a list is rendered:</strong> views, serializers, templates and the Django admin (<code>list_select_related</code>).</li>
+						<li><strong>Index for your real queries,</strong> not for every column. Review unused indexes with <code>pg_stat_user_indexes</code>.</li>
+						<li><strong>Paginate every list endpoint.</strong> Use keyset pagination for large or fast-growing tables.</li>
+						<li><strong>Use bulk methods and <code>update()</code></strong> for batch jobs, imports and data migrations.</li>
+						<li><strong>Wrap multi-step writes in <code>transaction.atomic()</code></strong> and use <code>F()</code> or <code>select_for_update()</code> for counters and stock.</li>
+						<li><strong>Let the database enforce rules:</strong> <code>unique=True</code>, foreign keys, <code>NOT NULL</code> and <code>CheckConstraint</code>. Application checks alone miss race conditions.</li>
+						<li><strong>Fetch only what you need</strong> with <code>only()</code>, <code>values_list()</code> and <code>exists()</code>; use <code>.iterator()</code> for very large result sets.</li>
+						<li><strong>Keep credentials out of code.</strong> Read the database password from an environment variable or a secrets manager.</li>
+					</ol>
+
+					<p>For larger tables, read <a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a>. It covers caching, read replicas, partitioning and safe migrations.</p>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>Pick <strong>PostgreSQL</strong> for most Django projects, <strong>SQLite</strong> for development and small apps, and <strong>MySQL</strong> when your stack or host already runs it. Design normalized tables with clear primary and foreign keys.</p>
+
+					<p>Then remember the measured wins from this guide:</p>
+
+					<ul class="list-check">
+						<li>An index on a filtered column: 31.2 ms → 0.11 ms</li>
+						<li>A date range instead of a cast on an indexed column: 52.6 ms → 2.6 ms</li>
+						<li>Keyset pagination instead of a deep <code>OFFSET</code>: 149 ms → 0.06 ms</li>
+						<li><code>select_related()</code> and <code>prefetch_related()</code>: 101 queries → 1 to 3</li>
+						<li><code>bulk_create()</code> instead of a loop: 0.88 s → 0.014 s for 1,000 rows</li>
+					</ul>
+
+					<p>Measure first, fix the biggest problem, then measure again.</p>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="database-optimization-guide">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

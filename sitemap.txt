@@ -1,5 +1,6 @@
 https://riyasac.github.io/
 https://riyasac.github.io/blog/
+https://riyasac.github.io/blog/database-optimization-guide/
 https://riyasac.github.io/blog/aws-basics-for-beginners/
 https://riyasac.github.io/blog/docker-image-optimization/
 https://riyasac.github.io/blog/fastapi-for-beginners/
