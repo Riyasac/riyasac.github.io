@@ -1,5 +1,6 @@
 https://riyasac.github.io/
 https://riyasac.github.io/blog/
+https://riyasac.github.io/blog/sso-keycloak-django-oidc/
 https://riyasac.github.io/blog/bulk-csv-import-export-pipelines/
 https://riyasac.github.io/blog/python-testing-code-quality/
 https://riyasac.github.io/blog/redis-tutorial-for-beginners/

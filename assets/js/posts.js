@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'sso-keycloak-django-oidc',
+		title: 'SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect',
+		description: 'How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.',
+		date: '2026-10-16',
+		readingTime: 17,
+		level: 'Beginner to Intermediate',
+		tags: ['Security', 'Django', 'Authentication'],
+		url: '/blog/sso-keycloak-django-oidc/',
+		cover: '/assets/img/blog/sso-keycloak-django-oidc/cover.webp',
+		coverAlt: 'Single Sign-On with Keycloak cover: the Employee Portal on localhost:8001 redirects to Keycloak and shows a login form, then the Project Portal on localhost:8002 finds the existing Keycloak session and logs in with no prompt, while a foreign token is rejected'
+	},
+	{
 		slug: 'bulk-csv-import-export-pipelines',
 		title: 'Building Efficient Bulk CSV Import/Export and Data Migration Pipelines',
 		description: 'Build fast bulk CSV import/export pipelines in Django: ZIP handling, Celery background jobs, streaming, chunked bulk upserts, validation and retries.',

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect | Riyas A C</title>
+	<meta name="description" content="How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.">
+	<meta name="keywords" content="single sign-on, SSO tutorial, Keycloak Django, OpenID Connect Django, OIDC authorization code flow, PKCE, SAML vs OAuth vs OIDC, Authlib Django, Keycloak SSO, single logout">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/sso-keycloak-django-oidc/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/sso-keycloak-django-oidc/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect">
+	<meta property="og:description" content="How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/sso-keycloak-django-oidc/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Single Sign-On with Keycloak cover: the Employee Portal on localhost:8001 redirects to Keycloak and shows a login form, then the Project Portal on localhost:8002 finds the existing Keycloak session and logs in with no prompt, while a foreign token is rejected">
+	<meta property="article:published_time" content="2026-10-16T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-10-16T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Security">
+	<meta property="article:tag" content="Django">
+	<meta property="article:tag" content="Authentication">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect">
+	<meta name="twitter:description" content="How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/sso-keycloak-django-oidc/cover.jpg">
+	<meta name="twitter:image:alt" content="Single Sign-On with Keycloak cover: the Employee Portal on localhost:8001 redirects to Keycloak and shows a login form, then the Project Portal on localhost:8002 finds the existing Keycloak session and logs in with no prompt, while a foreign token is rejected">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/sso-keycloak-django-oidc/#article",
+		"url": "https://riyasac.github.io/blog/sso-keycloak-django-oidc/",
+		"headline": "SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect",
+		"description": "How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/sso-keycloak-django-oidc/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-10-16T09:00:00+05:30",
+		"dateModified": "2026-10-16T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Security", "Django", "Authentication", "SSO", "Keycloak", "OpenID Connect", "OAuth 2.0", "SAML"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/sso-keycloak-django-oidc/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect",
+				"item": "https://riyasac.github.io/blog/sso-keycloak-django-oidc/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Single Sign-On</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect</h1>
+					<p class="post-lead">How SSO works, SAML vs OAuth 2.0 vs OpenID Connect, and a step-by-step Keycloak and Django setup with two apps sharing one login. Tested in real Chrome.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-10-16">16 Oct 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 17 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner to Intermediate</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Keycloak 26.8, Django 6.1, Authlib</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Security</li><li>Django</li><li>Authentication</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/sso-keycloak-django-oidc/cover.webp" width="1024" height="535" alt="Single Sign-On with Keycloak cover: the Employee Portal on localhost:8001 redirects to Keycloak and shows a login form, then the Project Portal on localhost:8002 finds the existing Keycloak session and logs in with no prompt, while a foreign token is rejected" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+					<h2 id="introduction">Introduction</h2>
+
+					<p><strong>Single Sign-On (SSO)</strong> lets a user log in once and then use several applications without logging in again. One trusted service checks who the user is; every connected application trusts that service.</p>
+
+					<p>You already use SSO every day. Sign in to your company's Microsoft or Google account in the morning, and email, chat, the HR portal and the wiki all open without another password.</p>
+
+					<p><strong>Traditional authentication vs SSO:</strong></p>
+
+					<ul>
+						<li><strong>Traditional:</strong> every application has its own login page, its own user table and its own passwords. Ten apps means ten passwords, ten places to reset them and ten places to remove a user who leaves.</li>
+						<li><strong>SSO:</strong> applications hand login over to one central <strong>Identity Provider</strong>. The user has one account and one password. Turning that account off removes access to every connected application.</li>
+					</ul>
+
+					<p>This guide explains how SSO works, the protocols behind it (SAML 2.0, OAuth 2.0 and OpenID Connect), and then builds a working setup: <strong>Keycloak</strong> as the Identity Provider and two <strong>Django</strong> apps that share one login.</p>
+
+					<aside class="callout">
+						<p class="callout-title">How this was tested</p>
+						<p>Everything in the implementation section was run on Keycloak 26.8.1 (Docker, dev mode), Django 6.1.2, Authlib 1.9.1 and Python 3.12. The SSO flow was tested both with a scripted browser and in real headless Chrome. Outputs and error messages are copied from those runs.</p>
+					</aside>
+
+					<h2 id="how-sso-works">How SSO Works</h2>
+
+					<ol>
+						<li>The user opens an application, for example the Employee Portal.</li>
+						<li>The application has no session for this user, so it <strong>redirects</strong> the browser to the <strong>Identity Provider (IdP)</strong>.</li>
+						<li>The user logs in at the IdP: password, and MFA if enabled. The IdP remembers this with its <strong>own session cookie</strong>.</li>
+						<li>The IdP redirects back to the application with an <strong>authentication response</strong>. In OpenID Connect this is a one-time <strong>authorization code</strong>, which the app exchanges for tokens.</li>
+						<li>The application <strong>validates</strong> the response: signature, issuer, audience, expiry and nonce. Then it creates its own local session.</li>
+						<li>The user opens a second application. It also redirects to the IdP, but the IdP <strong>already has a session</strong>, so it sends the user straight back with a new code. No password is asked.</li>
+					</ol>
+
+					<figure class="post-figure">
+						<img src="/assets/img/blog/sso-keycloak-django-oidc/sso-flow.webp" width="1600" height="1387" loading="lazy" alt="Sequence diagram of OpenID Connect SSO: the user opens the Employee Portal, is redirected to Keycloak, logs in, and returns with a code that the portal exchanges and validates. Later the Project Portal redirects to Keycloak, which finds the existing session and sends the user straight back, so no password is asked.">
+						<figcaption>SSO with OpenID Connect: one login at Keycloak, two applications</figcaption>
+					</figure>
+
+					<p>The key idea: <strong>there are two kinds of session.</strong> The IdP session (a cookie on Keycloak's domain) makes SSO possible. Each application also keeps its own local session (a Django session cookie). They expire and end independently, which matters for logout.</p>
+
+					<h2 id="concepts">Important SSO Concepts</h2>
+
+					<ul>
+						<li><strong>Identity Provider (IdP):</strong> the service that authenticates users and issues identity information. Examples: Keycloak, Microsoft Entra ID, Okta, Google.</li>
+						<li><strong>Service Provider (SP) / Relying Party (RP):</strong> the application that trusts the IdP. SAML calls it a Service Provider; OpenID Connect calls it a Relying Party. In this guide, each Django app is an RP.</li>
+						<li><strong>Authentication vs authorization:</strong> <em>authentication</em> answers "who are you?"; <em>authorization</em> answers "what are you allowed to do?". SSO is mainly about authentication.</li>
+						<li><strong>SAML 2.0:</strong> an older, XML-based standard for exchanging authentication data. Still common in enterprise software and older corporate systems.</li>
+						<li><strong>OAuth 2.0:</strong> an <strong>authorization framework</strong>. It lets an app get an <strong>access token</strong> to call an API on a user's behalf. On its own it does not define how to identify the user, so it is <strong>not an authentication protocol</strong>.</li>
+						<li><strong>OpenID Connect (OIDC):</strong> an <strong>identity layer on top of OAuth 2.0</strong>. It adds the <strong>ID token</strong>, a signed JSON Web Token (JWT) that says who the user is and how they logged in. OIDC is what you use for "log in with" and SSO in modern web apps.</li>
+						<li><strong>ID token:</strong> for the application. It proves who the user is. Validate it; do not send it to APIs.</li>
+						<li><strong>Access token:</strong> for APIs. It is sent as <code>Authorization: Bearer ...</code> to call protected APIs. Short-lived.</li>
+						<li><strong>Refresh token:</strong> used to get new access tokens without asking the user to log in again. Keep it on the server only.</li>
+						<li><strong>Single Logout (SLO):</strong> logging out of one application also logs the user out of the others. Harder than it sounds (see Step 7).</li>
+						<li><strong>Multi-Factor Authentication (MFA):</strong> a second proof of identity, such as a one-time code. With SSO, you enable MFA once at the IdP, and every application gets it without code changes.</li>
+					</ul>
+
+					<h3>SAML vs OAuth 2.0 vs OpenID Connect</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">SAML 2.0</th><th scope="col">OAuth 2.0</th><th scope="col">OpenID Connect</th></tr></thead>
+							<tbody>
+								<tr><td>Purpose</td><td>Authentication (and attributes)</td><td>Authorization: access to APIs</td><td>Authentication, built on OAuth 2.0</td></tr>
+								<tr><td>Message format</td><td>XML assertions</td><td>Access tokens (format not fixed)</td><td>JWT ID tokens + OAuth 2.0 tokens</td></tr>
+								<tr><td>Typical use</td><td>Enterprise SSO into older or corporate apps</td><td>Letting an app call an API for a user</td><td>Login and SSO for web and mobile apps</td></tr>
+								<tr><td>Mobile and SPA friendly</td><td>Poor</td><td>Yes</td><td>Yes</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><strong>When to use each:</strong> choose <strong>OpenID Connect</strong> for new web and mobile applications. Use <strong>SAML</strong> when an enterprise customer or an existing product only supports SAML. Use plain <strong>OAuth 2.0</strong> when an app needs to call an API on a user's behalf; if you also need to know who the user is, that means OIDC.</p>
+
+					<h2 id="use-cases">Real-World Use Cases</h2>
+
+					<ul>
+						<li><strong>Corporate applications with one company login.</strong> HR, payroll, wiki and ticketing tools all trust the company IdP. A new employee gets one account; a leaver is disabled in one place.</li>
+						<li><strong>Log in with Google or Microsoft.</strong> Consumer apps accept an existing account instead of creating a new password.</li>
+						<li><strong>Internal applications behind a central IdP.</strong> A company's own services (admin panels, dashboards, internal tools) share one realm and one login.</li>
+						<li><strong>Enterprise applications with Keycloak.</strong> Keycloak is an open-source IdP you host yourself. It supports OIDC and SAML, MFA, user federation from LDAP or Active Directory, and brokering logins to Google or Microsoft.</li>
+					</ul>
+
+					<p>For users, SSO means fewer passwords and fewer login screens. For administrators, it means one place to create and disable users, enforce password and MFA policy, and review login events.</p>
+
+					<h2 id="implementation">Implementation with Keycloak and Django</h2>
+
+					<p>We will build two Django apps that share one login:</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Application A</th><th scope="col">Application B</th></tr></thead>
+							<tbody>
+								<tr><td>Name</td><td>Employee Portal</td><td>Project Portal</td></tr>
+								<tr><td>URL</td><td><code>http://localhost:8001</code></td><td><code>http://localhost:8002</code></td></tr>
+								<tr><td>Keycloak client ID</td><td><code>employee-portal</code></td><td><code>project-portal</code></td></tr>
+								<tr><td>Callback URL</td><td><code>http://localhost:8001/oidc/callback/</code></td><td><code>http://localhost:8002/oidc/callback/</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Both use the same Keycloak <strong>realm</strong> (<code>acme</code>), with a separate <strong>OIDC client</strong> each. They use the <strong>Authorization Code Flow with PKCE</strong>, and <strong>Authlib</strong>, a maintained OAuth and OIDC library, handles the protocol details.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Why Authlib</p>
+						<p>I first tried mozilla-django-oidc 5.0.2. Its source decodes the ID token with <code>verify_aud: False</code> and never passes an issuer, so audience and issuer are not checked by default, and it matches users by email. Its package metadata also lists Django up to 5.2. Authlib validates the signature, issuer, expiry, nonce and <code>azp</code>, and checks the audience when you pass <code>claims_options</code>, as shown in Step 6.</p>
+					</aside>
+
+					<h3>Step 1: Start Keycloak</h3>
+
+					<p><strong>Action:</strong> run Keycloak locally in development mode.</p>
+
+<pre><code class="language-bash">docker run -d --name keycloak -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev</code></pre>
+
+					<p><strong>Explanation:</strong> <code>start-dev</code> runs Keycloak over plain HTTP with a local development database and relaxed defaults. <code>127.0.0.1:</code> keeps it reachable from your machine only. The two variables create a temporary admin account.</p>
+
+					<p><strong>Expected result:</strong> after about 10 seconds the log shows <code>Keycloak 26.8.1 on JVM ... started</code> and <code>Running the server in development mode. DO NOT use this configuration in production.</code> Open the admin console at <code>http://localhost:8080/admin</code> and log in as <code>admin</code> / <code>admin</code>.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Production</p>
+						<p>Use <code>start</code> (not <code>start-dev</code>), a real database such as PostgreSQL, HTTPS with a proper hostname (<code>KC_HOSTNAME</code>), and a strong admin password stored in a secrets manager.</p>
+					</aside>
+
+					<h3>Step 2: Create a realm</h3>
+
+					<p>A <strong>realm</strong> is an isolated space in Keycloak with its own users, clients, roles and login settings. Users in one realm cannot log in to clients in another. The built-in <code>master</code> realm is for administering Keycloak itself; create a separate realm for your organisation.</p>
+
+					<p><strong>Action:</strong> in the admin console, click <strong>Manage realms</strong>, then <strong>Create realm</strong>, enter <code>acme</code>, and click <strong>Create</strong>.</p>
+
+					<p><strong>Expected result:</strong> <code>acme</code> is the current realm. Its OIDC discovery document is now at <code>http://localhost:8080/realms/acme/.well-known/openid-configuration</code>:</p>
+
+<pre class="diagram">issuer                  http://localhost:8080/realms/acme
+authorization_endpoint  http://localhost:8080/realms/acme/protocol/openid-connect/auth
+token_endpoint          http://localhost:8080/realms/acme/protocol/openid-connect/token
+jwks_uri                http://localhost:8080/realms/acme/protocol/openid-connect/certs
+end_session_endpoint    http://localhost:8080/realms/acme/protocol/openid-connect/logout</pre>
+
+					<p>Your app only needs this one URL; Authlib reads the endpoints from it.</p>
+
+					<h3>Step 3: Create the OIDC clients</h3>
+
+					<p>A <strong>client</strong> is an application registered with Keycloak.</p>
+
+					<ul>
+						<li>A <strong>confidential client</strong> runs on a server and can keep a secret (a Django app). It authenticates to Keycloak with a client secret.</li>
+						<li>A <strong>public client</strong> cannot keep a secret, because its code runs on the user's device (a single-page app or mobile app). It relies on PKCE instead.</li>
+					</ul>
+
+					<p>Our Django apps are confidential clients. We also turn on <strong>PKCE</strong> (Proof Key for Code Exchange): the app sends a hashed random value with the login redirect and the original value when it exchanges the code. A stolen authorization code is then useless without that value. Current OAuth security guidance recommends PKCE for all clients.</p>
+
+					<p><strong>Action:</strong> in realm <code>acme</code>, go to <strong>Clients</strong>, then <strong>Create client</strong>:</p>
+
+					<ol>
+						<li><strong>Client type:</strong> OpenID Connect. <strong>Client ID:</strong> <code>employee-portal</code>. Click <strong>Next</strong>.</li>
+						<li><strong>Capability config:</strong> turn <strong>Client authentication</strong> on (this makes it confidential). Under <strong>Authentication flow</strong>, keep only <strong>Standard flow</strong> checked (the Authorization Code Flow). Turn on <strong>Require PKCE</strong> and set <strong>PKCE Method</strong> to <code>S256</code>. Click <strong>Next</strong>.</li>
+						<li><strong>Login settings:</strong> set <strong>Valid redirect URIs</strong> to <code>http://localhost:8001/oidc/callback/</code> and <strong>Valid post logout redirect URIs</strong> to <code>http://localhost:8001/logged-out/</code>. Click <strong>Save</strong>.</li>
+						<li>Copy the client secret from the client's <strong>Credentials</strong> tab.</li>
+					</ol>
+
+					<p>You can change these later on the client's <strong>Settings</strong> tab, where Keycloak 26.8 groups them under <strong>Access settings</strong> (redirect URIs, web origins) and <strong>Capability config</strong> (client authentication, flows, PKCE).</p>
+
+					<p>Repeat for <code>project-portal</code> with port <code>8002</code>.</p>
+
+					<p><strong>Web origins</strong> controls which origins may call Keycloak from browser JavaScript (CORS). Our apps talk to Keycloak only from the server, so it can stay empty. Set it only for browser-based clients.</p>
+
+					<p>The same setup with Keycloak's admin CLI, which is useful for scripts:</p>
+
+<pre><code class="language-bash">kcadm.sh create clients -r acme -s clientId=employee-portal -s protocol=openid-connect \
+  -s publicClient=false -s standardFlowEnabled=true \
+  -s directAccessGrantsEnabled=false -s implicitFlowEnabled=false \
+  -s 'redirectUris=["http://localhost:8001/oidc/callback/"]' \
+  -s 'attributes={"pkce.code.challenge.method":"S256","post.logout.redirect.uris":"http://localhost:8001/logged-out/"}'</code></pre>
+
+					<p><strong>Expected result:</strong> two clients, each with its own secret, exact redirect URIs and PKCE required.</p>
+
+					<h3>Step 4: Create a test user</h3>
+
+					<p><strong>Action:</strong> in realm <code>acme</code>, go to <strong>Users</strong>, then <strong>Create new user</strong>. Enter username <code>asha</code>, email <code>asha@acme.example</code>, first name <code>Asha</code> and last name <code>Kumar</code>, and turn <strong>Email verified</strong> on. Click <strong>Create</strong>. On the <strong>Credentials</strong> tab, set a password and turn <strong>Temporary</strong> off, so Keycloak does not force a password change at first login.</p>
+
+					<p><strong>Expected result:</strong> user <code>asha</code> can log in to any client in the <code>acme</code> realm.</p>
+
+					<h3>Step 5: Create the Django applications</h3>
+
+					<p><strong>Action:</strong> create one project per app. Both are identical; only their environment variables differ.</p>
+
+<pre class="diagram">employee_portal/            project_portal/ (same files)
+├── .env                    ├── .env
+├── manage.py               ├── manage.py
+├── config/                 └── ...
+│   ├── settings.py
+│   └── urls.py
+└── accounts/
+    ├── oauth.py
+    ├── urls.py
+    ├── views.py
+    └── templates/accounts/
+        ├── home.html
+        └── logged_out.html</pre>
+
+<pre><code class="language-bash">python -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install "django==6.1.2" "authlib==1.9.1" requests
+django-admin startproject config employee_portal
+cd employee_portal &amp;&amp; python manage.py startapp accounts</code></pre>
+
+					<p>Authlib's Django client uses <code>requests</code> for HTTP calls.</p>
+
+					<p><strong>Configuration from environment variables</strong> (<code>employee_portal/.env</code>; never commit this file):</p>
+
+<pre><code class="language-bash">APP_NAME="Employee Portal"
+DJANGO_SECRET_KEY=change-me-to-a-long-random-value
+DJANGO_DEBUG=1
+DJANGO_ALLOWED_HOSTS=localhost
+OIDC_CLIENT_ID=employee-portal
+OIDC_CLIENT_SECRET=paste-the-secret-from-keycloak
+OIDC_SERVER_METADATA_URL=http://localhost:8080/realms/acme/.well-known/openid-configuration
+SESSION_COOKIE_NAME=employee_sessionid
+CSRF_COOKIE_NAME=employee_csrftoken</code></pre>
+
+					<p><code>project_portal/.env</code> uses <code>APP_NAME="Project Portal"</code>, <code>OIDC_CLIENT_ID=project-portal</code>, its own secret and <code>project_sessionid</code> / <code>project_csrftoken</code>.</p>
+
+					<p>The important parts of <code>config/settings.py</code> (the rest is Django's default):</p>
+
+<pre><code class="language-python">import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+
+APP_NAME = os.environ.get("APP_NAME", "Employee Portal")
+
+INSTALLED_APPS = [
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "accounts",
+]
+
+# --- Authentication -------------------------------------------------------
+LOGIN_URL = "login"
+
+OIDC = {
+    "client_id": os.environ["OIDC_CLIENT_ID"],
+    "client_secret": os.environ["OIDC_CLIENT_SECRET"],
+    "server_metadata_url": os.environ["OIDC_SERVER_METADATA_URL"],
+}
+
+# --- Sessions and cookies -------------------------------------------------
+# Both demo apps run on "localhost", and browsers share cookies across ports,
+# so each app needs its own cookie names.
+SESSION_COOKIE_NAME = os.environ.get("SESSION_COOKIE_NAME", "sessionid")
+CSRF_COOKIE_NAME = os.environ.get("CSRF_COOKIE_NAME", "csrftoken")
+SESSION_COOKIE_AGE = 8 * 60 * 60          # local session lasts one working day
+SESSION_COOKIE_HTTPONLY = True            # default; JavaScript cannot read it
+SESSION_COOKIE_SAMESITE = "Lax"           # default; needed for the IdP redirect back
+SESSION_COOKIE_SECURE = not DEBUG         # HTTPS-only cookies in production
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG</code></pre>
+
+					<p><strong>Explanation:</strong></p>
+
+					<ul>
+						<li>Secrets come from the environment and the app refuses to start without them. In production, inject them from your platform's secret store, not a file.</li>
+						<li><strong>Separate cookie names matter for local testing.</strong> Browsers scope cookies by host name, not by port. With both apps on <code>localhost</code>, a shared <code>sessionid</code> cookie would overwrite the other app's session. In real Chrome, the cookie list showed <code>employee_sessionid</code> and <code>project_sessionid</code> side by side on <code>localhost</code>.</li>
+						<li><code>SameSite=Lax</code> lets the session cookie survive the top-level redirect back from Keycloak. <code>Strict</code> would drop it and break the login.</li>
+						<li>Django's default database-backed sessions keep tokens on the server. Do not switch to cookie-based sessions here.</li>
+					</ul>
+
+					<p>Run each app with its environment loaded, on its own port:</p>
+
+<pre><code class="language-bash">set -a &amp;&amp; . ./.env &amp;&amp; set +a
+python manage.py migrate
+python manage.py runserver 8001     # project_portal: 8002</code></pre>
+
+					<p><strong>Expected result:</strong> <code>http://localhost:8001/</code> responds with a redirect to <code>/oidc/login/?next=/</code>.</p>
+
+					<h3>Step 6: Login and callback handling</h3>
+
+					<p><strong>The OIDC client</strong> (<code>accounts/oauth.py</code>):</p>
+
+<pre><code class="language-python">from authlib.integrations.django_client import OAuth
+from django.conf import settings
+
+oauth = OAuth()
+oauth.register(
+    name="keycloak",
+    client_id=settings.OIDC["client_id"],
+    client_secret=settings.OIDC["client_secret"],
+    server_metadata_url=settings.OIDC["server_metadata_url"],
+    client_kwargs={
+        "scope": "openid email profile",
+        "code_challenge_method": "S256",  # PKCE
+    },
+)</code></pre>
+
+					<p><code>server_metadata_url</code> lets Authlib discover every endpoint and the signing keys. The <code>openid</code> scope makes this an OpenID Connect login, so Keycloak returns an ID token.</p>
+
+					<p><strong>The views</strong> (<code>accounts/views.py</code>):</p>
+
+<pre><code class="language-python">import logging
+
+from authlib.integrations.base_client.errors import OAuthError
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login as django_login
+from django.contrib.auth import logout as django_logout
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseBadRequest
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
+
+from .oauth import oauth
+
+log = logging.getLogger(__name__)
+User = get_user_model()
+
+
+def login(request):
+    """Send the user to Keycloak. Authlib adds state, nonce and the PKCE challenge."""
+    next_url = request.GET.get("next", "/")
+    if not url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        next_url = "/"
+    request.session["post_login_redirect"] = next_url
+
+    redirect_uri = request.build_absolute_uri(reverse("oidc_callback"))
+    return oauth.keycloak.authorize_redirect(request, redirect_uri)
+
+
+def callback(request):
+    """Keycloak sends the user back here with ?code=...&amp;state=..."""
+    issuer = oauth.keycloak.load_server_metadata()["issuer"]
+    claims_options = {
+        "iss": {"essential": True, "value": issuer},
+        "aud": {"essential": True, "value": settings.OIDC["client_id"]},
+    }
+    try:
+        # Checks state, exchanges the code (with the PKCE verifier) for tokens,
+        # and validates the ID token: signature, iss, aud, exp, iat, azp and nonce.
+        token = oauth.keycloak.authorize_access_token(request, claims_options=claims_options)
+    except OAuthError as exc:
+        log.warning("OIDC login failed: %s", exc.error)
+        return HttpResponseBadRequest("Login failed. Please try again.")
+
+    claims = token.get("userinfo")  # the validated ID token claims
+    if not claims:
+        return HttpResponseBadRequest("Login failed. Please try again.")
+    user, _ = User.objects.get_or_create(username=claims["sub"])  # sub never changes
+    user.email = claims.get("email", "")
+    user.first_name = claims.get("given_name", "")
+    user.last_name = claims.get("family_name", "")
+    user.save()
+
+    next_url = request.session.pop("post_login_redirect", "/")
+    django_login(request, user)  # creates the local Django session (new session key)
+    request.session["oidc_id_token"] = token["id_token"]  # needed for logout
+    log.info("user logged in user_id=%s", user.pk)
+    return redirect(next_url)
+
+
+@require_POST
+def logout(request):
+    """End the local session, then end the Keycloak session."""
+    id_token = request.session.get("oidc_id_token")
+    django_logout(request)
+    return oauth.keycloak.logout_redirect(
+        request,
+        post_logout_redirect_uri=request.build_absolute_uri(reverse("logged_out")),
+        id_token_hint=id_token,
+    )
+
+
+def logged_out(request):
+    try:
+        oauth.keycloak.validate_logout_response(request)  # checks the logout state
+    except OAuthError:
+        return HttpResponseBadRequest("Invalid logout response.")
+    return render(request, "accounts/logged_out.html")
+
+
+@login_required
+def home(request):
+    return render(request, "accounts/home.html", {"app_name": settings.APP_NAME})</code></pre>
+
+					<p><strong>URLs</strong> (<code>accounts/urls.py</code>, included from <code>config/urls.py</code> with <code>path("", include("accounts.urls"))</code>):</p>
+
+<pre><code class="language-python">from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+    path("oidc/login/", views.login, name="login"),
+    path("oidc/callback/", views.callback, name="oidc_callback"),
+    path("oidc/logout/", views.logout, name="logout"),
+    path("logged-out/", views.logged_out, name="logged_out"),
+]</code></pre>
+
+					<p><strong>Templates:</strong></p>
+
+<pre><code class="language-markup">&lt;!-- accounts/templates/accounts/home.html --&gt;
+&lt;!doctype html&gt;
+&lt;title&gt;{{ app_name }}&lt;/title&gt;
+&lt;h1&gt;{{ app_name }}&lt;/h1&gt;
+&lt;p&gt;Signed in as {{ user.get_full_name }} ({{ user.email }})&lt;/p&gt;
+&lt;form action="{% url 'logout' %}" method="post"&gt;
+  {% csrf_token %}
+  &lt;button type="submit"&gt;Log out&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+<pre><code class="language-markup">&lt;!-- accounts/templates/accounts/logged_out.html --&gt;
+&lt;!doctype html&gt;
+&lt;title&gt;Logged out&lt;/title&gt;
+&lt;p&gt;You have been logged out. &lt;a href="{% url 'home' %}"&gt;Sign in again&lt;/a&gt;&lt;/p&gt;</code></pre>
+
+					<p><strong>What happens, step by step:</strong></p>
+
+					<ol>
+						<li><strong>Authorization redirect.</strong> <code>@login_required</code> sends an anonymous user to <code>/oidc/login/</code>. <code>authorize_redirect()</code> generates a random <code>state</code>, a <code>nonce</code> and a PKCE verifier, stores them in the Django session, and redirects to Keycloak. The real redirect was:</li>
+					</ol>
+
+<pre class="diagram">http://localhost:8080/realms/acme/protocol/openid-connect/auth?response_type=code
+  &amp;client_id=employee-portal&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8001%2Foidc%2Fcallback%2F
+  &amp;scope=openid+email+profile&amp;state=...&amp;nonce=...&amp;code_challenge=...&amp;code_challenge_method=S256</pre>
+
+					<ol start="2">
+						<li><strong>Callback.</strong> After login, Keycloak redirects to <code>/oidc/callback/?state=...&amp;code=...</code>.</li>
+						<li><strong>Code exchange.</strong> <code>authorize_access_token()</code> checks that <code>state</code> matches the one in the session, then calls Keycloak's token endpoint server-to-server with the code, the client secret and the PKCE verifier.</li>
+						<li><strong>Token validation.</strong> Authlib verifies the ID token's signature with Keycloak's public keys (<code>jwks_uri</code>) and validates <code>iss</code>, <code>aud</code>, <code>exp</code>, <code>iat</code>, <code>nonce</code>, <code>azp</code> and <code>at_hash</code>. Passing <code>claims_options</code> makes the issuer and audience checks explicit; without it, Authlib's default sets only the issuer.</li>
+						<li><strong>Local session.</strong> The view finds or creates a Django user keyed on <code>sub</code>, the user's permanent ID in the realm. Then <code>django_login()</code> creates the Django session with a fresh session key.</li>
+					</ol>
+
+					<aside class="callout">
+						<p class="callout-title">Why <code>sub</code>, not email</p>
+						<p>Emails can change and can be reused. <code>sub</code> is stable and unique per realm. If you later trust several IdPs, store the issuer with <code>sub</code>, because <code>sub</code> is only unique within one issuer.</p>
+					</aside>
+
+					<p><strong>Expected result:</strong> after entering the password at Keycloak, the browser lands on <code>http://localhost:8001/</code> showing <code>Employee Portal</code> and <code>Signed in as Asha Kumar (asha@acme.example)</code>.</p>
+
+					<h3>Step 7: Logout</h3>
+
+					<p>There are two sessions to end:</p>
+
+					<ol>
+						<li><strong>Local logout:</strong> <code>django_logout()</code> deletes the Django session in this app.</li>
+						<li><strong>Keycloak logout:</strong> <code>logout_redirect()</code> sends the browser to Keycloak's <code>end_session_endpoint</code> with <code>id_token_hint</code> (so Keycloak knows which session to end, without a confirmation page) and a <code>post_logout_redirect_uri</code>. Keycloak ends its SSO session and redirects back. <code>validate_logout_response()</code> checks the returned <code>state</code>.</li>
+					</ol>
+
+					<p>Logout uses <strong>POST with a CSRF token</strong>, so another site cannot log your users out with a hidden link or image.</p>
+
+					<p><strong>Expected result:</strong> the browser goes to Keycloak's logout endpoint, then lands on <code>/logged-out/</code> with "You have been logged out."</p>
+
+					<p><strong>The Single Logout limitation:</strong> in testing, after logging out of the Employee Portal, the <strong>Project Portal still showed the user as logged in</strong>. Its own Django session was still valid; only Keycloak's session had ended. The next time the Project Portal's session expires, the user has to log in again, because Keycloak no longer has a session.</p>
+
+					<p>To end every application's session at once, apps need <strong>Single Logout</strong>. In OIDC this is usually <strong>Back-Channel Logout</strong>: Keycloak sends a signed logout token to each app's <strong>Backchannel logout URL</strong> (a client setting), and the app deletes that user's sessions. It needs extra code in every app, it only reaches apps that implement it, and calls can fail if an app is down. This demo does not implement it. For many internal apps, short local session lifetimes are a simpler compromise.</p>
+
+					<h3>Step 8: Test SSO</h3>
+
+					<p>Start both apps (ports 8001 and 8002) and Keycloak.</p>
+
+					<ol>
+						<li><strong>Open the Employee Portal</strong> at <code>http://localhost:8001/</code>. You are redirected to Keycloak's "Sign in to Acme Corp" page. Log in as <code>asha</code>. <strong>Expected:</strong> <code>Employee Portal</code>, signed in.</li>
+						<li><strong>Open the Project Portal</strong> at <code>http://localhost:8002/</code> in the <strong>same browser</strong>. <strong>Expected:</strong> you arrive signed in at <code>Project Portal</code> with <strong>no login form</strong>. The redirects go to Keycloak and straight back, because Keycloak's session is still active. Real headless Chrome showed exactly this, with no password asked.</li>
+						<li><strong>Login failure:</strong> in a private window, enter a wrong password. <strong>Expected:</strong> Keycloak shows "Invalid username or password." and logs a <code>LOGIN_ERROR</code> event with <code>error="invalid_user_credentials"</code>.</li>
+						<li><strong>Tampered callback:</strong> visit <code>http://localhost:8001/oidc/callback/?code=abc&amp;state=forged</code>. <strong>Expected:</strong> <code>400 Login failed. Please try again.</code>, and the app logs <code>OIDC login failed: mismatching_state</code>.</li>
+						<li><strong>Expired app session:</strong> delete the <code>employee_sessionid</code> cookie (or wait for <code>SESSION_COOKIE_AGE</code>), then reload. <strong>Expected:</strong> the app redirects to Keycloak and straight back, still with no password, because Keycloak's session is alive.</li>
+						<li><strong>Logout:</strong> click <strong>Log out</strong> in the Employee Portal. <strong>Expected:</strong> "You have been logged out." The Project Portal stays logged in until its own session ends (see Step 7). Opening the Employee Portal again now shows Keycloak's login form.</li>
+					</ol>
+
+					<p>I also took a real ID token issued to the Project Portal and validated it as the Employee Portal. It was rejected with <code>InvalidClaimError: Invalid claim: 'aud'</code>. A token with an edited signature was rejected with <code>BadSignatureError</code>.</p>
+
+					<h2 id="security-best-practices">SSO Security Best Practices</h2>
+
+					<ul class="list-check">
+						<li><strong>Validate the ID token fully:</strong> signature (against the IdP's published keys), issuer, audience, expiry and issued-at. Use a library that does this, and confirm it actually does: read its source if the docs are unclear.</li>
+						<li><strong>Validate <code>state</code></strong> on every callback. It ties the response to a login this browser started and blocks login CSRF.</li>
+						<li><strong>Use a <code>nonce</code></strong> and check it in the ID token, so a stolen token cannot be replayed into a new login.</li>
+						<li><strong>Use PKCE (<code>S256</code>)</strong>, even for confidential clients.</li>
+						<li><strong>Register exact redirect URIs</strong> in the IdP, with no wildcards in production. In the app, only redirect to local paths after login (<code>url_has_allowed_host_and_scheme</code>), so <code>?next=https://evil.example</code> cannot turn your login into an open redirect.</li>
+						<li><strong>Store client secrets in a secrets manager</strong> or environment variables injected at deploy time. Never commit them, and rotate them if they leak.</li>
+						<li><strong>Use HTTPS everywhere in production</strong>, for the IdP and every app. Tokens and session cookies must never cross the network in plain text.</li>
+						<li><strong>Protect sessions and CSRF:</strong> keep Django's CSRF middleware on, make logout a POST, and rotate the session key at login (<code>login()</code> does this).</li>
+						<li><strong>Cookie settings:</strong> <code>Secure</code> (HTTPS only) in production, <code>HttpOnly</code> so JavaScript cannot read session cookies, and <code>SameSite=Lax</code> so the IdP redirect works while cross-site POSTs do not carry the cookie.</li>
+						<li><strong>Least privilege:</strong> give each client only the scopes and roles it needs. Disable flows you do not use (implicit and direct password grants were off in our clients).</li>
+						<li><strong>Know your token lifetimes:</strong> access tokens should be short-lived. Keep refresh tokens server-side only, and revoke sessions and tokens in Keycloak when an account is compromised.</li>
+						<li><strong>Do not put tokens in <code>localStorage</code>.</strong> Any JavaScript on the page, including injected scripts, can read it. Server-rendered apps like these keep tokens in the server-side session and never send them to the browser.</li>
+						<li><strong>Never trust identity from the URL or from unvalidated tokens.</strong> Only claims from a validated ID token (or the userinfo endpoint, called with a valid access token) identify the user.</li>
+					</ul>
+
+					<h3>Common implementation mistakes</h3>
+
+					<ul class="list-check">
+						<li>Decoding the ID token without verifying its signature, or verifying the signature but skipping <code>aud</code> and <code>iss</code>.</li>
+						<li>Matching local users by email instead of <code>sub</code>, which lets an email change take over another account.</li>
+						<li>Wildcard redirect URIs such as <code>http://localhost:8001/*</code> in production.</li>
+						<li>Logging out locally only and assuming the user is logged out everywhere.</li>
+						<li>Running two apps on one host name with the same session cookie name, so they overwrite each other's sessions.</li>
+						<li>Using <code>start-dev</code> or <code>DEBUG = True</code> in production.</li>
+					</ul>
+
+					<h2 id="troubleshooting">Common SSO Problems and Troubleshooting</h2>
+
+					<ul>
+						<li><strong>Invalid redirect URI.</strong> Keycloak shows "We are sorry... Invalid parameter: redirect_uri". <strong>Tip:</strong> the app's callback URL must match a <strong>Valid redirect URI</strong> exactly, including scheme, port and trailing slash. The same applies at logout: with the wrong <strong>post logout redirect URI</strong>, Keycloak showed "Invalid redirect uri" and logged <code>LOGOUT_ERROR ... error="invalid_redirect_uri"</code>. Keycloak's server log names the URI it rejected.</li>
+						<li><strong>Invalid client credentials.</strong> The token request returns HTTP 401 with <code>{"error":"unauthorized_client","error_description":"Invalid client or Invalid client credentials"}</code>. <strong>Tip:</strong> check that the client ID and secret belong to the same client and realm, and that <strong>Client authentication</strong> is on for a confidential client.</li>
+						<li><strong>Invalid issuer or audience.</strong> Token validation fails with <code>Invalid claim: 'iss'</code> or <code>'aud'</code>. <strong>Tip:</strong> the issuer must match the realm URL exactly as the app sees it (<code>http://localhost:8080/realms/acme</code>). Behind a proxy, set Keycloak's hostname so the issuer is the public URL. The audience must be this app's client ID.</li>
+						<li><strong>Login redirect loops.</strong> The browser bounces between the app and Keycloak. <strong>Tip:</strong> check that the session cookie survives the callback: wrong <code>SameSite</code>, a <code>Secure</code> cookie on plain HTTP, or two apps sharing one cookie name on the same host are common causes. Watch the cookies in the browser's developer tools.</li>
+						<li><strong>Session expiration.</strong> Users are logged out sooner or later than expected. <strong>Tip:</strong> there are separate clocks: Django's <code>SESSION_COOKIE_AGE</code>, and Keycloak's <strong>SSO Session Idle</strong> and <strong>SSO Session Max</strong> (in the realm's session settings). Decide which one should win.</li>
+						<li><strong>Clock synchronization.</strong> Valid tokens are rejected as expired or "not yet valid". <strong>Tip:</strong> run NTP on every server. Authlib allows 120 seconds of leeway by default; larger skew means a broken clock.</li>
+						<li><strong>Logout does not affect other applications.</strong> <strong>Tip:</strong> expected without Back-Channel Logout (Step 7). Implement it, or shorten local session lifetimes.</li>
+						<li><strong>HTTP/HTTPS mismatch.</strong> Redirect URI or issuer errors appear only behind a load balancer. <strong>Tip:</strong> if TLS ends at the proxy, Django sees <code>http://</code> and builds <code>http://</code> callback URLs. Set <code>SECURE_PROXY_SSL_HEADER</code> (only behind a proxy you trust) so <code>build_absolute_uri()</code> produces <code>https://</code>. Configure Keycloak's hostname and proxy settings the same way. Also note that Keycloak 26.8 marks its login cookies <code>Secure; SameSite=None</code>. Browsers send them to <code>http://localhost</code> (a trusted local address), but not to other plain-HTTP host names. When my scripted test client did not send them, Keycloak answered the login form with "Restart login cookie not found".</li>
+					</ul>
+
+					<h2 id="sso-vs-traditional">SSO vs Traditional Authentication</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Traditional authentication</th><th scope="col">Single Sign-On</th></tr></thead>
+							<tbody>
+								<tr><td>Login experience</td><td>Separate login for every app</td><td>Log in once, then move between apps</td></tr>
+								<tr><td>Credential management</td><td>One password per app; users reuse passwords</td><td>One account and password at the IdP</td></tr>
+								<tr><td>Security management</td><td>Password rules and MFA built into every app</td><td>Password policy, MFA and lockout set once at the IdP</td></tr>
+								<tr><td>User administration</td><td>Create and disable users in each app</td><td>Create and disable once; access ends everywhere at next login</td></tr>
+								<tr><td>Integration complexity</td><td>Simple for one app</td><td>More moving parts: an IdP to run, plus redirect and token validation</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="important-notes">Important Notes</h2>
+
+					<ul>
+						<li><strong>SSO does not provide authorization across applications.</strong> Knowing who the user is does not decide what they may do.</li>
+						<li><strong>Each application must still enforce its own permissions.</strong> Map IdP roles or groups to app permissions, and check them on every request.</li>
+						<li><strong>SSO does not replace application security.</strong> Input validation, CSRF protection, access control and secure configuration are still each app's job.</li>
+						<li><strong>A shared IdP session does not keep every app session valid.</strong> Each app has its own session, with its own expiry and logout.</li>
+						<li><strong>OAuth 2.0 alone is not an authentication protocol.</strong> Use OpenID Connect when you need to know who the user is.</li>
+						<li><strong>Production needs more than this demo:</strong> HTTPS, a production Keycloak with a real database, secret management, monitoring of login errors, backups of the IdP, and session lifetimes that fit your risk.</li>
+					</ul>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>SSO moves login to one place. The application redirects to an Identity Provider; the IdP authenticates the user once and keeps its own session; each application validates the IdP's signed response and creates its own local session. <strong>OpenID Connect</strong> is the modern standard for this, built on OAuth 2.0's Authorization Code Flow and protected with PKCE, <code>state</code> and <code>nonce</code>.</p>
+
+					<p><strong>Keycloak</strong> gives you a self-hosted IdP with realms, clients, MFA and user federation. A maintained library such as <strong>Authlib</strong> handles the protocol in Django, so your code stays small: a login view, a callback that validates the token and creates the session, and a logout that ends both sessions. Use SSO when you run several applications for the same users, and remember that each application is still responsible for its own permissions and sessions.</p>
+
+					<h3>Related reading</h3>
+
+					<ul>
+						<li><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></li>
+						<li><a href="/blog/django-middleware-explained/">Django Middleware Explained</a></li>
+						<li><a href="/blog/redis-tutorial-for-beginners/">Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="sso-keycloak-django-oidc">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/bulk-csv-import-export-pipelines/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/bulk-csv-import-export-pipelines/">Building Efficient Bulk CSV Import/Export and Data Migration Pipelines</a></h3>
+								<p class="post-card-desc">Build fast bulk CSV import/export pipelines in Django: ZIP handling, Celery background jobs, streaming, chunked bulk upserts, validation and retries.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Celery</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-testing-code-quality/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 13 min read</p>
+								<h3><a href="/blog/python-testing-code-quality/">Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices</a></h3>
+								<p class="post-card-desc">A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Testing</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/redis-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/redis-tutorial-for-beginners/">Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples</a></h3>
+								<p class="post-card-desc">Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Redis</li><li>Caching</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/golang-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/golang-tutorial-for-beginners/">Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin</a></h3>
+								<p class="post-card-desc">Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Go</li><li>APIs</li><li>Concurrency</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/database-optimization-guide/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 12 min read</p>
+								<h3><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></h3>
+								<p class="post-card-desc">PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>PostgreSQL</li><li>Django</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>
