@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Python Pandas Tutorial: A Complete Guide from Basics to Advanced | Riyas A C</title>
+	<meta name="description" content="Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.">
+	<meta name="keywords" content="Python Pandas, Pandas tutorial, Pandas library, Pandas DataFrame, Pandas Series, Python data analysis, pandas groupby, pandas merge, pandas loc iloc, pandas read_csv, pandas 3.0, Copy-on-Write, pandas interview questions">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/python-pandas-tutorial/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/python-pandas-tutorial/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Python Pandas Tutorial: A Complete Guide from Basics to Advanced">
+	<meta property="og:description" content="Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/python-pandas-tutorial/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Python Pandas Tutorial cover: a pandas groupby with named aggregation printing orders and revenue for North, South and West regions, with results of apply(axis=1) at 2.64 s, vectorized at 0.74 ms and the category dtype at 1.0 MB">
+	<meta property="article:published_time" content="2026-11-20T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-11-20T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Python">
+	<meta property="article:tag" content="Pandas">
+	<meta property="article:tag" content="Data Analysis">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Python Pandas Tutorial: A Complete Guide from Basics to Advanced">
+	<meta name="twitter:description" content="Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/python-pandas-tutorial/cover.jpg">
+	<meta name="twitter:image:alt" content="Python Pandas Tutorial cover: a pandas groupby with named aggregation printing orders and revenue for North, South and West regions, with results of apply(axis=1) at 2.64 s, vectorized at 0.74 ms and the category dtype at 1.0 MB">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/python-pandas-tutorial/#article",
+		"url": "https://riyasac.github.io/blog/python-pandas-tutorial/",
+		"headline": "Python Pandas Tutorial: A Complete Guide from Basics to Advanced",
+		"description": "Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/python-pandas-tutorial/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-11-20T09:00:00+05:30",
+		"dateModified": "2026-11-20T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Python", "Pandas", "Data Analysis", "Pandas DataFrame", "Pandas Series", "groupby", "merge", "Copy-on-Write"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/python-pandas-tutorial/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Python Pandas Tutorial: A Complete Guide from Basics to Advanced",
+				"item": "https://riyasac.github.io/blog/python-pandas-tutorial/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Python Pandas</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Python Pandas Tutorial: A Complete Guide from Basics to Advanced</h1>
+					<p class="post-lead">Series and DataFrames, reading files, selection, cleaning, groupby, merges, dates, statistics, Copy-on-Write and performance, then 10 small projects and interview questions. Every example was run on pandas 3.0.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-11-20">20 Nov 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 56 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Beginner to Advanced</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> pandas 3.0, Python 3.14</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Python</li><li>Pandas</li><li>Data Analysis</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/python-pandas-tutorial/cover.webp" width="1024" height="535" alt="Python Pandas Tutorial cover: a pandas groupby with named aggregation printing orders and revenue for North, South and West regions, with results of apply(axis=1) at 2.64 s, vectorized at 0.74 ms and the category dtype at 1.0 MB" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+					<h2 id="introduction">Introduction</h2>
+
+					<p>Most backend work ends up touching tabular data: a CSV export from a client, a report the finance team wants every Monday, a migration that has to reconcile two databases. Plain Python lists and dictionaries can do it, but the code gets long and slow quickly. <strong>Pandas</strong> is the library Python developers reach for at that point.</p>
+
+					<p>This guide starts from zero and goes all the way to production concerns. It assumes you know basic Python (lists, dictionaries, functions) and nothing about Pandas. Each chapter builds on the previous one and reuses the same two small datasets, so you can follow along in one notebook.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Pandas roadmap (PDF)</p>
+						<p>Want the short version first? My <a href="https://www.linkedin.com/posts/riyasac_pandas-roadmap-ugcPost-7528353684985065474-a7cD/" target="_blank" rel="noopener">Pandas Roadmap carousel on LinkedIn</a> covers the 10 essential concepts in 12 slides: Series, DataFrame, reading data, selection, filtering, missing values, sorting, grouping and merging. This article goes deeper into each one and uses the same employee table (John, Alex and Sara) so the two read together.</p>
+					</aside>
+
+					<aside class="callout">
+						<p class="callout-title">How this was tested</p>
+						<p>Every code block and output below comes from a real run on Python 3.14 with pandas 3.0.5, NumPy 2.5, PyArrow 26, openpyxl 3.1, Matplotlib 3.11 and Seaborn 0.13. Timings were measured on an Apple M1 and will differ on your machine. Where pandas 3 behaves differently from pandas 2, the text says so.</p>
+					</aside>
+
+					<h3>The two datasets used throughout</h3>
+
+					<p><strong><code>employees</code></strong>: six people, extending the table from the roadmap slides.</p>
+
+<pre><code class="language-python">import pandas as pd
+
+employees = pd.DataFrame(
+    {
+        "name": ["John", "Alex", "Sara", "Priya", "Omar", "Mei"],
+        "age": [25, 30, 28, 35, 41, 29],
+        "department": ["Engineering", "Data Science", "Product", "Engineering", "Sales", "Data Science"],
+        "salary": [75000, 95000, 88000, 120000, 67000, 102000],
+        "city": ["Kochi", "Bengaluru", "Kochi", "Chennai", "Bengaluru", "Kochi"],
+    }
+)
+employees.to_csv("employees.csv", index=False)</code></pre>
+
+					<p><strong><code>orders</code></strong>: twelve e-commerce orders from January to March 2026, saved as <code>orders.csv</code>. Columns: <code>order_id</code>, <code>order_date</code>, <code>customer_id</code>, <code>region</code> (North, South, West), <code>category</code> (Electronics, Books, Home), <code>quantity</code>, <code>unit_price</code> and <code>revenue</code> (quantity times unit price).</p>
+
+<pre class="diagram">    order_id order_date  customer_id region     category  quantity  unit_price  revenue
+0       1001 2026-01-05            1  South  Electronics         1       24999    24999
+1       1002 2026-01-18            2  North        Books         3         450     1350
+2       1003 2026-01-29            1  South  Electronics         2        1999     3998
+...
+11      1012 2026-03-30            2  North        Books         2         650     1300</pre>
+
+					<h2 id="what-is-pandas">Chapter 1: Introduction to Pandas</h2>
+
+					<h3>What is Pandas?</h3>
+
+					<p><strong>Pandas</strong> is an open-source Python library for working with <strong>structured data</strong>: data arranged in rows and columns, like a spreadsheet or a database table. It gives you two main objects, the <strong>Series</strong> (one column) and the <strong>DataFrame</strong> (a whole table), plus hundreds of methods to load, clean, reshape, combine and summarise them.</p>
+
+					<p>A useful mental model: a DataFrame is a spreadsheet you control with code. Every click you would make in Excel (filter, sort, pivot, VLOOKUP) becomes one line of Python that you can rerun, test and review.</p>
+
+					<h3>Why do we need it?</h3>
+
+					<p>Suppose you need the average salary per department from a CSV. In plain Python you would open the file, parse each line, convert strings to numbers, build a dictionary of lists, then loop again to average. In Pandas:</p>
+
+<pre><code class="language-python">pd.read_csv("employees.csv").groupby("department")["salary"].mean()</code></pre>
+
+<pre class="diagram">department
+Data Science    98500.0
+Engineering     97500.0
+Product         88000.0
+Sales           67000.0
+Name: salary, dtype: float64</pre>
+
+					<p>One line, and it handles type conversion, missing values and grouping for you. The heavy lifting runs in compiled code (NumPy, and increasingly Apache Arrow), so it is also far faster than a Python loop.</p>
+
+					<h3>History and background</h3>
+
+					<ul>
+						<li><strong>2008:</strong> Wes McKinney started Pandas at AQR Capital Management to analyse financial data in Python.</li>
+						<li><strong>2009:</strong> released as open source. The name comes from "panel data", an econometrics term for multi-dimensional data.</li>
+						<li><strong>2020:</strong> version 1.0, a stable API after a decade of growth.</li>
+						<li><strong>2023:</strong> version 2.0 added optional PyArrow-backed data types.</li>
+						<li><strong>2026:</strong> version 3.0 made Copy-on-Write the only behaviour and introduced a dedicated string data type by default. Both changes appear throughout this guide.</li>
+					</ul>
+
+					<h3>What problems does Pandas solve?</h3>
+
+					<ul>
+						<li>Reading data from many formats (CSV, Excel, JSON, SQL, Parquet, HTML) into one common structure.</li>
+						<li>Cleaning messy real-world data: missing values, duplicates, wrong types, inconsistent text.</li>
+						<li>Selecting, filtering and transforming data without writing loops.</li>
+						<li>Summarising data by group, the equivalent of SQL's <code>GROUP BY</code>.</li>
+						<li>Joining datasets from different sources, the equivalent of SQL joins.</li>
+						<li>Working with dates and time series: resampling, rolling averages, time zones.</li>
+						<li>Writing the result back out as a report, a file or a database table.</li>
+					</ul>
+
+					<h3>Features and benefits</h3>
+
+					<ul class="list-check">
+						<li><strong>Labelled data.</strong> Rows and columns have names, so <code>df["salary"]</code> reads like English.</li>
+						<li><strong>Automatic alignment.</strong> Operations match rows by label, not by position, which prevents a whole class of off-by-one bugs.</li>
+						<li><strong>Missing data handling</strong> built into every method.</li>
+						<li><strong>Vectorised operations</strong> that run in compiled code.</li>
+						<li><strong>Rich I/O</strong> for more than a dozen file formats and SQL databases.</li>
+						<li><strong>Time series tools</strong> that came from its finance origins.</li>
+						<li><strong>Ecosystem.</strong> Matplotlib, Seaborn, scikit-learn, Jupyter and most data tools accept DataFrames directly.</li>
+					</ul>
+
+					<h3>Real-world applications</h3>
+
+					<ul>
+						<li><strong>Backend development:</strong> bulk CSV imports, data migrations, admin report exports. My post on <a href="/blog/bulk-csv-import-export-pipelines/">bulk CSV import and export pipelines</a> covers the Django side of this.</li>
+						<li><strong>Data analysis:</strong> sales, marketing and product dashboards.</li>
+						<li><strong>Data engineering:</strong> ETL steps that clean data before it lands in a warehouse.</li>
+						<li><strong>Finance:</strong> price series, returns, risk calculations.</li>
+						<li><strong>Machine learning:</strong> feature preparation before training a model.</li>
+						<li><strong>Testing and QA:</strong> comparing expected and actual datasets after a migration.</li>
+					</ul>
+
+					<h3>Pandas vs NumPy vs Excel vs SQL</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Pandas</th><th scope="col">NumPy</th><th scope="col">Excel</th><th scope="col">SQL</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Data shape</strong></td><td>Labelled tables, mixed column types</td><td>N-dimensional arrays, one type per array</td><td>Sheets of cells</td><td>Tables in a database</td></tr>
+								<tr><td><strong>Best at</strong></td><td>Cleaning, reshaping, analysis</td><td>Fast numeric maths</td><td>Quick manual exploration</td><td>Storing and querying large shared data</td></tr>
+								<tr><td><strong>Size limit</strong></td><td>Your machine's RAM</td><td>Your machine's RAM</td><td>1,048,576 rows per sheet</td><td>Disk; scales to billions of rows</td></tr>
+								<tr><td><strong>Repeatable</strong></td><td>Yes, it is code</td><td>Yes</td><td>Manual steps are hard to repeat</td><td>Yes</td></tr>
+								<tr><td><strong>Labels</strong></td><td>Row and column labels</td><td>Positions only</td><td>Cell addresses</td><td>Column names</td></tr>
+								<tr><td><strong>Missing data</strong></td><td><code>NaN</code>, <code>NA</code>, built-in handling</td><td><code>NaN</code> for floats only</td><td>Blank cells</td><td><code>NULL</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>These tools work together rather than compete. Pandas is built on NumPy. You often run a SQL query to fetch a filtered dataset, analyse it in Pandas, and export the result to Excel for a manager.</p>
+
+					<h2 id="installation">Chapter 2: Installation and Setup</h2>
+
+					<h3>Install with pip</h3>
+
+					<p>Use a virtual environment so each project has its own package versions:</p>
+
+<pre><code class="language-bash">python -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install pandas                   # core library
+pip install pyarrow openpyxl         # Parquet, faster CSV, Excel support
+pip install matplotlib seaborn       # charts
+pip install jupyterlab               # notebooks</code></pre>
+
+					<p>pandas 3.0 needs Python 3.11 or newer. Optional features such as Excel or Parquet need extra packages; Pandas raises an <code>ImportError</code> naming the missing package when you call a method that needs it.</p>
+
+					<h3>Install with Anaconda</h3>
+
+					<p>Anaconda and Miniconda ship with Pandas and its scientific dependencies. If you use conda:</p>
+
+<pre><code class="language-bash">conda create -n analysis python=3.13 pandas pyarrow openpyxl matplotlib jupyterlab
+conda activate analysis</code></pre>
+
+					<p>Pick one installer per environment. Mixing <code>pip</code> and <code>conda</code> installs of the same package in one environment causes confusing version conflicts.</p>
+
+					<h3>Import Pandas and check the version</h3>
+
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+
+print(pd.__version__)</code></pre>
+
+<pre class="diagram">3.0.5</pre>
+
+					<p><code>import pandas as pd</code> imports the library under the short alias <code>pd</code>. The alias is a community convention: every tutorial, Stack Overflow answer and the official documentation uses it, so stick with it. NumPy is imported as <code>np</code> for the same reason.</p>
+
+					<p>For a full report of Pandas and every optional dependency, run <code>pd.show_versions()</code>. Paste its output when you report a bug.</p>
+
+					<h3>Set up Jupyter</h3>
+
+<pre><code class="language-bash">jupyter lab</code></pre>
+
+					<p>Jupyter runs code in cells and shows each DataFrame as a formatted table under the cell. It is the most comfortable way to explore data. For production code (scheduled reports, ETL jobs) move the logic into normal <code>.py</code> files with tests.</p>
+
+					<h3>Useful display options</h3>
+
+<pre><code class="language-python">pd.set_option("display.max_columns", 20)    # show up to 20 columns before truncating
+pd.set_option("display.width", 120)         # wider console output
+pd.set_option("display.precision", 2)       # 2 decimal places in printed floats</code></pre>
+
+					<p>These only change how data is <em>printed</em>, never the data itself.</p>
+
+					<h2 id="data-structures">Chapter 3: Series and DataFrames</h2>
+
+					<p>Everything in Pandas is built on two structures. Learn these well and the rest of the library makes sense.</p>
+
+					<h3>What is a Series?</h3>
+
+					<p><strong>Definition:</strong> a <strong>Series</strong> is a one-dimensional labelled array. It holds values of one data type plus an <strong>index</strong>: a label for each value.</p>
+
+					<p><strong>Purpose:</strong> a Series represents a single column of data, such as all salaries or all order dates. Think of it as a Python list with labels attached, or a dictionary whose values can be used in maths all at once.</p>
+
+					<p><strong>Syntax:</strong></p>
+
+<pre><code class="language-python">pd.Series(data, index=None, dtype=None, name=None)</code></pre>
+
+					<h4>From a list</h4>
+
+<pre><code class="language-python">data = [10, 20, 30, 40]
+s = pd.Series(data)
+print(s)</code></pre>
+
+<pre class="diagram">0    10
+1    20
+2    30
+3    40
+dtype: int64</pre>
+
+					<p>The left column is the index. Pandas created <code>0</code> to <code>3</code> automatically. <code>dtype: int64</code> says every value is a 64-bit integer.</p>
+
+					<h4>From a dictionary</h4>
+
+<pre><code class="language-python">salaries = pd.Series({"John": 75000, "Alex": 95000, "Sara": 88000}, name="salary")
+print(salaries)</code></pre>
+
+<pre class="diagram">John    75000
+Alex    95000
+Sara    88000
+Name: salary, dtype: int64</pre>
+
+					<p>Dictionary keys become the index. The <code>name</code> becomes the column name if this Series later joins a DataFrame.</p>
+
+					<h4>From a NumPy array, with a custom index</h4>
+
+<pre><code class="language-python">scores = pd.Series(np.array([82, 91, 77]), index=["math", "physics", "chemistry"])
+print(scores.index)
+print(scores.values)</code></pre>
+
+<pre class="diagram">Index(['math', 'physics', 'chemistry'], dtype='str')
+[82 91 77]</pre>
+
+					<h4>Accessing elements</h4>
+
+<pre><code class="language-python">salaries["Alex"]                 # by label      -&gt; 95000
+salaries.iloc[0]                 # by position   -&gt; 75000
+salaries[salaries &gt; 80000]       # by condition</code></pre>
+
+<pre class="diagram">Alex    95000
+Sara    88000
+Name: salary, dtype: int64</pre>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p>Writing <code>salaries[0]</code> to get the first value. When the index is made of labels, square brackets look up <strong>labels</strong>, and pandas 3 no longer falls back to positions. Use <code>.iloc[0]</code> for positions and <code>.loc["John"]</code> or <code>["John"]</code> for labels, so your intent is always clear.</p>
+					</aside>
+
+					<h4>Series attributes and methods</h4>
+
+<pre><code class="language-python">print(salaries.dtype, salaries.size, salaries.name)
+print(salaries.mean(), salaries.max(), salaries.idxmax())
+print(salaries * 1.10)          # a 10% raise for everyone, no loop</code></pre>
+
+<pre class="diagram">int64 3 salary
+86000.0 95000 Alex
+John     82500.0
+Alex    104500.0
+Sara     96800.0
+Name: salary, dtype: float64</pre>
+
+					<p><code>salaries * 1.10</code> is a <strong>vectorised</strong> operation: Pandas applies it to every value in compiled code. This idea comes back in every chapter.</p>
+
+					<h3>What is a DataFrame?</h3>
+
+					<p><strong>Definition:</strong> a <strong>DataFrame</strong> is a two-dimensional labelled table with rows and columns. Each column is a Series, and all columns share the same row index.</p>
+
+					<p><strong>Purpose:</strong> it represents a whole dataset: a CSV file, an Excel sheet, a SQL query result. Different columns can hold different types (text, numbers, dates).</p>
+
+					<p><strong>Syntax:</strong></p>
+
+<pre><code class="language-python">pd.DataFrame(data, index=None, columns=None, dtype=None)</code></pre>
+
+					<h4>From a dictionary of lists (most common)</h4>
+
+<pre><code class="language-python">data = {
+    "Name": ["John", "Alex", "Sara"],
+    "Age": [25, 30, 28],
+}
+df = pd.DataFrame(data)
+print(df)</code></pre>
+
+<pre class="diagram">   Name  Age
+0  John   25
+1  Alex   30
+2  Sara   28</pre>
+
+					<p>Each key becomes a column name and each list becomes that column's values. All lists must have the same length.</p>
+
+					<h4>From a list of dictionaries (typical API response)</h4>
+
+<pre><code class="language-python">rows = [
+    {"name": "John", "age": 25},
+    {"name": "Alex", "age": 30, "city": "Bengaluru"},
+]
+print(pd.DataFrame(rows))</code></pre>
+
+<pre class="diagram">   name  age       city
+0  John   25        NaN
+1  Alex   30  Bengaluru</pre>
+
+					<p>Each dictionary becomes a row. Keys missing from a row become <code>NaN</code> ("not a number"), the standard missing-value marker.</p>
+
+					<h4>From a list of lists, and from a NumPy array</h4>
+
+<pre><code class="language-python">pd.DataFrame([["John", 25], ["Alex", 30]], columns=["name", "age"])
+
+rng = np.random.default_rng(seed=42)
+pd.DataFrame(rng.integers(0, 100, size=(3, 4)), columns=["q1", "q2", "q3", "q4"])</code></pre>
+
+<pre class="diagram">   q1  q2  q3  q4
+0   8  77  65  43
+1  43  85   8  69
+2  20   9  52  97</pre>
+
+					<h4>Rows, columns and labels</h4>
+
+<pre><code class="language-python">print(employees.shape)      # (rows, columns)
+print(employees.columns)
+print(employees.index)
+print(employees.dtypes)</code></pre>
+
+<pre class="diagram">(6, 5)
+Index(['name', 'age', 'department', 'salary', 'city'], dtype='str')
+RangeIndex(start=0, stop=6, step=1)
+name            str
+age           int64
+department      str
+salary        int64
+city            str
+dtype: object</pre>
+
+					<ul>
+						<li><strong><code>columns</code></strong> holds the column labels.</li>
+						<li><strong><code>index</code></strong> holds the row labels. <code>RangeIndex</code> is the memory-efficient default 0, 1, 2 and so on.</li>
+						<li><strong><code>dtypes</code></strong> shows each column's type. Text columns show <code>str</code>.</li>
+					</ul>
+
+					<aside class="callout">
+						<p class="callout-title">pandas 3 change: the str dtype</p>
+						<p>Before pandas 3, text columns had the generic <code>object</code> dtype, which could hold anything. pandas 3 infers a dedicated <strong><code>str</code></strong> dtype backed by PyArrow when it is installed. It is faster and uses far less memory: a million short city names took 55.4 MB as <code>object</code> and 14.4 MB as <code>str</code> in my test. Code that checks <code>dtype == object</code> to find text columns needs updating.</p>
+					</aside>
+
+					<h3>Series vs DataFrame</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Series</th><th scope="col">DataFrame</th></tr></thead>
+							<tbody>
+								<tr><td>Dimensions</td><td>1 (values + index)</td><td>2 (rows and columns)</td></tr>
+								<tr><td>Analogy</td><td>One spreadsheet column</td><td>A whole sheet</td></tr>
+								<tr><td>Data types</td><td>One dtype</td><td>One dtype per column</td></tr>
+								<tr><td>Get one from a DataFrame</td><td><code>df["salary"]</code></td><td><code>df[["salary"]]</code> (double brackets)</td></tr>
+								<tr><td>Has</td><td><code>.name</code></td><td><code>.columns</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+<pre><code class="language-python">type(employees["salary"])      # pandas.Series
+type(employees[["salary"]])    # pandas.DataFrame</code></pre>
+
+					<p>Single brackets return a Series. Double brackets pass a <em>list</em> of column names, so you get a DataFrame back even when the list has one name.</p>
+
+					<h2 id="reading-writing">Chapter 4: Reading and Writing Data</h2>
+
+					<p>Real data rarely starts in Python. Pandas has a pair of functions for each format: <code>pd.read_*()</code> returns a DataFrame, and <code>df.to_*()</code> writes one out.</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Format</th><th scope="col">Read</th><th scope="col">Write</th><th scope="col">Extra package</th></tr></thead>
+							<tbody>
+								<tr><td>CSV / text</td><td><code>pd.read_csv()</code></td><td><code>df.to_csv()</code></td><td>None (PyArrow optional for speed)</td></tr>
+								<tr><td>Excel</td><td><code>pd.read_excel()</code></td><td><code>df.to_excel()</code></td><td><code>openpyxl</code></td></tr>
+								<tr><td>JSON</td><td><code>pd.read_json()</code></td><td><code>df.to_json()</code></td><td>None</td></tr>
+								<tr><td>SQL</td><td><code>pd.read_sql()</code></td><td><code>df.to_sql()</code></td><td>SQLAlchemy (or a <code>sqlite3</code> connection)</td></tr>
+								<tr><td>Parquet</td><td><code>pd.read_parquet()</code></td><td><code>df.to_parquet()</code></td><td><code>pyarrow</code></td></tr>
+								<tr><td>HTML tables</td><td><code>pd.read_html()</code></td><td><code>df.to_html()</code></td><td><code>lxml</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>read_csv()</h3>
+
+					<p><strong>Definition:</strong> reads a delimited text file into a DataFrame. <strong>Purpose:</strong> CSV is the most common exchange format between systems, so this is the function you will call most.</p>
+
+<pre><code class="language-python">df = pd.read_csv("employees.csv")
+print(df.head(3))</code></pre>
+
+<pre class="diagram">   name  age    department  salary       city
+0  John   25   Engineering   75000      Kochi
+1  Alex   30  Data Science   95000  Bengaluru
+2  Sara   28       Product   88000      Kochi</pre>
+
+					<p>The first line becomes the column names and Pandas infers each column's type. Real files are rarely that clean. This European export uses semicolons, comma decimals and an <code>NA</code> marker:</p>
+
+<pre class="diagram">order_id;order_date;amount;country
+1001;2026-01-05;199,90;Deutschland
+1002;2026-01-06;45,50;Österreich
+1003;2026-01-06;NA;Schweiz</pre>
+
+<pre><code class="language-python">sales_eu = pd.read_csv(
+    "sales_eu.csv",
+    sep=";",                      # delimiter between fields
+    decimal=",",                  # "199,90" means 199.90
+    index_col="order_id",         # use this column as the row index
+    parse_dates=["order_date"],   # convert to datetime while reading
+    encoding="utf-8",             # file encoding
+)
+print(sales_eu)
+print(sales_eu.dtypes)</code></pre>
+
+<pre class="diagram">         order_date  amount      country
+order_id
+1001     2026-01-05   199.9  Deutschland
+1002     2026-01-06    45.5   Österreich
+1003     2026-01-06     NaN      Schweiz
+order_date    datetime64[us]
+amount               float64
+country                  str</pre>
+
+					<p>The most useful parameters:</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Parameter</th><th scope="col">What it does</th><th scope="col">Example</th></tr></thead>
+							<tbody>
+								<tr><td><code>sep</code></td><td>Field delimiter</td><td><code>sep=";"</code>, <code>sep="\t"</code></td></tr>
+								<tr><td><code>header</code></td><td>Which row holds column names; <code>None</code> if there is none</td><td><code>header=None</code></td></tr>
+								<tr><td><code>names</code></td><td>Column names to use</td><td><code>names=["name", "age"]</code></td></tr>
+								<tr><td><code>index_col</code></td><td>Column to use as the row index</td><td><code>index_col="order_id"</code></td></tr>
+								<tr><td><code>usecols</code></td><td>Read only these columns (saves memory)</td><td><code>usecols=["name", "salary"]</code></td></tr>
+								<tr><td><code>dtype</code></td><td>Force column types</td><td><code>dtype={"zip": "str"}</code></td></tr>
+								<tr><td><code>parse_dates</code></td><td>Parse these columns as dates</td><td><code>parse_dates=["created"]</code></td></tr>
+								<tr><td><code>na_values</code></td><td>Extra strings to treat as missing</td><td><code>na_values=["-", "n/a"]</code></td></tr>
+								<tr><td><code>nrows</code>, <code>skiprows</code></td><td>Read part of a file</td><td><code>nrows=1000</code></td></tr>
+								<tr><td><code>encoding</code></td><td>Text encoding</td><td><code>encoding="latin-1"</code></td></tr>
+								<tr><td><code>chunksize</code></td><td>Read in pieces (Chapter 15)</td><td><code>chunksize=100_000</code></td></tr>
+								<tr><td><code>engine</code></td><td>Parser; <code>"pyarrow"</code> is multi-threaded</td><td><code>engine="pyarrow"</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>A file with no header row:</p>
+
+<pre><code class="language-python">pd.read_csv("raw.csv", header=None, names=["name", "age", "department"])</code></pre>
+
+					<aside class="callout">
+						<p class="callout-title">Tip</p>
+						<p>Read ID-like columns such as phone numbers, ZIP codes and account numbers with <code>dtype="str"</code>. Otherwise <code>"007"</code> becomes the integer <code>7</code> and the leading zeros are gone for good.</p>
+					</aside>
+
+					<h3>File paths</h3>
+
+					<p>A relative path such as <code>"data/orders.csv"</code> is resolved from the <strong>current working directory</strong>, which is wherever you started Python or Jupyter, not where your script lives. Build paths from the script's location to avoid surprises:</p>
+
+<pre><code class="language-python">from pathlib import Path
+
+DATA_DIR = Path(__file__).resolve().parent / "data"
+orders = pd.read_csv(DATA_DIR / "orders.csv")</code></pre>
+
+					<p><code>read_csv</code> also accepts URLs, compressed files (<code>.gz</code>, <code>.zip</code>, detected from the extension) and file-like objects such as <code>io.StringIO</code>.</p>
+
+					<h3>Common read errors</h3>
+
+<pre><code class="language-python">pd.read_csv("employes.csv")</code></pre>
+
+<pre class="diagram">FileNotFoundError: [Errno 2] No such file or directory: 'employes.csv'</pre>
+
+					<p>Check the spelling and print <code>Path.cwd()</code> to see where Python is looking.</p>
+
+<pre class="diagram">name,age
+John,25
+Alex,30,extra</pre>
+
+<pre><code class="language-python">pd.read_csv("bad.csv")</code></pre>
+
+<pre class="diagram">ParserError: Error tokenizing data. C error: Expected 2 fields in line 3, saw 3</pre>
+
+					<p>A row has more fields than the header, usually an unquoted comma inside a value. Fix the export if you can. If you must load it, <code>on_bad_lines="skip"</code> drops those rows, but log how many you lost.</p>
+
+<pre class="diagram">UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe9 in position 13: invalid continuation byte</pre>
+
+					<p>The file is not UTF-8. Files exported from older Windows tools are often <code>latin-1</code> or <code>cp1252</code>: <code>pd.read_csv("latin.csv", encoding="latin-1")</code> read <code>José</code> and <code>São Paulo</code> correctly.</p>
+
+					<h3>to_csv()</h3>
+
+<pre><code class="language-python">employees.to_csv("out.csv", index=False)</code></pre>
+
+<pre class="diagram">name,age,department,salary,city
+John,25,Engineering,75000,Kochi</pre>
+
+					<p><strong>Best practice:</strong> pass <code>index=False</code> unless the index holds real data. Without it, Pandas writes the 0, 1, 2 index as an unnamed first column, and the next <code>read_csv</code> gives you a mystery <code>Unnamed: 0</code> column.</p>
+
+					<h3>read_excel() and to_excel()</h3>
+
+					<p>Excel needs <code>openpyxl</code> for <code>.xlsx</code> files. Use <code>ExcelWriter</code> to write several sheets into one workbook:</p>
+
+<pre><code class="language-python">with pd.ExcelWriter("report.xlsx") as writer:
+    employees.to_excel(writer, sheet_name="Employees", index=False)
+    employees.groupby("department")["salary"].mean().to_excel(writer, sheet_name="Avg salary")
+
+avg = pd.read_excel("report.xlsx", sheet_name="Avg salary")
+all_sheets = pd.read_excel("report.xlsx", sheet_name=None)   # dict of {sheet name: DataFrame}
+print(avg)
+print(list(all_sheets))</code></pre>
+
+<pre class="diagram">     department  salary
+0  Data Science   98500
+1   Engineering   97500
+2       Product   88000
+3         Sales   67000
+['Employees', 'Avg salary']</pre>
+
+					<p><code>sheet_name</code> takes a name, a position (<code>0</code> is the first sheet) or <code>None</code> for all sheets. Other useful options: <code>skiprows</code> for title rows above the table, and <code>usecols="A:D"</code> for a column range.</p>
+
+					<h3>read_json() and to_json()</h3>
+
+<pre><code class="language-python">employees.head(2).to_json("employees.json", orient="records", indent=2)
+pd.read_json("employees.json")</code></pre>
+
+<pre class="diagram">[
+  {
+    "name":"John",
+    "age":25,
+    "department":"Engineering",
+    "salary":75000,
+    "city":"Kochi"
+  },
+  ...
+]</pre>
+
+					<p><code>orient="records"</code> writes a list of objects, the shape most REST APIs use. For <strong>nested</strong> JSON, <code>pd.json_normalize()</code> flattens inner objects into dotted columns:</p>
+
+<pre><code class="language-python">orders_json = [
+    {"id": 1, "customer": {"name": "John", "city": "Kochi"}, "total": 250},
+    {"id": 2, "customer": {"name": "Sara", "city": "Chennai"}, "total": 410},
+]
+pd.json_normalize(orders_json)</code></pre>
+
+<pre class="diagram">   id  total customer.name customer.city
+0   1    250          John         Kochi
+1   2    410          Sara       Chennai</pre>
+
+					<h3>read_sql() and to_sql()</h3>
+
+					<p><code>read_sql</code> runs a query and returns the result as a DataFrame. It accepts a SQLAlchemy engine or connection for any database, or a plain <code>sqlite3</code> connection for SQLite.</p>
+
+<pre><code class="language-python">import sqlite3
+
+conn = sqlite3.connect(":memory:")
+employees.to_sql("employees", conn, index=False, if_exists="replace")
+
+high_earners = pd.read_sql(
+    "SELECT name, salary FROM employees WHERE salary &gt; ? ORDER BY salary DESC",
+    conn,
+    params=(90000,),
+)
+print(high_earners)</code></pre>
+
+<pre class="diagram">    name  salary
+0  Priya  120000
+1    Mei  102000
+2   Alex   95000</pre>
+
+					<p>For PostgreSQL or MySQL, create an engine with SQLAlchemy: <code>create_engine("postgresql+psycopg://user:pass@host/db")</code>, and pass it instead of <code>conn</code>. Read credentials from environment variables, not from the code.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Security</p>
+						<p>Always pass user input through <code>params</code>, never with an f-string inside the SQL. Parameters are sent separately from the query, which prevents SQL injection.</p>
+					</aside>
+
+					<p><code>to_sql</code> options worth knowing: <code>if_exists</code> (<code>"fail"</code>, <code>"replace"</code>, <code>"append"</code>), <code>chunksize</code> to insert in batches, and <code>method="multi"</code> to send several rows per <code>INSERT</code>. Filter in SQL rather than loading a whole table and filtering in Pandas; the database is better at it. My <a href="/blog/database-optimization-guide/">database optimization guide</a> covers indexing for those queries.</p>
+
+					<h3>read_parquet() and to_parquet()</h3>
+
+					<p><strong>Parquet</strong> is a compressed, column-oriented binary format. It stores the data types with the data, so dates stay dates and nothing is re-parsed.</p>
+
+<pre><code class="language-python">employees.to_parquet("employees.parquet", index=False)
+pd.read_parquet("employees.parquet", columns=["name", "salary"])   # read only two columns</code></pre>
+
+					<p>On a 1,000,000-row orders file in my test:</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Read</th><th scope="col">File size</th><th scope="col">Time (best of 5)</th></tr></thead>
+							<tbody>
+								<tr><td><code>read_csv</code> (default C engine)</td><td>17.4 MB</td><td>0.149 s</td></tr>
+								<tr><td><code>read_csv(engine="pyarrow")</code></td><td>17.4 MB</td><td>0.019 s</td></tr>
+								<tr><td><code>read_parquet</code></td><td>6.2 MB</td><td>0.015 s</td></tr>
+								<tr><td><code>read_parquet(columns=["revenue"])</code></td><td>6.2 MB</td><td>0.002 s</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Use CSV to exchange data with people and other systems. Use Parquet for intermediate files in your own pipelines.</p>
+
+					<h3>read_html()</h3>
+
+					<p><code>read_html</code> finds every <code>&lt;table&gt;</code> in an HTML page and returns a <em>list</em> of DataFrames:</p>
+
+<pre><code class="language-python">from io import StringIO
+
+html = """&lt;table&gt;
+&lt;tr&gt;&lt;th&gt;country&lt;/th&gt;&lt;th&gt;capital&lt;/th&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;India&lt;/td&gt;&lt;td&gt;New Delhi&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Japan&lt;/td&gt;&lt;td&gt;Tokyo&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;"""
+tables = pd.read_html(StringIO(html))
+print(tables[0])</code></pre>
+
+<pre class="diagram">  country    capital
+0   India  New Delhi
+1   Japan      Tokyo</pre>
+
+					<p>Pass a URL, a file path, or literal HTML wrapped in <code>StringIO</code>. In pandas 3 a raw HTML string is treated as a file path and fails with <code>FileNotFoundError</code>. Check a site's terms before scraping it.</p>
+
+					<h2 id="exploring-data">Chapter 5: Exploring and Understanding Data</h2>
+
+					<p>When you receive an unfamiliar dataset, do not start analysing straight away. Spend two minutes answering: how big is it, what are the columns and types, what is missing, and what do typical values look like? These methods answer those questions.</p>
+
+					<h3>head(), tail() and sample()</h3>
+
+<pre><code class="language-python">employees.head(2)                         # first 2 rows (default 5)
+employees.tail(2)                         # last 2 rows
+employees.sample(n=2, random_state=1)     # 2 random rows, repeatable</code></pre>
+
+<pre class="diagram">   name  age    department  salary       city
+4  Omar   41         Sales   67000  Bengaluru
+5   Mei   29  Data Science  102000      Kochi</pre>
+
+					<p><code>head</code> shows the format. <code>sample</code> is better at spotting problems, because files are often sorted and the first rows are the cleanest.</p>
+
+					<h3>info()</h3>
+
+<pre><code class="language-python">employees.info()</code></pre>
+
+<pre class="diagram">&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 6 entries, 0 to 5
+Data columns (total 5 columns):
+ #   Column      Non-Null Count  Dtype
+---  ------      --------------  -----
+ 0   name        6 non-null      str
+ 1   age         6 non-null      int64
+ 2   department  6 non-null      str
+ 3   salary      6 non-null      int64
+ 4   city        6 non-null      str
+dtypes: int64(2), str(3)
+memory usage: 494.0 bytes</pre>
+
+					<p>One call gives row count, column names, non-null counts (so you spot missing data) and types (so you spot numbers stored as text). Run it first on every new dataset.</p>
+
+					<h3>describe()</h3>
+
+<pre><code class="language-python">employees.describe()</code></pre>
+
+<pre class="diagram">             age         salary
+count   6.000000       6.000000
+mean   31.333333   91166.666667
+std     5.750362   19072.668053
+min    25.000000   67000.000000
+25%    28.250000   78250.000000
+50%    29.500000   91500.000000
+75%    33.750000  100250.000000
+max    41.000000  120000.000000</pre>
+
+					<p>Summary statistics for numeric columns. Look for impossible values: a negative age, a maximum far above the 75th percentile (an outlier or a typo). For text columns:</p>
+
+<pre><code class="language-python">employees.describe(include="str")</code></pre>
+
+<pre class="diagram">        name   department   city
+count      6            6      6
+unique     6            4      3
+top     John  Engineering  Kochi
+freq       1            2      3</pre>
+
+					<p>In pandas 3, <code>include="object"</code> still matches text columns but raises a deprecation warning. Use <code>include="str"</code>.</p>
+
+					<h3>shape, size, columns, index and dtypes</h3>
+
+<pre><code class="language-python">employees.shape       # (6, 5): rows, columns
+employees.size        # 30: rows x columns
+len(employees)        # 6: rows only
+employees.columns     # column labels
+employees.index       # row labels
+employees.dtypes      # type of each column</code></pre>
+
+					<p>These are <strong>attributes</strong>, not methods, so there are no parentheses.</p>
+
+					<h3>memory_usage()</h3>
+
+<pre><code class="language-python">employees.memory_usage(deep=True)</code></pre>
+
+<pre class="diagram">Index         132
+name           72
+age            48
+department    106
+salary         48
+city           88
+dtype: int64</pre>
+
+					<p>Bytes per column. <code>deep=True</code> measures the actual text content, not just pointers. Chapter 15 uses this to shrink large DataFrames.</p>
+
+					<h3>value_counts(), unique() and nunique()</h3>
+
+<pre><code class="language-python">employees["department"].value_counts()
+employees["department"].value_counts(normalize=True).round(2)   # proportions
+employees["city"].unique()
+employees["city"].nunique()</code></pre>
+
+<pre class="diagram">department
+Engineering     2
+Data Science    2
+Product         1
+Sales           1
+Name: count, dtype: int64
+
+&lt;ArrowStringArray&gt;
+['Kochi', 'Bengaluru', 'Chennai']
+Length: 3, dtype: str
+
+3</pre>
+
+					<p><code>value_counts</code> is the fastest way to find inconsistent categories. If you see <code>"Kochi"</code>, <code>"kochi"</code> and <code>"Kochi "</code> as three separate rows, you know the column needs cleaning (Chapter 10). Add <code>dropna=False</code> to count missing values too.</p>
+
+					<h3>A five-minute exploration checklist</h3>
+
+<pre><code class="language-python">df = pd.read_csv("unknown.csv")
+df.shape                       # how big?
+df.info()                      # types and missing counts
+df.sample(5, random_state=0)   # what do rows look like?
+df.describe()                  # numeric ranges, outliers
+df.isna().sum()                # missing values per column
+df.duplicated().sum()          # fully duplicated rows
+df.nunique()                   # IDs (all unique) vs categories (few unique)</code></pre>
+
+					<h2 id="selecting-data">Chapter 6: Selecting and Accessing Data</h2>
+
+					<p>Selection is where most beginners get confused, because Pandas offers several ways to do it. The rule of thumb: use <code>[]</code> for columns, <code>.loc</code> for labels, <code>.iloc</code> for positions.</p>
+
+					<h3>Columns</h3>
+
+<pre><code class="language-python">employees["name"]                  # one column -&gt; Series
+employees[["name", "salary"]]      # several columns -&gt; DataFrame</code></pre>
+
+					<p><code>employees.name</code> (attribute access) also works, but fails for names with spaces or names that clash with methods such as <code>count</code>. Prefer brackets.</p>
+
+					<h3>loc[]: select by label</h3>
+
+					<p><strong>Definition:</strong> <code>.loc</code> selects rows and columns by their <strong>labels</strong>. <strong>Syntax:</strong> <code>df.loc[row_labels, column_labels]</code>.</p>
+
+<pre><code class="language-python">employees.loc[0, "name"]                     # 'John'
+employees.loc[1:3, ["name", "salary"]]       # rows labelled 1 to 3 INCLUSIVE</code></pre>
+
+<pre class="diagram">    name  salary
+1   Alex   95000
+2   Sara   88000
+3  Priya  120000</pre>
+
+					<p>Labels become more meaningful with a custom index:</p>
+
+<pre><code class="language-python">by_name = employees.set_index("name")
+by_name.loc["Sara"]                          # one row -&gt; Series
+by_name.loc["Alex":"Priya", "salary"]        # label slice</code></pre>
+
+<pre class="diagram">name
+Alex      95000
+Sara      88000
+Priya    120000
+Name: salary, dtype: int64</pre>
+
+					<h3>iloc[]: select by position</h3>
+
+					<p><strong>Definition:</strong> <code>.iloc</code> selects by integer <strong>position</strong>, counting from 0 like a Python list. <strong>Syntax:</strong> <code>df.iloc[row_positions, column_positions]</code>.</p>
+
+<pre><code class="language-python">employees.iloc[0, 0]                 # 'John': row 0, column 0
+employees.iloc[0, 1]                 # 25: row 0, column 1 is "age"
+employees.iloc[1:3, [0, 3]]          # rows 1 and 2 (end EXCLUDED), columns 0 and 3</code></pre>
+
+<pre class="diagram">   name  salary
+1  Alex   95000
+2  Sara   88000</pre>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p><strong><code>.loc</code> slices include the end label; <code>.iloc</code> slices exclude the end position</strong>, like normal Python. <code>loc[1:3]</code> returned 3 rows above and <code>iloc[1:3]</code> returned 2. Also count positions carefully: in the employee table <code>iloc[0, 1]</code> is the age (25), not the name. The roadmap slide on selection shows <code>John</code> for that call; <code>iloc[0, 0]</code> is the one that returns <code>John</code>.</p>
+					</aside>
+
+					<h3>at[] and iat[]: one value, fast</h3>
+
+<pre><code class="language-python">by_name.at["Mei", "salary"]     # 102000, by label
+employees.iat[2, 3]             # 88000, by position</code></pre>
+
+					<p><code>at</code> and <code>iat</code> only fetch or set a single cell, and they skip the overhead of the general indexers. Use them inside rare unavoidable loops.</p>
+
+					<h3>Boolean indexing</h3>
+
+					<p><strong>Definition:</strong> pass a Series of <code>True</code>/<code>False</code> values (a <strong>mask</strong>) and Pandas keeps the rows where it is <code>True</code>. This is how filtering works.</p>
+
+<pre><code class="language-python">mask = employees["age"] &gt; 25        # a boolean Series
+employees[mask]</code></pre>
+
+<pre class="diagram">    name  age    department  salary       city
+1   Alex   30  Data Science   95000  Bengaluru
+2   Sara   28       Product   88000      Kochi
+3  Priya   35   Engineering  120000    Chennai
+4   Omar   41         Sales   67000  Bengaluru
+5    Mei   29  Data Science  102000      Kochi</pre>
+
+					<h3>Multiple conditions</h3>
+
+<pre><code class="language-python">employees[(employees["department"] == "Engineering") &amp; (employees["salary"] &gt; 100000)]   # AND
+employees[(employees["city"] == "Chennai") | (employees["age"] &lt; 26)]                    # OR
+employees[~(employees["city"] == "Kochi")]                                               # NOT</code></pre>
+
+<pre class="diagram">    name  age   department  salary     city
+3  Priya   35  Engineering  120000  Chennai</pre>
+
+					<p>Use <code>&amp;</code>, <code>|</code> and <code>~</code>, not Python's <code>and</code>, <code>or</code> and <code>not</code>, and wrap <strong>each condition in parentheses</strong>. Without them, operator precedence evaluates <code>25 &amp; employees["salary"]</code> first and you get:</p>
+
+<pre class="diagram">ValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().</pre>
+
+					<h3>isin() and between()</h3>
+
+<pre><code class="language-python">employees[employees["city"].isin(["Chennai", "Bengaluru"])]        # value in a list
+employees[employees["salary"].between(80000, 100000)]              # inclusive range</code></pre>
+
+					<p><code>isin</code> replaces a chain of <code>==</code> conditions joined with <code>|</code>. <code>between</code> includes both ends by default; change it with <code>inclusive="left"</code>, <code>"right"</code> or <code>"neither"</code>.</p>
+
+					<h3>query()</h3>
+
+<pre><code class="language-python">min_salary = 90000
+employees.query("department == 'Data Science' and salary &gt; @min_salary")</code></pre>
+
+<pre class="diagram">   name  age    department  salary       city
+1  Alex   30  Data Science   95000  Bengaluru
+5   Mei   29  Data Science  102000      Kochi</pre>
+
+					<p><code>query</code> takes the condition as a string, which is easier to read for long filters. Reference Python variables with <code>@</code> and wrap column names containing spaces in backticks. Never build the query string from user input.</p>
+
+					<h3>filter()</h3>
+
+					<p>Despite the name, <code>DataFrame.filter</code> selects <strong>columns or index labels by name</strong>, not rows by value:</p>
+
+<pre><code class="language-python">employees.filter(items=["name", "city"])     # exact names
+employees.filter(like="a", axis=1)           # names containing "a"
+employees.filter(regex="^(name|sal)")        # names matching a regex</code></pre>
+
+					<p>It is handy for wide datasets, for example selecting every column that starts with <code>q1_</code>.</p>
+
+					<h2 id="modifying-data">Chapter 7: Adding, Updating and Removing Data</h2>
+
+					<h3>Add columns</h3>
+
+<pre><code class="language-python">emp = employees.copy()
+emp["bonus"] = emp["salary"] * 0.10          # computed from another column
+emp["is_senior"] = emp["age"] &gt;= 30           # boolean column
+print(emp.head(3))</code></pre>
+
+<pre class="diagram">   name  age    department  salary       city   bonus  is_senior
+0  John   25   Engineering   75000      Kochi  7500.0      False
+1  Alex   30  Data Science   95000  Bengaluru  9500.0       True
+2  Sara   28       Product   88000      Kochi  8800.0      False</pre>
+
+					<h3>assign(): add columns in a chain</h3>
+
+<pre><code class="language-python">result = employees.assign(
+    monthly=lambda d: (d["salary"] / 12).round(0),
+    tax=lambda d: d["salary"] * 0.2,
+)</code></pre>
+
+<pre class="diagram">   name  monthly      tax
+0  John   6250.0  15000.0
+1  Alex   7917.0  19000.0
+2  Sara   7333.0  17600.0</pre>
+
+					<p><code>assign</code> returns a new DataFrame instead of changing the original, so it fits in method chains (<code>df.query(...).assign(...).sort_values(...)</code>). The <code>lambda d:</code> receives the DataFrame at that point in the chain.</p>
+
+					<h3>insert(): add a column at a position</h3>
+
+<pre><code class="language-python">emp = employees.copy()
+emp.insert(1, "emp_id", ["E1", "E2", "E3", "E4", "E5", "E6"])   # becomes column 1</code></pre>
+
+					<p><code>insert</code> changes the DataFrame in place and raises an error if the column already exists.</p>
+
+					<h3>Add rows</h3>
+
+<pre><code class="language-python">new_hires = pd.DataFrame([
+    {"name": "Ravi", "age": 27, "department": "Product", "salary": 81000, "city": "Chennai"},
+])
+emp = pd.concat([employees, new_hires], ignore_index=True)</code></pre>
+
+<pre class="diagram">   name  age    department  salary     city
+5   Mei   29  Data Science  102000    Kochi
+6  Ravi   27       Product   81000  Chennai</pre>
+
+					<p><code>DataFrame.append()</code> was removed in pandas 2.0; <code>pd.concat</code> is its replacement. Adding rows one at a time in a loop is slow, because each <code>concat</code> copies everything. Collect rows in a Python list and build the DataFrame once at the end. For a single quick row, <code>emp.loc[len(emp)] = [...]</code> also works on a default index.</p>
+
+					<h3>Update values</h3>
+
+<pre><code class="language-python">emp = employees.copy()
+emp.loc[emp["department"] == "Sales", "salary"] = 70000     # conditional update
+emp.at[0, "city"] = "Thrissur"                               # one cell</code></pre>
+
+					<p>Always update with <strong>one</strong> <code>.loc[row_condition, column]</code> call. Chapter 15 explains why <code>emp[emp["department"] == "Sales"]["salary"] = 70000</code> silently does nothing.</p>
+
+					<h3>rename()</h3>
+
+<pre><code class="language-python">employees.rename(columns={"name": "full_name", "salary": "annual_salary"})
+employees.rename(columns=str.upper)                   # apply a function to every name
+employees.rename(index={0: "first"})                  # rename row labels</code></pre>
+
+<pre class="diagram">['full_name', 'age', 'department', 'annual_salary', 'city']
+['NAME', 'AGE', 'DEPARTMENT', 'SALARY', 'CITY']</pre>
+
+					<p>A common clean-up after reading a spreadsheet: <code>df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")</code>.</p>
+
+					<h3>drop() and pop()</h3>
+
+<pre><code class="language-python">employees.drop(columns=["city", "age"])     # remove columns
+employees.drop(index=[0, 1])                # remove rows by label
+
+emp = employees.copy()
+cities = emp.pop("city")                    # remove AND return the column</code></pre>
+
+					<p>Use the explicit <code>columns=</code> and <code>index=</code> keywords rather than <code>axis=1</code>; the code says what it does.</p>
+
+					<h3>drop_duplicates()</h3>
+
+<pre><code class="language-python">signups = pd.DataFrame({
+    "email": ["a@x.com", "b@x.com", "a@x.com", "c@x.com"],
+    "plan": ["free", "pro", "pro", "free"],
+})
+signups.duplicated()                                       # all False: no row is a full duplicate
+signups.duplicated(subset=["email"])                       # row 2 repeats an email
+signups.drop_duplicates(subset=["email"], keep="last")     # keep the latest signup</code></pre>
+
+<pre class="diagram">     email  plan
+1  b@x.com   pro
+2  a@x.com   pro
+3  c@x.com  free</pre>
+
+					<p><code>subset</code> decides which columns define "the same record". <code>keep</code> chooses <code>"first"</code> (default), <code>"last"</code> or <code>False</code> (drop every copy).</p>
+
+					<h3>set_index() and reset_index()</h3>
+
+<pre><code class="language-python">indexed = employees.set_index("name")           # "name" becomes the row labels
+indexed.reset_index()                            # back to a column, with 0..n index
+
+filtered = employees[employees["age"] &gt; 28]
+filtered.index.tolist()                          # [1, 3, 4, 5]: gaps after filtering
+filtered.reset_index(drop=True).index.tolist()   # [0, 1, 2, 3]</code></pre>
+
+					<p><code>drop=True</code> throws the old index away instead of turning it into a column. Use it after filtering or concatenating when the old row numbers mean nothing.</p>
+
+					<h3>Sorting rows and columns</h3>
+
+<pre><code class="language-python">employees.sort_values(by="age", ascending=False)
+employees.sort_values(by=["department", "salary"], ascending=[True, False])
+employees.sort_index(axis=1)                    # columns in alphabetical order
+employees.nlargest(2, "salary")                  # top 2 without a full sort</code></pre>
+
+<pre class="diagram">    name  age    department  salary       city
+5    Mei   29  Data Science  102000      Kochi
+1   Alex   30  Data Science   95000  Bengaluru
+3  Priya   35   Engineering  120000    Chennai
+0   John   25   Engineering   75000      Kochi
+2   Sara   28       Product   88000      Kochi
+4   Omar   41         Sales   67000  Bengaluru</pre>
+
+					<p>The second call sorts by department A to Z, then by salary high to low within each department. Missing values go last by default (<code>na_position="first"</code> changes that).</p>
+
+					<h2 id="data-cleaning">Chapter 8: Data Cleaning and Missing Values</h2>
+
+					<p><strong>Data cleaning</strong> means fixing or removing data that is missing, duplicated, wrongly typed or inconsistent, before you analyse it. Analysts commonly say it takes most of their time. A wrong total caused by a duplicate row is worse than no total at all.</p>
+
+					<h3>Understanding missing values</h3>
+
+					<p>Pandas marks missing data with <code>NaN</code> (from NumPy, for floats), <code>NaT</code> (for datetimes), <code>None</code> or <code>pd.NA</code> (for the newer nullable types). The <code>isna</code> family treats all of them as missing.</p>
+
+<pre><code class="language-python">raw = pd.DataFrame({
+    "name": ["John", "Alex", "Sara", None, "Mei"],
+    "age": [25, np.nan, 28, 35, np.nan],
+    "department": ["Engineering", "Data Science", None, "Engineering", "Data Science"],
+    "salary": [75000, 95000, 88000, np.nan, 102000],
+})
+print(raw)</code></pre>
+
+<pre class="diagram">   name   age    department    salary
+0  John  25.0   Engineering   75000.0
+1  Alex   NaN  Data Science   95000.0
+2  Sara  28.0           NaN   88000.0
+3   NaN  35.0   Engineering       NaN
+4   Mei   NaN  Data Science  102000.0</pre>
+
+					<p>Notice <code>age</code> and <code>salary</code> became floats (<code>25.0</code>). Classic NumPy integers cannot hold <code>NaN</code>, so Pandas converts the column to float. The nullable <code>Int64</code> type in Chapter 15 avoids this.</p>
+
+					<h3>isna(), isnull(), notna() and notnull()</h3>
+
+<pre><code class="language-python">raw.isna().sum()                  # missing values per column
+raw.isna().sum().sum()            # total missing cells: 5
+raw[raw["age"].isna()]            # rows where age is missing
+raw.notna().all(axis=1)           # True for rows with no missing values</code></pre>
+
+<pre class="diagram">name          1
+age           2
+department    1
+salary        1
+dtype: int64</pre>
+
+					<p><code>isnull</code> is an exact alias of <code>isna</code>, and <code>notnull</code> of <code>notna</code>. They exist for historical reasons; pick one pair and use it consistently.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p><code>df[df["age"] == np.nan]</code> always returns nothing, because <code>NaN</code> is not equal to anything, including itself: <code>np.nan == np.nan</code> is <code>False</code>. Always use <code>isna()</code>.</p>
+					</aside>
+
+					<h3>fillna()</h3>
+
+<pre><code class="language-python">raw.fillna({
+    "age": raw["age"].median(),     # numeric: median ignores extreme values
+    "department": "Unknown",        # text: an explicit placeholder
+    "salary": 0,
+})</code></pre>
+
+<pre class="diagram">   name   age    department    salary
+0  John  25.0   Engineering   75000.0
+1  Alex  28.0  Data Science   95000.0
+2  Sara  28.0       Unknown   88000.0
+3   NaN  35.0   Engineering       0.0
+4   Mei  28.0  Data Science  102000.0</pre>
+
+					<p>Passing a dictionary fills each column differently, which is almost always what you want. Choose the fill value per column based on meaning: <code>0</code> is right for "number of returns" and wrong for "salary", where it would drag the average down.</p>
+
+					<p>For ordered data such as sensor readings, carry the last known value forward or the next one backward:</p>
+
+<pre><code class="language-python">temps = pd.Series([31.0, np.nan, np.nan, 29.5, np.nan])
+temps.ffill().tolist()     # [31.0, 31.0, 31.0, 29.5, 29.5]
+temps.bfill().tolist()     # [31.0, 29.5, 29.5, 29.5, nan]</code></pre>
+
+					<p>In pandas 3, <code>fillna(method="ffill")</code> raises <code>TypeError: ... unexpected keyword argument 'method'</code>. Use <code>ffill()</code> and <code>bfill()</code>.</p>
+
+					<h3>dropna()</h3>
+
+<pre><code class="language-python">raw.dropna()                       # drop rows with ANY missing value -&gt; only John left
+raw.dropna(subset=["name"])        # drop only rows missing a name
+raw.dropna(thresh=3)               # keep rows with at least 3 non-missing values
+raw.dropna(axis=1)                 # drop columns with any missing value</code></pre>
+
+					<p>Plain <code>dropna()</code> kept 1 row out of 5 here. On real data it can silently remove most of your dataset. Use <code>subset</code> to drop only rows missing values you truly need, and compare <code>len(df)</code> before and after.</p>
+
+					<h3>interpolate()</h3>
+
+<pre><code class="language-python">readings = pd.Series([10.0, np.nan, np.nan, 16.0, 18.0])
+readings.interpolate().tolist()    # [10.0, 12.0, 14.0, 16.0, 18.0]</code></pre>
+
+					<p>Fills gaps by drawing a straight line between known neighbours. It suits smoothly changing measurements (temperature, stock levels over time), not categories. For time-indexed data, <code>interpolate(method="time")</code> accounts for uneven gaps between timestamps.</p>
+
+					<h3>Fixing wrong data types</h3>
+
+					<p>A numeric column with one bad value is read as text. Arithmetic on it then fails or, worse, concatenates strings.</p>
+
+<pre><code class="language-python">messy = pd.DataFrame({"price": ["1,200", "850", "n/a", "2,050"], "qty": ["3", "1", "2", "x"]})
+
+messy["price"] = pd.to_numeric(messy["price"].str.replace(",", ""), errors="coerce")
+messy["qty"] = pd.to_numeric(messy["qty"], errors="coerce").astype("Int64")
+print(messy)
+print(messy.dtypes)</code></pre>
+
+<pre class="diagram">    price   qty
+0  1200.0     3
+1   850.0     1
+2     NaN     2
+3  2050.0  &lt;NA&gt;
+price    float64
+qty        Int64</pre>
+
+					<p><code>errors="coerce"</code> turns unparseable values into missing values instead of raising. Count them afterwards (<code>messy["price"].isna().sum()</code>) so bad data does not vanish unnoticed. <code>pd.to_datetime(..., errors="coerce")</code> does the same for dates.</p>
+
+					<h3>Inconsistent values</h3>
+
+<pre><code class="language-python">status = pd.Series(["Active", "active ", "ACTIVE", "inactive", "Inactve", "N/A"])
+clean = (
+    status.str.strip()
+    .str.lower()
+    .replace({"inactve": "inactive", "n/a": pd.NA})
+)
+clean.value_counts(dropna=False)</code></pre>
+
+<pre class="diagram">active      3
+inactive    2
+NaN         1
+Name: count, dtype: int64</pre>
+
+					<p>Normalise case and whitespace first, then map known typos with <code>replace</code>. Run <code>value_counts()</code> before and after to confirm every variant was caught.</p>
+
+					<h3>Validating data</h3>
+
+					<p>Turn your assumptions into checks that run every time the pipeline runs:</p>
+
+<pre><code class="language-python">orders_check = pd.DataFrame({
+    "order_id": [1, 2, 3, 3],
+    "qty": [2, -1, 5, 1],
+    "email": ["a@x.com", "bad", "c@x.com", "d@x.com"],
+})
+problems = {
+    "duplicate_ids": int(orders_check["order_id"].duplicated().sum()),
+    "negative_qty": int((orders_check["qty"] &lt; 0).sum()),
+    "bad_email": int((~orders_check["email"].str.contains(r"^[^@\s]+@[^@\s]+\.[a-z]+$")).sum()),
+}
+print(problems)</code></pre>
+
+<pre class="diagram">{'duplicate_ids': 1, 'negative_qty': 1, 'bad_email': 1}</pre>
+
+					<p>In a production job, fail loudly (raise an exception or send an alert) when a count is above zero, rather than writing bad data downstream. Libraries such as Pandera and Great Expectations formalise these checks as schemas.</p>
+
+					<h2 id="transformation">Chapter 9: Data Transformation and Manipulation</h2>
+
+					<p>Transformation means deriving new values from existing ones: mapping codes to labels, bucketing numbers, capping outliers, ranking. Pandas offers a ladder of tools, from fast and restrictive to slow and flexible. Climb only as high as you need.</p>
+
+					<h3>Vectorised operations: the default</h3>
+
+					<p>A <strong>vectorised operation</strong> works on a whole column at once in compiled code. Arithmetic (<code>+ - * /</code>), comparisons, <code>.str</code> and <code>.dt</code> methods and most built-in methods are vectorised.</p>
+
+<pre><code class="language-python">orders["revenue"] = orders["quantity"] * orders["unit_price"]</code></pre>
+
+					<p>I timed four ways to compute <code>price * qty</code> on 1,000,000 rows:</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Approach</th><th scope="col">Time</th></tr></thead>
+							<tbody>
+								<tr><td><code>for _, row in df.iterrows()</code> (measured on 100k rows, scaled)</td><td>about 8.5 s</td></tr>
+								<tr><td><code>df.apply(lambda r: r["price"] * r["qty"], axis=1)</code></td><td>2.64 s</td></tr>
+								<tr><td>Python <code>zip</code> loop over the two columns</td><td>0.100 s</td></tr>
+								<tr><td><code>df["price"] * df["qty"]</code></td><td>0.74 ms</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>The vectorised version was about 3,500 times faster than <code>apply</code> with <code>axis=1</code>. That gap is the single most important performance fact in Pandas.</p>
+
+					<h3>map(): transform each value of a Series</h3>
+
+					<p><strong>Definition:</strong> <code>Series.map</code> replaces each value using a dictionary, a Series or a function.</p>
+
+<pre><code class="language-python">codes = {"Engineering": "ENG", "Data Science": "DS", "Product": "PRD"}
+employees["department"].map(codes).tolist()</code></pre>
+
+<pre class="diagram">['ENG', 'DS', 'PRD', 'ENG', nan, 'DS']</pre>
+
+					<p>Values missing from the dictionary ("Sales") become <code>NaN</code>. That is useful for spotting unmapped codes, and a trap if you expected them to stay unchanged; use <code>replace</code> for that.</p>
+
+<pre><code class="language-python">employees["salary"].map(lambda s: f"₹{s:,}").head(3).tolist()   # ['₹75,000', '₹95,000', '₹88,000']</code></pre>
+
+					<h3>apply(): run a function on values, rows or columns</h3>
+
+<pre><code class="language-python">def salary_band(salary):
+    if salary &gt;= 100000:
+        return "high"
+    if salary &gt;= 85000:
+        return "mid"
+    return "entry"
+
+employees["salary"].apply(salary_band).tolist()</code></pre>
+
+<pre class="diagram">['entry', 'mid', 'mid', 'high', 'entry', 'high']</pre>
+
+					<p>On a DataFrame, <code>apply</code> passes each <strong>column</strong> (default) or each <strong>row</strong> (<code>axis=1</code>) to your function:</p>
+
+<pre><code class="language-python">employees[["age", "salary"]].apply(lambda col: col.max() - col.min())   # range per column
+employees.apply(lambda row: f"{row['name']} ({row['department']})", axis=1)</code></pre>
+
+<pre class="diagram">age          16
+salary    53000
+dtype: int64</pre>
+
+					<p>The <code>salary_band</code> logic can be vectorised with <code>np.select</code> or <code>pd.cut</code>, which give the same result in compiled code:</p>
+
+<pre><code class="language-python">np.select(
+    [employees["salary"] &gt;= 100000, employees["salary"] &gt;= 85000],
+    ["high", "mid"],
+    default="entry",
+)
+
+pd.cut(employees["salary"], bins=[0, 85000, 100000, np.inf],
+       labels=["entry", "mid", "high"], right=False)</code></pre>
+
+					<h3>DataFrame.map() (formerly applymap)</h3>
+
+<pre><code class="language-python">prices = pd.DataFrame({"a": [1.234, 2.5], "b": [3.14159, 4.0]})
+prices.map(lambda x: f"{x:.2f}")</code></pre>
+
+<pre class="diagram">      a     b
+0  1.23  3.14
+1  2.50  4.00</pre>
+
+					<p><code>DataFrame.map</code> applies a function to <strong>every cell</strong>. It was called <code>applymap</code> until pandas 2.1; <code>applymap</code> was deprecated then and is <strong>removed in pandas 3</strong>.</p>
+
+					<h3>map vs apply vs vectorised</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Tool</th><th scope="col">Works on</th><th scope="col">Accepts</th><th scope="col">Speed</th><th scope="col">Use when</th></tr></thead>
+							<tbody>
+								<tr><td>Vectorised ops</td><td>Whole columns</td><td>Operators, built-in methods</td><td>Fastest</td><td>Always try first</td></tr>
+								<tr><td><code>Series.map</code></td><td>Each value of a Series</td><td>Dict, Series, function</td><td>Fast with a dict</td><td>Lookups and code-to-label mapping</td></tr>
+								<tr><td><code>Series.apply</code></td><td>Each value of a Series</td><td>Function</td><td>Python speed</td><td>Logic with no vectorised equivalent</td></tr>
+								<tr><td><code>DataFrame.apply</code></td><td>Each column or row</td><td>Function</td><td>Slow with <code>axis=1</code></td><td>Per-column summaries; rows only as a last resort</td></tr>
+								<tr><td><code>DataFrame.map</code></td><td>Each cell</td><td>Function</td><td>Python speed</td><td>Cell-wise formatting</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>replace() and astype()</h3>
+
+<pre><code class="language-python">employees["city"].replace({"Bengaluru": "Bangalore"})     # unmatched values stay unchanged
+pd.Series([0, -1, 5, -1]).replace(-1, np.nan)               # sentinel value to missing
+
+pd.Series(["1", "2", "3"]).astype("int64").sum()            # 6
+employees["department"].astype("category")                  # see Chapter 15</code></pre>
+
+					<p><code>astype</code> raises if any value cannot be converted. For dirty data, use <code>pd.to_numeric(..., errors="coerce")</code> instead.</p>
+
+					<h3>where() and mask()</h3>
+
+<pre><code class="language-python">employees["salary"].where(employees["salary"] &lt; 100000, 100000).tolist()
+employees["salary"].mask(employees["salary"] &lt; 80000, 80000).tolist()</code></pre>
+
+<pre class="diagram">[75000, 95000, 88000, 100000, 67000, 100000]
+[80000, 95000, 88000, 120000, 80000, 102000]</pre>
+
+					<p><code>where(cond, other)</code> <strong>keeps</strong> values where the condition is true and replaces the rest. <code>mask(cond, other)</code> does the opposite: it <strong>replaces</strong> where the condition is true. Read <code>mask</code> as "hide these".</p>
+
+					<h3>clip(), round() and abs()</h3>
+
+<pre><code class="language-python">changes = pd.Series([-12.456, 3.14159, 150.5, -0.5])
+changes.clip(lower=-10, upper=100).tolist()   # [-10.0, 3.14159, 100.0, -0.5]
+changes.round(1).tolist()                     # [-12.5, 3.1, 150.5, -0.5]
+changes.abs().tolist()                        # [12.456, 3.14159, 150.5, 0.5]</code></pre>
+
+					<p><code>clip</code> caps outliers at a floor and ceiling, which is common before plotting or training a model.</p>
+
+					<h3>rank()</h3>
+
+<pre><code class="language-python">emp = employees[["name", "salary"]].copy()
+emp["rank"] = emp["salary"].rank(ascending=False).astype(int)
+
+pd.Series([100, 90, 90, 80]).rank(ascending=False).tolist()                  # [1.0, 2.5, 2.5, 4.0]
+pd.Series([100, 90, 90, 80]).rank(method="dense", ascending=False).tolist()  # [1.0, 2.0, 2.0, 3.0]</code></pre>
+
+					<p>Ties get the average rank by default (<code>2.5</code>). <code>method="min"</code> gives both <code>2</code> like a sports table, and <code>"dense"</code> leaves no gaps after ties.</p>
+
+					<p><code>sort_values()</code> and <code>sort_index()</code> were covered in Chapter 7, and <code>rename()</code> too.</p>
+
+					<h2 id="strings">Chapter 10: Working with Strings</h2>
+
+					<p>Text columns expose vectorised string methods through the <strong><code>.str</code> accessor</strong>. They mirror Python's <code>str</code> methods but run on a whole column and skip missing values instead of crashing.</p>
+
+<pre><code class="language-python">customers = pd.DataFrame({
+    "name": ["  john SMITH ", "alex o'neil", "SARA khan", None],
+    "email": ["John.Smith@Gmail.COM ", "alex@company.io", "sara.khan@yahoo.com", "bad-email"],
+    "phone": ["+91 98470-12345", "98470 55555", "(0484) 2345678", "n/a"],
+    "product": ["iPhone 15 Pro - 256GB", "Galaxy S24 - 128GB", "Pixel 9 - 256GB", "iPhone 15 - 128GB"],
+})</code></pre>
+
+					<h3>Case and whitespace</h3>
+
+<pre><code class="language-python">customers["name"].str.strip().str.title().tolist()
+customers["email"].str.strip().str.lower().tolist()
+customers["name"].str.upper().tolist()</code></pre>
+
+<pre class="diagram">['John Smith', "Alex O'Neil", 'Sara Khan', nan]
+['john.smith@gmail.com', 'alex@company.io', 'sara.khan@yahoo.com', 'bad-email']
+['  JOHN SMITH ', "ALEX O'NEIL", 'SARA KHAN', nan]</pre>
+
+					<p><code>strip()</code> removes whitespace from both ends; <code>lstrip()</code> and <code>rstrip()</code> remove it from one side. All three accept characters to remove: <code>pd.Series(["--abc--"]).str.lstrip("-")</code> gives <code>"abc--"</code>. Missing values stay missing through the whole chain. Lowercase emails before comparing or deduplicating them.</p>
+
+					<h3>replace()</h3>
+
+<pre><code class="language-python">customers["phone"].str.replace(r"\D", "", regex=True).tolist()           # keep digits only
+customers["product"].str.replace(" - ", " | ", regex=False).tolist()     # literal text</code></pre>
+
+<pre class="diagram">['919847012345', '9847055555', '04842345678', '']
+['iPhone 15 Pro | 256GB', 'Galaxy S24 | 128GB', 'Pixel 9 | 256GB', 'iPhone 15 | 128GB']</pre>
+
+					<p>Always pass <code>regex=</code> explicitly. <code>\D</code> means "any non-digit", so the first line normalises phone numbers in every format to digits.</p>
+
+					<h3>split()</h3>
+
+<pre><code class="language-python">parts = customers["product"].str.split(" - ", expand=True)
+parts.columns = ["model", "storage"]
+print(parts)</code></pre>
+
+<pre class="diagram">           model storage
+0  iPhone 15 Pro   256GB
+1     Galaxy S24   128GB
+2        Pixel 9   256GB
+3      iPhone 15   128GB</pre>
+
+					<p>Without <code>expand=True</code>, each cell holds a list. With it, each piece becomes its own column. Use <code>n=1</code> to split only on the first separator.</p>
+
+					<h3>contains(), startswith(), endswith() and len()</h3>
+
+<pre><code class="language-python">customers["product"].str.contains("iphone", case=False).tolist()     # [True, False, False, True]
+customers["product"].str.startswith("Pixel").tolist()                # [False, False, True, False]
+customers["email"].str.strip().str.lower().str.endswith(".com").tolist()
+customers["name"].str.len().tolist()                                 # [13.0, 11.0, 9.0, nan]
+customers["name"].str.contains("john", case=False, na=False)         # missing -&gt; False</code></pre>
+
+					<p>These return boolean masks for filtering: <code>customers[customers["product"].str.contains("iphone", case=False)]</code>. <code>contains</code> treats the pattern as a regex by default; pass <code>regex=False</code> when searching for text containing <code>.</code>, <code>+</code> or <code>(</code>. Pass <code>na=False</code> so missing values do not break the filter.</p>
+
+					<h3>extract(): pull structured data out of text</h3>
+
+<pre><code class="language-python">customers["product"].str.extract(r"(?P&lt;storage_gb&gt;\d+)GB")
+customers["email"].str.strip().str.lower().str.extract(r"@(?P&lt;domain&gt;[\w.-]+)$")</code></pre>
+
+<pre class="diagram">  storage_gb          domain
+0        256       gmail.com
+1        128      company.io
+2        256       yahoo.com
+3        128             NaN</pre>
+
+					<p>Each regex <strong>capture group</strong> (the part in parentheses) becomes a column, and <code>?P&lt;name&gt;</code> names it. Rows with no match get <code>NaN</code>. <code>extractall</code> returns every match, not just the first.</p>
+
+					<h3>match() and fullmatch()</h3>
+
+<pre><code class="language-python">pattern = r"^[\w.+-]+@[\w-]+\.[\w.]+$"
+customers["email"].str.strip().str.match(pattern).tolist()      # [True, True, True, False]</code></pre>
+
+					<p><code>match</code> anchors at the <strong>start</strong> of the string only; <code>fullmatch</code> requires the <strong>whole</strong> string to match, so you can drop the <code>^</code> and <code>$</code>. <code>contains</code> searches anywhere. For validation, prefer <code>fullmatch</code>.</p>
+
+					<h3>Slicing and joining</h3>
+
+<pre><code class="language-python">customers["name"].str.strip().str[:4].tolist()               # first 4 characters
+customers["name"].str.strip().str.title().str.cat(sep=", ")  # 'John Smith, Alex O'Neil, Sara Khan'</code></pre>
+
+					<h3>Regular expressions quick reference</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Pattern</th><th scope="col">Matches</th></tr></thead>
+							<tbody>
+								<tr><td><code>\d</code> / <code>\D</code></td><td>A digit / a non-digit</td></tr>
+								<tr><td><code>\w</code> / <code>\s</code></td><td>Letter, digit or underscore / whitespace</td></tr>
+								<tr><td><code>+</code>, <code>*</code>, <code>?</code></td><td>One or more, zero or more, optional</td></tr>
+								<tr><td><code>^</code>, <code>$</code></td><td>Start, end of string</td></tr>
+								<tr><td><code>[abc]</code>, <code>[^abc]</code></td><td>Any of, none of these characters</td></tr>
+								<tr><td><code>(...)</code></td><td>Capture group (used by <code>extract</code>)</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Write regex patterns as raw strings (<code>r"\d+"</code>) so Python does not treat the backslashes as escape sequences.</p>
+
+					<h2 id="groupby">Chapter 11: Grouping and Aggregation</h2>
+
+					<h3>What is GroupBy?</h3>
+
+					<p><strong>GroupBy</strong> answers "per something" questions: revenue per region, average salary per department, orders per customer. It follows a pattern called <strong>split-apply-combine</strong>:</p>
+
+<pre class="diagram">employees                      split by department          apply mean()       combine
+name   department   salary     Engineering: 75000, 120000 -&gt;  97500     -&gt;  Data Science  98500
+John   Engineering   75000     Data Science: 95000, 102000 -&gt; 98500         Engineering   97500
+Alex   Data Science  95000     Product:      88000        -&gt;  88000         Product       88000
+...                            Sales:        67000        -&gt;  67000         Sales         67000</pre>
+
+					<p>It is the Pandas version of SQL's <code>SELECT department, AVG(salary) FROM employees GROUP BY department</code>.</p>
+
+					<h3>groupby() with a single aggregation</h3>
+
+<pre><code class="language-python">employees.groupby("department")["salary"].mean()
+employees.groupby("department")["salary"].sum().sort_values(ascending=False)</code></pre>
+
+<pre class="diagram">department
+Data Science    197000
+Engineering     195000
+Product          88000
+Sales            67000
+Name: salary, dtype: int64</pre>
+
+					<p><code>groupby("department")</code> alone computes nothing; it returns a <code>GroupBy</code> object waiting for an aggregation. Select the column(s) you need before aggregating, so Pandas does not compute results for every column.</p>
+
+					<p>The built-in aggregations are all fast: <code>sum</code>, <code>mean</code>, <code>median</code>, <code>min</code>, <code>max</code>, <code>count</code>, <code>size</code>, <code>std</code>, <code>var</code>, <code>first</code>, <code>last</code>, <code>nunique</code>.</p>
+
+					<h3>agg(): several statistics at once</h3>
+
+<pre><code class="language-python">orders.groupby("category")["revenue"].agg(["sum", "mean", "median", "min", "max", "count"])</code></pre>
+
+<pre class="diagram">                sum          mean   median   min    max  count
+category
+Books          6845   1711.250000   1672.5  1300   2200      4
+Electronics  124993  24998.600000  24999.0  3998  54999      5
+Home           8494   2831.333333   2598.0  2397   3499      3</pre>
+
+					<h3>Named aggregation: the form to use in real code</h3>
+
+<pre><code class="language-python">summary = orders.groupby("region").agg(
+    orders=("order_id", "count"),
+    units=("quantity", "sum"),
+    revenue=("revenue", "sum"),
+    avg_order=("revenue", "mean"),
+)
+print(summary.round(0))</code></pre>
+
+<pre class="diagram">        orders  units  revenue  avg_order
+region
+North        4      9    60046    15012.0
+South        5     14    65190    13038.0
+West         3      4    15096     5032.0</pre>
+
+					<p>Each keyword becomes an output column: <code>new_name=(source_column, function)</code>. You get flat, readable column names instead of a two-level header. <code>aggregate</code> is an alias of <code>agg</code>, and a dictionary also works: <code>.agg({"revenue": "sum", "quantity": "max"})</code>.</p>
+
+					<h3>Grouping by multiple columns</h3>
+
+<pre><code class="language-python">orders.groupby(["region", "category"])["revenue"].sum()</code></pre>
+
+<pre class="diagram">region  category
+North   Books           2650
+        Electronics    54999
+        Home            2397
+South   Books           4195
+        Electronics    60995
+West    Electronics     8999
+        Home            6097
+Name: revenue, dtype: int64</pre>
+
+					<p>The result has a two-level <strong>MultiIndex</strong> (Chapter 15). Pass <code>as_index=False</code> to get ordinary columns back, which is easier to export or merge:</p>
+
+<pre><code class="language-python">orders.groupby(["region", "category"], as_index=False)["revenue"].sum()</code></pre>
+
+					<h3>count() vs size()</h3>
+
+<pre><code class="language-python">scores = pd.DataFrame({"team": ["A", "A", "B", "B", "B"], "score": [10, np.nan, 7, 8, np.nan]})
+scores.groupby("team")["score"].count()    # A: 1, B: 2  (non-missing values)
+scores.groupby("team").size()              # A: 2, B: 3  (all rows)</code></pre>
+
+					<h3>transform(): group results aligned to the original rows</h3>
+
+					<p><code>agg</code> returns one row per group. <code>transform</code> returns one value per <strong>original row</strong>, so you can compare each row with its group:</p>
+
+<pre><code class="language-python">emp = employees.copy()
+emp["dept_avg"] = emp.groupby("department")["salary"].transform("mean")
+emp["vs_dept_avg"] = emp["salary"] - emp["dept_avg"]</code></pre>
+
+<pre class="diagram">    name    department  salary  dept_avg  vs_dept_avg
+0   John   Engineering   75000   97500.0     -22500.0
+1   Alex  Data Science   95000   98500.0      -3500.0
+2   Sara       Product   88000   88000.0          0.0
+3  Priya   Engineering  120000   97500.0      22500.0
+4   Omar         Sales   67000   67000.0          0.0
+5    Mei  Data Science  102000   98500.0       3500.0</pre>
+
+					<p>This replaces the clumsy "aggregate, then merge back" pattern. Typical uses: percentage of group total, filling missing values with the group mean, z-scores within a group.</p>
+
+					<h3>filter(): keep or drop whole groups</h3>
+
+<pre><code class="language-python">orders.groupby("customer_id").filter(lambda g: len(g) &gt;= 3)   # customers with 3+ orders</code></pre>
+
+<pre class="diagram">    order_id  customer_id  revenue
+0       1001            1    24999
+1       1002            2     1350
+2       1003            1     3998
+5       1006            2    54999
+7       1008            1     2200
+11      1012            2     1300</pre>
+
+					<p>The function receives each group as a DataFrame and returns <code>True</code> or <code>False</code> for the whole group. Do not confuse it with <code>DataFrame.filter</code> from Chapter 6.</p>
+
+					<h3>Custom aggregations and top-N per group</h3>
+
+<pre><code class="language-python">def price_range(s):
+    return s.max() - s.min()
+
+orders.groupby("category")["unit_price"].agg(price_range)
+
+# Largest order in each region
+orders.sort_values("revenue", ascending=False).groupby("region").head(1)</code></pre>
+
+<pre class="diagram">   region  order_id  revenue
+5   North      1006    54999
+10  South      1011    31998
+8    West      1009     8999</pre>
+
+					<p>Custom functions run in Python per group, so they are slower than built-ins. Here <code>agg(["max", "min"])</code> followed by a subtraction would be the vectorised version.</p>
+
+					<h2 id="combining-reshaping">Chapter 12: Combining and Reshaping Data</h2>
+
+					<h3>concat(): stack DataFrames</h3>
+
+<pre><code class="language-python">q1 = pd.DataFrame({"month": ["Jan", "Feb"], "revenue": [120, 150]})
+q2 = pd.DataFrame({"month": ["Apr", "May"], "revenue": [170, 160]})
+
+pd.concat([q1, q2], ignore_index=True)           # rows on top of each other
+pd.concat([q1, q2], keys=["Q1", "Q2"])           # remember which frame each row came from</code></pre>
+
+<pre class="diagram">  month  revenue
+0   Jan      120
+1   Feb      150
+2   Apr      170
+3   May      160</pre>
+
+					<p><code>concat</code> glues frames along an axis; it does not match rows on a key. With <code>axis=1</code> it places frames side by side, aligned on the index. Use it for monthly files with the same columns.</p>
+
+					<h3>merge(): join on key columns</h3>
+
+					<p><strong>Definition:</strong> <code>merge</code> combines two DataFrames by matching values in one or more key columns, exactly like a SQL join. The roadmap example:</p>
+
+<pre><code class="language-python">df1 = pd.DataFrame({"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"]})
+df2 = pd.DataFrame({"id": [1, 2, 3], "dept": ["Data", "Eng", "Product"]})
+pd.merge(df1, df2, on="id")</code></pre>
+
+<pre class="diagram">   id     name     dept
+0   1    Alice     Data
+1   2      Bob      Eng
+2   3  Charlie  Product</pre>
+
+					<p>Real data rarely matches perfectly. The <code>how</code> parameter decides what happens to rows without a partner:</p>
+
+<pre><code class="language-python">customers = pd.DataFrame({"customer_id": [1, 2, 3, 4], "name": ["John", "Alex", "Sara", "Priya"]})
+cust_orders = pd.DataFrame({"order_id": [501, 502, 503, 504],
+                            "customer_id": [1, 1, 3, 9], "amount": [250, 120, 310, 90]})
+
+customers.merge(cust_orders, on="customer_id", how="outer", indicator=True)</code></pre>
+
+<pre class="diagram">   customer_id   name  order_id  amount      _merge
+0            1   John     501.0   250.0        both
+1            1   John     502.0   120.0        both
+2            2   Alex       NaN     NaN   left_only
+3            3   Sara     503.0   310.0        both
+4            4  Priya       NaN     NaN   left_only
+5            9    NaN     504.0    90.0  right_only</pre>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"><code>how</code></th><th scope="col">Keeps</th><th scope="col">Rows here</th><th scope="col">Typical use</th></tr></thead>
+							<tbody>
+								<tr><td><code>"inner"</code> (default)</td><td>Only keys in both</td><td>3 (John twice, Sara)</td><td>Orders with a known customer</td></tr>
+								<tr><td><code>"left"</code></td><td>All left rows</td><td>5 (adds Alex, Priya with NaN)</td><td>Enrich a main table; keep every customer</td></tr>
+								<tr><td><code>"right"</code></td><td>All right rows</td><td>4 (adds order 504 with no customer)</td><td>Rarely; swap the frames and use left</td></tr>
+								<tr><td><code>"outer"</code></td><td>Everything</td><td>6</td><td>Reconciling two systems</td></tr>
+								<tr><td><code>"cross"</code></td><td>Every combination</td><td>rows x rows</td><td>Generating all size and colour variants</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p><code>indicator=True</code> adds a <code>_merge</code> column saying where each row came from. It is the quickest way to find orphan records after a migration: filter on <code>left_only</code> and <code>right_only</code>.</p>
+
+<pre><code class="language-python">sizes = pd.DataFrame({"size": ["S", "M"]})
+colors = pd.DataFrame({"color": ["Red", "Blue"]})
+sizes.merge(colors, how="cross")      # S-Red, S-Blue, M-Red, M-Blue</code></pre>
+
+					<h4>Different key names, overlapping columns and multiple keys</h4>
+
+<pre><code class="language-python">products = pd.DataFrame({"sku": ["A1", "B2"], "price": [100, 200]})
+stock = pd.DataFrame({"product_code": ["A1", "B2"], "price": [95, 210]})
+products.merge(stock, left_on="sku", right_on="product_code", suffixes=("_list", "_store"))
+
+# Match on two columns at once
+actual = orders.groupby(["region", "category"], as_index=False)["revenue"].sum()
+targets = pd.DataFrame({"region": ["South", "North"], "category": ["Electronics", "Books"],
+                        "target": [80000, 3000]})
+actual.merge(targets, on=["region", "category"], how="inner")</code></pre>
+
+<pre class="diagram">  sku  price_list product_code  price_store
+0  A1         100           A1           95
+1  B2         200           B2          210</pre>
+
+					<h4>Protect yourself with validate</h4>
+
+<pre><code class="language-python">customers.merge(cust_orders, on="customer_id", validate="one_to_one")</code></pre>
+
+<pre class="diagram">MergeError: Merge keys are not unique in right dataset; not a one-to-one merge</pre>
+
+					<p><code>validate</code> (<code>"one_to_one"</code>, <code>"one_to_many"</code>, <code>"many_to_one"</code>) raises if the keys are not as unique as you assumed. Without it, duplicate keys multiply rows silently: a 3-row frame merged with a 3-row frame produced 5 rows in my test because key <code>1</code> appeared twice on each side.</p>
+
+					<h3>join(): merge on the index</h3>
+
+<pre><code class="language-python">salaries = employees.set_index("name")[["salary"]]
+cities = employees.set_index("name")[["city"]]
+salaries.join(cities)</code></pre>
+
+					<p><code>join</code> is a shortcut for merging on the index, and defaults to a <strong>left</strong> join. It can join several frames at once: <code>a.join([b, c])</code>.</p>
+
+					<h3>pivot(): long to wide</h3>
+
+<pre><code class="language-python">long = pd.DataFrame({
+    "month": ["Jan", "Jan", "Feb", "Feb"],
+    "store": ["Kochi", "Chennai", "Kochi", "Chennai"],
+    "sales": [100, 80, 120, 95],
+})
+wide = long.pivot(index="month", columns="store", values="sales")</code></pre>
+
+<pre class="diagram">store  Chennai  Kochi
+month
+Feb         95    120
+Jan         80    100</pre>
+
+					<p><code>pivot</code> only reshapes. If two rows share the same index and column pair, it raises <code>ValueError: Index contains duplicate entries, cannot reshape</code>, because it does not know how to combine them.</p>
+
+					<h3>pivot_table(): reshape and aggregate</h3>
+
+<pre><code class="language-python">orders.pivot_table(
+    index="region", columns="category", values="revenue",
+    aggfunc="sum", fill_value=0, margins=True,
+)</code></pre>
+
+<pre class="diagram">category  Books  Electronics  Home     All
+region
+North      2650        54999  2397   60046
+South      4195        60995     0   65190
+West          0         8999  6097   15096
+All        6845       124993  8494  140332</pre>
+
+					<p>This is Excel's pivot table. <code>aggfunc</code> combines duplicates, <code>fill_value</code> replaces empty cells and <code>margins=True</code> adds the totals row and column.</p>
+
+					<h3>melt(): wide to long</h3>
+
+<pre><code class="language-python">wide.reset_index().melt(id_vars="month", var_name="store", value_name="sales")</code></pre>
+
+<pre class="diagram">  month    store  sales
+0   Feb  Chennai     95
+1   Jan  Chennai     80
+2   Feb    Kochi    120
+3   Jan    Kochi    100</pre>
+
+					<p><code>melt</code> is the inverse of <code>pivot</code>. Spreadsheets are usually wide (one column per month), while groupby, plotting libraries and databases prefer long data (one row per observation).</p>
+
+					<h3>stack() and unstack()</h3>
+
+<pre><code class="language-python">grouped = orders.groupby(["region", "category"])["revenue"].sum()
+grouped.unstack(fill_value=0)       # inner index level -&gt; columns
+grouped.unstack().stack()           # columns -&gt; inner index level</code></pre>
+
+					<p>They move a level between the row index and the columns. <code>unstack</code> after a multi-column groupby is a fast way to build a matrix.</p>
+
+					<h3>explode(): one row per list item</h3>
+
+<pre><code class="language-python">posts = pd.DataFrame({"post": ["Pandas", "Django"], "tags": [["python", "data"], ["python", "web", "orm"]]})
+posts.explode("tags", ignore_index=True)</code></pre>
+
+<pre class="diagram">     post    tags
+0  Pandas  python
+1  Pandas    data
+2  Django  python
+3  Django     web
+4  Django     orm</pre>
+
+					<p>Common with JSON APIs and comma-separated fields: <code>df["tags"].str.split(",").explode()</code>.</p>
+
+					<h3>crosstab(): frequency tables</h3>
+
+<pre><code class="language-python">pd.crosstab(employees["department"], employees["city"])</code></pre>
+
+<pre class="diagram">city          Bengaluru  Chennai  Kochi
+department
+Data Science          1        0      1
+Engineering           0        1      1
+Product               0        0      1
+Sales                 1        0      0</pre>
+
+					<p><code>crosstab</code> counts combinations by default. Add <code>normalize="index"</code> for row percentages, or <code>values=</code> and <code>aggfunc=</code> to aggregate another column.</p>
+
+					<h3>Which one do I need?</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Goal</th><th scope="col">Use</th></tr></thead>
+							<tbody>
+								<tr><td>Stack files with the same columns</td><td><code>pd.concat</code></td></tr>
+								<tr><td>Add columns from another table by key</td><td><code>merge</code></td></tr>
+								<tr><td>Same, but the key is the index</td><td><code>join</code></td></tr>
+								<tr><td>Long to wide, no duplicates</td><td><code>pivot</code></td></tr>
+								<tr><td>Long to wide with aggregation</td><td><code>pivot_table</code></td></tr>
+								<tr><td>Wide to long</td><td><code>melt</code></td></tr>
+								<tr><td>Count combinations</td><td><code>crosstab</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="dates-time">Chapter 13: Working with Dates and Time</h2>
+
+					<h3>to_datetime()</h3>
+
+<pre><code class="language-python">pd.to_datetime(pd.Series(["2026-01-05", "2026-02-14", "not a date"]), errors="coerce")
+pd.to_datetime(pd.Series(["05/01/2026", "14/02/2026"]), format="%d/%m/%Y")</code></pre>
+
+<pre class="diagram">0   2026-01-05
+1   2026-02-14
+2          NaT
+dtype: datetime64[us]</pre>
+
+					<p>Dates stored as text cannot be sorted chronologically, filtered by range or grouped by month. Convert them first. <code>NaT</code> ("not a time") is the missing value for dates. Pass <code>format</code> whenever you know it: parsing is faster and there is no guessing.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake: ambiguous dates</p>
+						<p>Is <code>05/02/2026</code> 5 February or 2 May? Pandas cannot know. I tested <code>format="mixed", dayfirst=True</code> on a column mixing <code>2026-02-10</code> and <code>05/02/2026</code>: it fixed the second value and turned the ISO date into <strong>2 October</strong>. Parse each known format explicitly and combine: <code>iso.fillna(indian)</code>, as in Project 3 below.</p>
+					</aside>
+
+					<h3>Timestamp, Timedelta and Period</h3>
+
+<pre><code class="language-python">ts = pd.Timestamp("2026-03-15 14:30")
+ts.day_name(), ts.quarter                            # ('Sunday', 1)
+ts + pd.Timedelta(days=10, hours=3)                  # Timestamp('2026-03-25 17:30:00')
+pd.Timestamp("2026-03-31") - pd.Timestamp("2026-01-01")   # Timedelta('89 days 00:00:00')
+
+p = pd.Period("2026-03", freq="M")
+p.start_time.date(), p.end_time.date()               # (2026-03-01, 2026-03-31)</code></pre>
+
+					<ul>
+						<li><strong>Timestamp:</strong> a single point in time.</li>
+						<li><strong>Timedelta:</strong> a duration, the difference between two timestamps.</li>
+						<li><strong>Period:</strong> a whole span, such as "March 2026". Good for monthly reports.</li>
+					</ul>
+
+					<h3>date_range()</h3>
+
+<pre><code class="language-python">pd.date_range("2026-01-01", periods=4, freq="D")
+pd.date_range("2026-01-01", "2026-06-30", freq="ME")     # month ends
+pd.date_range("2026-01-05", periods=3, freq="W-MON")     # Mondays</code></pre>
+
+<pre class="diagram">DatetimeIndex(['2026-01-31', '2026-02-28', '2026-03-31', '2026-04-30', '2026-05-31', '2026-06-30'],
+              dtype='datetime64[us]', freq='ME')</pre>
+
+					<p>Useful for building a complete calendar to merge against, so days with zero sales still appear. Month-end is <code>"ME"</code> since pandas 2.2. In pandas 3 the old <code>"M"</code> raises <code>ValueError: Invalid frequency: M</code> in <code>date_range</code> and <code>resample</code>; the same applies to <code>"Q"</code> and <code>"Y"</code>, now <code>"QE"</code> and <code>"YE"</code>.</p>
+
+					<h3>The .dt accessor</h3>
+
+<pre><code class="language-python">d = orders[["order_id", "order_date"]].head(4).copy()
+d["year"] = d["order_date"].dt.year
+d["month"] = d["order_date"].dt.month
+d["day"] = d["order_date"].dt.day
+d["weekday"] = d["order_date"].dt.day_name()
+d["is_weekend"] = d["order_date"].dt.dayofweek &gt;= 5     # Monday=0 ... Sunday=6</code></pre>
+
+<pre class="diagram">   order_id order_date  year  month  day   weekday  is_weekend
+0      1001 2026-01-05  2026      1    5    Monday       False
+1      1002 2026-01-18  2026      1   18    Sunday        True
+2      1003 2026-01-29  2026      1   29  Thursday       False
+3      1004 2026-02-03  2026      2    3   Tuesday       False</pre>
+
+					<p><code>.dt</code> does for dates what <code>.str</code> does for text. Other useful attributes: <code>quarter</code>, <code>hour</code>, <code>is_month_end</code>, <code>days_in_month</code>.</p>
+
+					<h3>Filtering by date</h3>
+
+<pre><code class="language-python">orders[orders["order_date"].between("2026-03-01", "2026-03-15")]
+
+by_date = orders.set_index("order_date").sort_index()
+by_date.loc["2026-02"]           # every order in February 2026</code></pre>
+
+					<p>With a sorted <code>DatetimeIndex</code>, partial strings such as <code>"2026-02"</code> select a whole month. Note that <code>between("2026-03-01", "2026-03-15")</code> stops at midnight on 15 March; with time components, use <code>&lt; "2026-03-16"</code> as the upper bound.</p>
+
+					<h3>Formatting dates</h3>
+
+<pre><code class="language-python">orders["order_date"].dt.strftime("%d %b %Y").head(3).tolist()   # ['05 Jan 2026', '18 Jan 2026', '29 Jan 2026']
+orders["order_date"].dt.to_period("M")                          # Period('2026-01', 'M') ...</code></pre>
+
+					<p><code>strftime</code> returns text. Do it at the very end, for display or export, because text dates lose all date behaviour.</p>
+
+					<h3>Resampling and time-based grouping</h3>
+
+<pre><code class="language-python">orders.set_index("order_date").resample("ME")["revenue"].sum()</code></pre>
+
+<pre class="diagram">order_date
+2026-01-31    30347
+2026-02-28    60493
+2026-03-31    49492
+Freq: ME, Name: revenue, dtype: int64</pre>
+
+					<p><code>resample</code> is groupby for time: it buckets rows into regular intervals (<code>"D"</code>, <code>"W-MON"</code>, <code>"ME"</code>, <code>"QE"</code>, <code>"YE"</code>, <code>"h"</code>). Unlike groupby, it includes empty periods: weekly counts showed <code>0</code> for weeks with no orders. Pass <code>on="order_date"</code> to skip <code>set_index</code>.</p>
+
+					<p>To group by time <em>and</em> another column, use <code>pd.Grouper</code>:</p>
+
+<pre><code class="language-python">orders.groupby([pd.Grouper(key="order_date", freq="ME"), "region"])["revenue"].sum()</code></pre>
+
+					<h3>Time zones</h3>
+
+<pre><code class="language-python">utc = pd.Series(pd.to_datetime(["2026-03-15 09:00", "2026-03-15 18:30"])).dt.tz_localize("UTC")
+utc.dt.tz_convert("Asia/Kolkata")</code></pre>
+
+<pre class="diagram">0   2026-03-15 14:30:00+05:30
+1   2026-03-16 00:00:00+05:30
+dtype: datetime64[us, Asia/Kolkata]</pre>
+
+					<p><code>tz_localize</code> <strong>labels</strong> naive times with a zone. <code>tz_convert</code> <strong>converts</strong> already-aware times to another zone. Store and compute in UTC and convert only for display; note how the 18:30 UTC order lands on the next calendar day in India, which changes daily totals.</p>
+
+					<h2 id="statistics">Chapter 14: Statistical and Analytical Operations</h2>
+
+					<h3>Descriptive statistics</h3>
+
+<pre><code class="language-python">rev = orders["revenue"]
+print(rev.sum(), round(rev.mean(), 2), rev.median(), rev.min(), rev.max())
+print(round(rev.std(), 2), round(rev.var()))
+print(orders["category"].mode().tolist())
+print(rev.quantile([0.25, 0.5, 0.9]))</code></pre>
+
+<pre class="diagram">140332 11694.33 3048.5 1300 54999
+16966.97 287878142
+['Electronics']
+0.25     2148.75
+0.50     3048.50
+0.90    31298.10</pre>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Method</th><th scope="col">Meaning</th><th scope="col">Read it as</th></tr></thead>
+							<tbody>
+								<tr><td><code>mean()</code></td><td>Average</td><td>Pulled up by large values: 11,694 here</td></tr>
+								<tr><td><code>median()</code></td><td>Middle value</td><td>The typical order: 3,048.5. Far below the mean, so a few big orders dominate</td></tr>
+								<tr><td><code>mode()</code></td><td>Most frequent value(s)</td><td>Returns a Series, since there can be ties</td></tr>
+								<tr><td><code>std()</code>, <code>var()</code></td><td>Spread around the mean</td><td>Uses sample formulas (<code>ddof=1</code>) by default, unlike NumPy</td></tr>
+								<tr><td><code>quantile(q)</code></td><td>Value below which a share q of the data falls</td><td>90% of orders are under 31,298</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>All of these skip missing values by default (<code>skipna=True</code>), and all work per column on a DataFrame. Pass <code>numeric_only=True</code> when a DataFrame also has text columns.</p>
+
+					<h3>corr() and cov()</h3>
+
+<pre><code class="language-python">marketing = pd.DataFrame({
+    "ad_spend": [1200, 1500, 1800, 2400, 3000, 3300],
+    "visits":   [5100, 5900, 6800, 8900, 10800, 11600],
+    "returns":  [32, 30, 35, 31, 29, 33],
+})
+marketing.corr().round(2)</code></pre>
+
+<pre class="diagram">          ad_spend  visits  returns
+ad_spend      1.00    1.00    -0.14
+visits        1.00    1.00    -0.16
+returns      -0.14   -0.16     1.00</pre>
+
+					<p><strong>Correlation</strong> runs from -1 to 1 and measures how strongly two columns move together. Ad spend and visits move almost perfectly together; returns are unrelated. Correlation does not prove one causes the other. <strong>Covariance</strong> (<code>cov()</code>) measures the same relationship in the original units, which makes it harder to compare across columns.</p>
+
+					<h3>cumsum(), cumprod(), diff() and pct_change()</h3>
+
+<pre><code class="language-python">monthly_rev = pd.Series([120000, 135000, 128000, 150000, 165000],
+                        index=["Jan", "Feb", "Mar", "Apr", "May"], name="revenue")
+report = monthly_rev.to_frame()
+report["running_total"] = monthly_rev.cumsum()
+report["change"] = monthly_rev.diff()
+report["pct_change"] = (monthly_rev.pct_change() * 100).round(1)</code></pre>
+
+<pre class="diagram">     revenue  running_total   change  pct_change
+Jan   120000         120000      NaN         NaN
+Feb   135000         255000  15000.0        12.5
+Mar   128000         383000  -7000.0        -5.2
+Apr   150000         533000  22000.0        17.2
+May   165000         698000  15000.0        10.0</pre>
+
+					<p>Year-to-date totals, month-over-month change and growth rates in three lines. The first row is <code>NaN</code> because there is no previous month. <code>cumprod</code> compounds growth factors: <code>pd.Series([1.10, 1.05, 0.98]).cumprod()</code> gives <code>[1.1, 1.155, 1.1319]</code>.</p>
+
+					<h3>rolling(), expanding() and ewm()</h3>
+
+<pre><code class="language-python">daily = pd.Series([210, 190, 250, 300, 280, 260, 320, 340],
+                  index=pd.date_range("2026-03-01", periods=8, freq="D"), name="orders")
+w = daily.to_frame()
+w["rolling_3d"] = daily.rolling(window=3).mean().round(1)
+w["expanding_max"] = daily.expanding().max()
+w["ewm_3"] = daily.ewm(span=3, adjust=False).mean().round(1)</code></pre>
+
+<pre class="diagram">            orders  rolling_3d  expanding_max  ewm_3
+2026-03-01     210         NaN          210.0  210.0
+2026-03-02     190         NaN          210.0  200.0
+2026-03-03     250       216.7          250.0  225.0
+2026-03-04     300       246.7          300.0  262.5
+2026-03-05     280       276.7          300.0  271.2
+2026-03-06     260       280.0          300.0  265.6
+2026-03-07     320       286.7          320.0  292.8
+2026-03-08     340       306.7          340.0  316.4</pre>
+
+					<ul>
+						<li><strong><code>rolling(3)</code></strong>: a moving window of the last 3 rows. Smooths noisy daily data. The first two rows are <code>NaN</code> until the window fills; <code>min_periods=1</code> changes that.</li>
+						<li><strong><code>expanding()</code></strong>: a window from the first row to the current one. "Best day so far".</li>
+						<li><strong><code>ewm(span=3)</code></strong>: exponentially weighted; recent values count more. Reacts faster than a simple rolling mean.</li>
+					</ul>
+
+					<p>On a <code>DatetimeIndex</code>, windows can be time-based: <code>daily.rolling("7D").sum()</code> covers 7 calendar days even when some days are missing.</p>
+
+					<h2 id="advanced">Chapter 15: Advanced Pandas Concepts</h2>
+
+					<h3>MultiIndex and hierarchical indexing</h3>
+
+					<p>A <strong>MultiIndex</strong> has several levels of labels per row, like region then category. Groupby on several columns creates one.</p>
+
+<pre><code class="language-python">mi = orders.groupby(["region", "category"])["revenue"].sum()
+
+mi.loc["South"]                              # all categories in one region
+mi.loc[("North", "Books")]                   # one exact cell: 2650
+mi.xs("Electronics", level="category")       # one category across regions
+mi.groupby(level="region").sum()             # aggregate an index level</code></pre>
+
+<pre class="diagram">region
+North    54999
+South    60995
+West      8999
+Name: revenue, dtype: int64</pre>
+
+					<p>Build one directly with <code>pd.MultiIndex.from_product([["2025", "2026"], ["Q1", "Q2"]], names=["year", "quarter"])</code>. MultiIndexes are compact, but they make code harder to read and export. Many teams <code>reset_index()</code> straight after a groupby and keep data flat.</p>
+
+					<h3>Advanced groupby and window functions</h3>
+
+					<p>SQL window functions such as <code>SUM() OVER (PARTITION BY ...)</code> and <code>ROW_NUMBER()</code> map directly to groupby methods:</p>
+
+<pre><code class="language-python">o = orders.copy()
+region_total = o.groupby("region")["revenue"].transform("sum")
+o["share_of_region"] = (o["revenue"] / region_total * 100).round(1)        # % of partition
+o["order_no_for_customer"] = o.groupby("customer_id").cumcount() + 1        # ROW_NUMBER()
+o["customer_running_total"] = o.groupby("customer_id")["revenue"].cumsum()  # running SUM()
+o.groupby("region")["revenue"].rolling(2).mean()                            # rolling per group</code></pre>
+
+<pre class="diagram">   order_id  customer_id  revenue  order_no_for_customer  customer_running_total
+0      1001            1    24999                      1                   24999
+1      1002            2     1350                      1                    1350
+2      1003            1     3998                      2                   28997
+5      1006            2    54999                      2                   56349
+7      1008            1     2200                      3                   31197</pre>
+
+					<p><code>cumcount</code> numbers rows within each group in their current order, so sort by date first when the order matters.</p>
+
+					<h3>Categorical data</h3>
+
+					<p>A <strong>categorical</strong> column stores each distinct value once and keeps small integer codes per row. For repetitive text such as city, status or country, the saving is large:</p>
+
+<pre><code class="language-python">big["city"] = big["city"].astype("category")   # 1,000,000 rows, 5 distinct cities</code></pre>
+
+<pre class="diagram">str: 14.4 MB  category: 1.0 MB</pre>
+
+					<p>Categories can also have an <strong>order</strong>, which makes sorting and comparisons follow business logic rather than the alphabet:</p>
+
+<pre><code class="language-python">sizes = pd.Series(["M", "S", "L", "M"],
+                  dtype=pd.CategoricalDtype(["S", "M", "L"], ordered=True))
+sizes.sort_values().tolist()     # ['S', 'M', 'M', 'L']
+(sizes &gt; "S").tolist()           # [True, False, True, True]</code></pre>
+
+					<p>Use categories for low-cardinality columns (few distinct values). For columns where almost every value is unique, such as names or emails, they use <em>more</em> memory.</p>
+
+					<h3>Sparse data</h3>
+
+<pre><code class="language-python">clicks = pd.Series(np.zeros(1_000_000))
+clicks.iloc[::1000] = 1                                     # 0.1% non-zero
+sparse = clicks.astype(pd.SparseDtype("float64", 0.0))</code></pre>
+
+<pre class="diagram">dense: 8.0 MB  sparse: 0.012 MB  density: 0.001</pre>
+
+					<p>Sparse types store only values that differ from a fill value. They suit one-hot encoded features and user-item matrices that are mostly zeros, and save nothing when most values differ.</p>
+
+					<h3>Copy vs view, and Copy-on-Write</h3>
+
+					<p>Before pandas 3, whether a selection returned a <strong>view</strong> (sharing memory with the original) or a <strong>copy</strong> depended on internal details. Changing a subset sometimes changed the original and sometimes did not, and Pandas warned with the infamous <code>SettingWithCopyWarning</code>.</p>
+
+					<p>pandas 3 makes <strong>Copy-on-Write (CoW)</strong> the only behaviour. The rule is now simple: <strong>every DataFrame or Series you get from an operation behaves as an independent copy.</strong> Internally Pandas still shares memory and copies only when one side is modified, so it is cheap.</p>
+
+<pre><code class="language-python">employees = pd.read_csv("employees.csv")
+seniors = employees[employees["age"] &gt;= 30]
+seniors["salary"] = seniors["salary"] * 1.05      # pandas 2: SettingWithCopyWarning
+
+print(employees.loc[employees["age"] &gt;= 30, "salary"].tolist())   # original unchanged
+print(seniors["salary"].tolist())</code></pre>
+
+<pre class="diagram">[95000, 120000, 67000]
+[99750.0, 126000.0, 70350.0]</pre>
+
+					<p>No warning was raised in pandas 3.0.5, and the original was untouched. The same applies to a column you pull out: <code>s = employees["salary"]; s.iloc[0] = 1</code> leaves <code>employees</code> unchanged.</p>
+
+					<p>The one pattern that now <strong>never</strong> works is <strong>chained assignment</strong>, assigning through two indexing steps:</p>
+
+<pre><code class="language-python">emp[emp["name"] == "John"]["salary"] = 1      # does nothing</code></pre>
+
+<pre class="diagram">ChainedAssignmentError: A value is being set on a copy of a DataFrame or Series through chained assignment ...</pre>
+
+					<p>It is a warning, not an exception, and John's salary stayed 75000. The first indexing step creates a new object, and the assignment modifies that temporary object. The fix is always one <code>.loc</code> call:</p>
+
+<pre><code class="language-python">emp.loc[emp["name"] == "John", "salary"] = 80000     # works</code></pre>
+
+					<aside class="callout">
+						<p class="callout-title">Upgrading from pandas 2</p>
+						<ul>
+							<li>Defensive <code>.copy()</code> calls after filtering are no longer needed to avoid warnings. They are harmless but cost memory.</li>
+							<li>Code that relied on a subset modifying its parent now silently does not. Search for chained assignments before upgrading.</li>
+							<li>Run your test suite on pandas 2.2 with <code>pd.options.mode.copy_on_write = "warn"</code> first; it flags code whose behaviour will change.</li>
+						</ul>
+					</aside>
+
+					<h3>Extension types: nullable integers, booleans and strings</h3>
+
+<pre><code class="language-python">x = pd.DataFrame({"qty": [3, None, 5], "active": [True, None, False], "name": ["a", None, "c"]})
+print(x.dtypes)
+print(x.convert_dtypes().dtypes)</code></pre>
+
+<pre class="diagram">qty       float64
+active     object
+name          str
+dtype: object
+qty         Int64
+active    boolean
+name       string
+dtype: object</pre>
+
+					<p>Classic NumPy types cannot represent missing integers or booleans, so <code>qty</code> became a float and <code>active</code> became <code>object</code>. <strong>Extension types</strong> fix that: <code>Int64</code> (capital I), <code>boolean</code> and <code>string</code> store a separate missing marker, <code>pd.NA</code>. <code>convert_dtypes()</code> picks them for you. PyArrow-backed types such as <code>"int64[pyarrow]"</code> go further and share memory with Arrow-based tools like Polars and DuckDB.</p>
+
+					<h3>Memory optimisation</h3>
+
+<pre><code class="language-python">nums["qty"] = pd.to_numeric(nums["qty"], downcast="unsigned")   # int64 -&gt; uint8 (values 0..99)
+nums["price"] = nums["price"].astype("float32")                 # float64 -&gt; float32</code></pre>
+
+<pre class="diagram">{'qty': dtype('uint8'), 'price': dtype('float32')}
+16.0 MB -&gt; 5.0 MB</pre>
+
+					<p>Combined steps for a large DataFrame: read only needed columns (<code>usecols</code>), downcast numbers, convert repetitive text to <code>category</code>, and drop intermediate DataFrames you no longer need. Check <code>float32</code> precision (about 7 significant digits) before using it for money; keep currency as <code>float64</code>, integers in the smallest unit (paise, cents), or <code>Decimal</code> outside Pandas.</p>
+
+					<h3>Chunk-based processing</h3>
+
+					<p>When a file is too large for memory, read it in pieces and combine partial results:</p>
+
+<pre><code class="language-python">totals = pd.Series(dtype="int64")
+rows = 0
+for chunk in pd.read_csv("big_orders.csv", chunksize=200_000, usecols=["region", "revenue"]):
+    rows += len(chunk)
+    totals = totals.add(chunk.groupby("region")["revenue"].sum(), fill_value=0)
+
+print(rows)
+print(totals.astype("int64"))</code></pre>
+
+<pre class="diagram">1000000
+region
+North    846900919
+South    850450446
+West     851453726
+dtype: int64</pre>
+
+					<p>I checked the result against a full in-memory groupby and the totals matched exactly. This works for anything you can combine piece by piece (sums, counts, min, max). Medians and distinct counts cannot be combined that way; for those, use Parquet with column selection, or a tool from Chapter 18.</p>
+
+					<h3>Faster filtering and queries</h3>
+
+					<ul class="list-check">
+						<li>Filter as early as possible, ideally in SQL or with <code>usecols</code> and Parquet <code>filters</code>, so less data reaches Pandas.</li>
+						<li>Select columns before groupby: <code>df.groupby("k")["v"].sum()</code>, not <code>df.groupby("k").sum()["v"]</code>.</li>
+						<li>Set and sort an index when you look up by key repeatedly: <code>df.set_index("sku").sort_index()</code> turns many lookups into binary searches.</li>
+						<li>Use <code>isin</code> for membership tests instead of chains of <code>==</code>.</li>
+						<li><code>query()</code> and <code>eval()</code> can use the <code>numexpr</code> package for large arithmetic expressions; measure before assuming a speed-up.</li>
+					</ul>
+
+					<h2 id="visualization">Chapter 16: Pandas Visualization</h2>
+
+					<p>Every DataFrame and Series has a <code>.plot()</code> method that draws with Matplotlib. It is the fastest way to look at your data while exploring.</p>
+
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+monthly = orders.resample("ME", on="order_date")["revenue"].sum()
+
+monthly.plot(kind="line", marker="o", title="Monthly revenue")
+orders.groupby("category")["revenue"].sum().sort_values().plot(kind="barh")
+employees["salary"].plot(kind="hist", bins=5)
+orders.plot(kind="box", column="unit_price", by="category")
+marketing.plot(kind="scatter", x="ad_spend", y="visits")
+orders.pivot_table(index="order_date", columns="region", values="revenue",
+                   aggfunc="sum", fill_value=0).resample("ME").sum().plot(kind="area", stacked=True)
+orders.groupby("region")["revenue"].sum().plot(kind="pie", autopct="%1.0f%%", ylabel="")
+plt.show()</code></pre>
+
+					<figure class="post-figure">
+						<img src="/assets/img/blog/python-pandas-tutorial/pandas-plots.webp" width="1320" height="726" loading="lazy" alt="Six charts drawn with pandas plot from the sample data: a line chart of monthly revenue rising from 30k in January to 60k in February then 49k in March; a horizontal bar chart where Electronics revenue far exceeds Home and Books; a salary histogram from 70k to 120k; box plots of unit price by category on a log scale; a scatter plot showing visits rising with ad spend; and a stacked area chart of revenue by North, South and West regions.">
+						<figcaption>Six chart types from the sample datasets, each one line of Pandas</figcaption>
+					</figure>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Chart</th><th scope="col"><code>kind=</code></th><th scope="col">Use it to show</th></tr></thead>
+							<tbody>
+								<tr><td>Line</td><td><code>"line"</code></td><td>A trend over time</td></tr>
+								<tr><td>Bar</td><td><code>"bar"</code>, <code>"barh"</code></td><td>Comparing categories; horizontal for long labels</td></tr>
+								<tr><td>Histogram</td><td><code>"hist"</code></td><td>The distribution of one numeric column</td></tr>
+								<tr><td>Box</td><td><code>"box"</code></td><td>Spread, median and outliers, compared across groups</td></tr>
+								<tr><td>Scatter</td><td><code>"scatter"</code></td><td>The relationship between two numeric columns</td></tr>
+								<tr><td>Area</td><td><code>"area"</code></td><td>How parts add up to a total over time</td></tr>
+								<tr><td>Pie</td><td><code>"pie"</code></td><td>Shares of a whole, only with a few slices; a bar chart is usually easier to read</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Matplotlib integration</h3>
+
+					<p><code>.plot()</code> returns a Matplotlib <code>Axes</code>, so you can customise anything Matplotlib can:</p>
+
+<pre><code class="language-python">fig, ax = plt.subplots(figsize=(8, 4))
+monthly.plot(ax=ax, marker="o")
+ax.set_title("Monthly revenue")
+ax.set_ylabel("Revenue (INR)")
+ax.axhline(monthly.mean(), linestyle="--", color="grey", label="average")
+ax.legend()
+fig.tight_layout()
+fig.savefig("monthly_revenue.png", dpi=150)</code></pre>
+
+					<p>Pass <code>ax=</code> to place several Pandas plots in one figure, as in the grid above.</p>
+
+					<h3>Seaborn integration</h3>
+
+					<p><strong>Seaborn</strong> builds statistical charts directly from long-format DataFrames:</p>
+
+<pre><code class="language-python">import seaborn as sns
+
+sns.set_theme(style="whitegrid")
+sns.barplot(data=employees, x="department", y="salary", estimator="mean", errorbar=None)
+sns.boxplot(data=orders, x="category", y="unit_price")</code></pre>
+
+					<p>Use Pandas plotting for quick looks, Seaborn for grouped and statistical charts, and Plotly or a BI tool when people need interactive dashboards.</p>
+
+					<h2 id="projects">Chapter 17: Real-World Pandas Projects</h2>
+
+					<p>Ten short projects that combine the earlier chapters. Each uses the sample datasets or a small inline one, so you can run them as written.</p>
+
+					<h3>Project 1: Employee data analysis</h3>
+
+					<p><strong>Problem:</strong> HR wants headcount, average salary and average age per department, and the top earner in each. <strong>Input:</strong> <code>employees</code>.</p>
+
+<pre><code class="language-python">report = (
+    employees.groupby("department")
+    .agg(headcount=("name", "count"), avg_salary=("salary", "mean"), avg_age=("age", "mean"))
+    .round(1)
+    .sort_values("avg_salary", ascending=False)
+)
+
+dept_max = employees.groupby("department")["salary"].transform("max")
+top_earners = employees.loc[employees["salary"] == dept_max, ["name", "department", "salary"]]</code></pre>
+
+<pre class="diagram">              headcount  avg_salary  avg_age
+department
+Data Science          2     98500.0     29.5
+Engineering           2     97500.0     30.0
+Product               1     88000.0     28.0
+Sales                 1     67000.0     41.0
+
+    name    department  salary
+2   Sara       Product   88000
+3  Priya   Engineering  120000
+4   Omar         Sales   67000
+5    Mei  Data Science  102000</pre>
+
+					<p><strong>How it works:</strong> named aggregation builds the summary; <code>transform("max")</code> puts each department's maximum next to every employee so a simple comparison finds the top earners. <strong>Business use:</strong> salary benchmarking and pay-equity reviews.</p>
+
+					<h3>Project 2: E-commerce sales analysis</h3>
+
+					<p><strong>Problem:</strong> which categories drive revenue, who are the top customers, and what is the average order value? <strong>Input:</strong> <code>orders</code>.</p>
+
+<pre><code class="language-python">cat = orders.groupby("category").agg(
+    orders=("order_id", "count"), units=("quantity", "sum"), revenue=("revenue", "sum"),
+)
+cat["share_pct"] = (cat["revenue"] / cat["revenue"].sum() * 100).round(1)
+
+top_customers = orders.groupby("customer_id")["revenue"].sum().nlargest(3)
+aov = orders["revenue"].sum() / orders["order_id"].nunique()</code></pre>
+
+<pre class="diagram">             orders  units  revenue  share_pct
+category
+Electronics       5      7   124993       89.1
+Home              3      6     8494        6.1
+Books             4     14     6845        4.9
+
+customer_id
+2    57649
+4    33993
+1    31197
+
+aov: 11694.33</pre>
+
+					<p><strong>Insight:</strong> Books sells the most units (14) but brings under 5% of revenue. <strong>Business use:</strong> deciding where to spend marketing budget and which customers to target for loyalty programmes.</p>
+
+					<h3>Project 3: Customer data cleaning</h3>
+
+					<p><strong>Problem:</strong> a CRM export has duplicates, messy names, mixed-case emails, phone numbers in several formats and dates in two formats. <strong>Input:</strong></p>
+
+<pre class="diagram">   customer_id          name                 email            phone signup_date
+0          101    john smith  John.Smith@Gmail.com  +91 98470-12345  2026-01-05
+1          102  ALEX O'NEIL       alex@company.io       98470 55555  05/02/2026
+2          103     sara khan        SARA@yahoo.com       9847011111  2026-02-10
+3          103     sara khan        SARA@yahoo.com       9847011111  2026-02-10
+4          104           NaN                priya@      98470 22222  2026-03-01
+5          105      mei  lin   mei.lin@outlook.com              NaN   not known</pre>
+
+<pre><code class="language-python">def clean_customers(df: pd.DataFrame) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+    df = df.drop_duplicates(subset="customer_id").copy()
+    df["name"] = df["name"].str.strip().str.replace(r"\s+", " ", regex=True).str.title()
+    df["email"] = df["email"].str.strip().str.lower()
+    df["phone"] = df["phone"].str.replace(r"\D", "", regex=True).str[-10:]
+
+    iso = pd.to_datetime(df["signup_date"], format="%Y-%m-%d", errors="coerce")
+    indian = pd.to_datetime(df["signup_date"], format="%d/%m/%Y", errors="coerce")
+    df["signup_date"] = iso.fillna(indian)
+
+    valid_email = df["email"].str.fullmatch(r"[\w.+-]+@[\w-]+\.[\w.]+", na=False)
+    is_bad = ~valid_email | df["name"].isna()
+    return df[~is_bad], df[is_bad]
+
+good, rejected = clean_customers(raw_customers)</code></pre>
+
+<pre class="diagram">   customer_id         name                 email       phone signup_date
+0          101   John Smith  john.smith@gmail.com  9847012345  2026-01-05
+1          102  Alex O'Neil       alex@company.io  9847055555  2026-02-05
+2          103    Sara Khan        sara@yahoo.com  9847011111  2026-02-10
+5          105      Mei Lin   mei.lin@outlook.com         NaN         NaT
+
+rejected:
+   customer_id name   email
+4          104  NaN  priya@</pre>
+
+					<p><strong>How it works:</strong> duplicates go first so later steps do less work. <code>\s+</code> collapses double spaces; <code>str[-10:]</code> keeps the 10-digit mobile number after removing the country code. Each date format is parsed explicitly. Invalid rows go to a separate <code>rejected</code> frame instead of disappearing. <strong>Business use:</strong> CRM imports, email campaign lists, deduplicating customers before a migration.</p>
+
+					<h3>Project 4: Monthly revenue report</h3>
+
+<pre><code class="language-python">monthly = orders.resample("ME", on="order_date").agg(
+    orders=("order_id", "count"), revenue=("revenue", "sum"),
+)
+monthly.index = monthly.index.strftime("%b %Y")
+monthly["mom_growth_pct"] = (monthly["revenue"].pct_change() * 100).round(1)
+monthly["cumulative"] = monthly["revenue"].cumsum()</code></pre>
+
+<pre class="diagram">            orders  revenue  mom_growth_pct  cumulative
+order_date
+Jan 2026         3    30347             NaN       30347
+Feb 2026         3    60493            99.3       90840
+Mar 2026         6    49492           -18.2      140332</pre>
+
+					<p><strong>Insight:</strong> March had twice as many orders as February but 18% less revenue, because February included one 54,999 order. Order count and revenue can move in opposite directions, so report both. <strong>Business use:</strong> the monthly management report.</p>
+
+					<h3>Project 5: Product inventory analysis</h3>
+
+<pre><code class="language-python">inventory = pd.DataFrame({
+    "sku": ["KB-01", "MS-02", "HD-03", "MN-04", "CB-05"],
+    "product": ["Keyboard", "Mouse", "Headset", "Monitor", "USB-C Cable"],
+    "stock": [12, 3, 0, 25, 140],
+    "reorder_level": [10, 15, 5, 8, 50],
+    "unit_cost": [1500, 600, 2200, 11000, 250],
+    "units_sold_30d": [40, 55, 18, 6, 90],
+})
+inventory["stock_value"] = inventory["stock"] * inventory["unit_cost"]
+inventory["days_of_cover"] = (inventory["stock"] / (inventory["units_sold_30d"] / 30)).round(1)
+inventory["status"] = np.select(
+    [inventory["stock"] == 0, inventory["stock"] &lt;= inventory["reorder_level"]],
+    ["out of stock", "reorder"],
+    default="ok",
+)</code></pre>
+
+<pre class="diagram">     sku      product  stock  stock_value  days_of_cover        status
+0  KB-01     Keyboard     12        18000            9.0            ok
+1  MS-02        Mouse      3         1800            1.6       reorder
+2  HD-03      Headset      0            0            0.0  out of stock
+3  MN-04      Monitor     25       275000          125.0            ok
+4  CB-05  USB-C Cable    140        35000           46.7            ok</pre>
+
+					<p><strong>Insight:</strong> the keyboard is "ok" by its reorder level but has only 9 days of cover at the current sales rate, while monitors tie up 275,000 in stock for 125 days. <strong>Business use:</strong> purchase planning and freeing up working capital.</p>
+
+					<h3>Project 6: Student performance analysis</h3>
+
+<pre><code class="language-python">students = pd.DataFrame({
+    "student": ["Anu", "Ben", "Chitra", "Dev", "Esha", "Farhan"],
+    "class": ["10A", "10A", "10A", "10B", "10B", "10B"],
+    "math": [78, 92, 45, 88, 67, 95],
+    "science": [82, 89, 52, 79, 71, 91],
+    "english": [91, 76, 60, 85, 74, 88],
+})
+subjects = ["math", "science", "english"]
+students["average"] = students[subjects].mean(axis=1).round(1)
+students["grade"] = pd.cut(students["average"], bins=[0, 60, 75, 90, 100],
+                           labels=["D", "C", "B", "A"], right=False)
+students["class_rank"] = students.groupby("class")["average"].rank(ascending=False, method="min").astype(int)
+
+needs_support = students.loc[(students[subjects] &lt; 50).any(axis=1), "student"].tolist()   # ['Chitra']</code></pre>
+
+<pre class="diagram">  student class  math  science  english  average grade  class_rank
+0     Anu   10A    78       82       91     83.7     B           2
+1     Ben   10A    92       89       76     85.7     B           1
+2  Chitra   10A    45       52       60     52.3     D           3
+3     Dev   10B    88       79       85     84.0     B           2
+4    Esha   10B    67       71       74     70.7     C           3
+5  Farhan   10B    95       91       88     91.3     A           1</pre>
+
+					<p><code>mean(axis=1)</code> averages across columns for each row. <code>pd.cut</code> converts scores to grade bands, and a grouped <code>rank</code> ranks within each class. <strong>Business use:</strong> report cards, and identifying students who need support early.</p>
+
+					<h3>Project 7: CSV data processing</h3>
+
+					<p><strong>Problem:</strong> a system drops one CSV per day into a folder. Combine them, remove orders that appear in more than one file, and produce city totals.</p>
+
+<pre><code class="language-python">from pathlib import Path
+
+frames = []
+for path in sorted(Path("daily_exports").glob("orders_*.csv")):
+    df = pd.read_csv(path)
+    df["source_file"] = path.name           # keep lineage for debugging
+    frames.append(df)
+
+combined = pd.concat(frames, ignore_index=True).drop_duplicates(subset="order_id")
+combined.groupby("city", as_index=False)["amount"].sum().to_csv("city_totals.csv", index=False)</code></pre>
+
+<pre class="diagram">   order_id     city  amount            source_file
+0         1    Kochi    1200  orders_2026-03-01.csv
+1         2  Chennai     800  orders_2026-03-01.csv
+2         3    Kochi     450  orders_2026-03-02.csv
+3         4    Delhi    2300  orders_2026-03-02.csv
+4         5  Chennai     990  orders_2026-03-03.csv
+
+city_totals.csv:
+city,amount
+Chennai,1790
+Delhi,2300
+Kochi,1650</pre>
+
+					<p>Order 2 appeared in two files and was counted once. Build one list and concatenate once; concatenating inside the loop copies the growing frame every time. <strong>Business use:</strong> consolidating exports from POS systems, partners or log files.</p>
+
+					<h3>Project 8: Excel report generation</h3>
+
+<pre><code class="language-python">summary = orders.pivot_table(index="region", columns="category", values="revenue",
+                             aggfunc="sum", fill_value=0, margins=True, margins_name="Total")
+
+with pd.ExcelWriter("sales_report.xlsx", engine="openpyxl") as writer:
+    summary.to_excel(writer, sheet_name="Summary")
+    orders.to_excel(writer, sheet_name="Orders", index=False)
+
+    ws = writer.sheets["Orders"]                # the openpyxl worksheet
+    ws.freeze_panes = "A2"                      # keep the header visible
+    for col in ws.columns:                      # rough auto-width
+        ws.column_dimensions[col[0].column_letter].width = max(len(str(c.value)) for c in col) + 2</code></pre>
+
+<pre class="diagram">['Summary', 'Orders']
+        Books  Electronics  Home   Total
+region
+North    2650        54999  2397   60046
+South    4195        60995     0   65190
+West        0         8999  6097   15096
+Total    6845       124993  8494  140332</pre>
+
+					<p>Pandas writes the data; <code>writer.sheets</code> exposes the underlying openpyxl worksheet for formatting. <strong>Business use:</strong> the weekly report finance asks for, generated by a scheduled job instead of by hand.</p>
+
+					<h3>Project 9: Database data analysis</h3>
+
+<pre><code class="language-python">import sqlite3
+
+conn = sqlite3.connect("shop.db")    # or a SQLAlchemy engine for PostgreSQL/MySQL
+customers = pd.DataFrame({"customer_id": [1, 2, 3, 4, 5, 6],
+                          "name": ["John", "Alex", "Sara", "Priya", "Omar", "Mei"],
+                          "city": ["Kochi", "Bengaluru", "Kochi", "Chennai", "Bengaluru", "Kochi"]})
+customers.to_sql("customers", conn, index=False, if_exists="replace")
+orders.to_sql("orders", conn, index=False, if_exists="replace")
+
+query = """
+    SELECT c.city, o.category, o.revenue, o.order_date
+    FROM orders AS o
+    JOIN customers AS c ON c.customer_id = o.customer_id
+    WHERE o.order_date &gt;= :start
+"""
+df = pd.read_sql(query, conn, params={"start": "2026-02-01"}, parse_dates=["order_date"])
+
+city_report = df.pivot_table(index="city", columns="category", values="revenue",
+                             aggfunc="sum", fill_value=0)
+city_report.reset_index().to_sql("city_category_revenue", conn, index=False, if_exists="replace")</code></pre>
+
+<pre class="diagram">category   Books  Electronics  Home
+city
+Bengaluru   1300        54999  2598
+Chennai     1995        31998     0
+Kochi       2200         8999  5896</pre>
+
+					<p>The database does the join and the date filter, where indexes help; Pandas does the reshaping, which is awkward in SQL. The result is written back as a reporting table. <strong>Business use:</strong> reporting from a production replica without adding load to the main application.</p>
+
+					<h3>Project 10: Business KPI reporting</h3>
+
+<pre><code class="language-python">o = orders.copy()
+o["month"] = o["order_date"].dt.to_period("M")
+first_month = o.groupby("customer_id")["month"].transform("min")
+o["customer_type"] = np.where(o["month"] == first_month, "new", "returning")
+
+kpis = o.groupby("month").agg(
+    revenue=("revenue", "sum"),
+    orders=("order_id", "nunique"),
+    customers=("customer_id", "nunique"),
+)
+kpis["aov"] = (kpis["revenue"] / kpis["orders"]).round(0)
+kpis["new_customers"] = o[o["customer_type"] == "new"].groupby("month")["customer_id"].nunique()
+kpis["revenue_growth_pct"] = (kpis["revenue"].pct_change() * 100).round(1)
+kpis["target_hit"] = kpis["revenue"] &gt;= pd.Series([40000, 50000, 60000], index=kpis.index)</code></pre>
+
+<pre class="diagram">         revenue  orders  customers      aov  new_customers  revenue_growth_pct  target_hit
+month
+2026-01    30347       3          2  10116.0              2                 NaN       False
+2026-02    60493       3          3  20164.0              2                99.3        True
+2026-03    49492       6          6   8249.0              2               -18.2       False</pre>
+
+					<p><strong>How it works:</strong> <code>transform("min")</code> finds each customer's first month, which classifies every order as new or returning. Assigning <code>kpis["new_customers"]</code> aligns on the month index automatically. <strong>Business use:</strong> the KPI table behind a dashboard or a board update.</p>
+
+					<h2 id="performance">Chapter 18: Performance and Best Practices</h2>
+
+					<h3>The rules that matter most</h3>
+
+					<ol>
+						<li><strong>Prefer vectorised operations.</strong> Column arithmetic ran in 0.74 ms where <code>apply(axis=1)</code> took 2.64 s (Chapter 9).</li>
+						<li><strong>Avoid loops over rows.</strong> <code>iterrows()</code> was the slowest option measured. If a loop is truly unavoidable, <code>itertuples()</code> is much faster than <code>iterrows()</code>, and a loop over NumPy arrays (<code>df["a"].to_numpy()</code>) faster still.</li>
+						<li><strong>Use appropriate data types.</strong> Read IDs as strings, dates as datetimes, and numbers as numbers. Wrong types are slower and cause bugs.</li>
+						<li><strong>Optimise memory.</strong> Downcast numbers and load only the columns you need. Memory use went from 16.0 MB to 5.0 MB in Chapter 15.</li>
+						<li><strong>Use categoricals for repetitive text.</strong> 14.4 MB to 1.0 MB for a city column.</li>
+						<li><strong>Avoid unnecessary copies.</strong> With Copy-on-Write, extra <code>.copy()</code> calls are no longer needed for safety. Do not keep five intermediate versions of a large DataFrame alive; reuse names or chain methods.</li>
+						<li><strong>Read large files in chunks</strong> when they do not fit in memory, or convert them to Parquet once.</li>
+						<li><strong>Filter early.</strong> Push filters into SQL, <code>usecols</code> or Parquet reads before data reaches Pandas.</li>
+						<li><strong>Do not grow DataFrames in a loop.</strong> Collect rows in a list and build the frame once.</li>
+						<li><strong>Benchmark before optimising.</strong> Guesses about performance are often wrong.</li>
+					</ol>
+
+					<h3>Benchmarking</h3>
+
+<pre><code class="language-python"># In Jupyter
+%timeit df["price"] * df["qty"]
+
+# In a script
+import time
+start = time.perf_counter()
+result = df.groupby("region")["revenue"].sum()
+print(f"{time.perf_counter() - start:.4f}s")
+
+# Memory
+df.info(memory_usage="deep")</code></pre>
+
+					<p>Measure on realistic data sizes. An approach that wins on 100 rows can lose on 10 million.</p>
+
+					<h3>Readable code is a best practice too</h3>
+
+<pre><code class="language-python">report = (
+    pd.read_csv("orders.csv", parse_dates=["order_date"])
+    .query("region != 'West'")
+    .assign(month=lambda d: d["order_date"].dt.to_period("M"))
+    .groupby(["month", "category"], as_index=False)["revenue"].sum()
+    .sort_values(["month", "revenue"], ascending=[True, False])
+)</code></pre>
+
+					<p><strong>Method chaining</strong> reads top to bottom like a recipe, avoids half-finished intermediate variables and works naturally with Copy-on-Write. Break the chain when a step needs a comment or a check.</p>
+
+					<h3>Testing Pandas code</h3>
+
+<pre><code class="language-python">import pandas.testing as pdt
+
+def test_monthly_revenue():
+    result = monthly_revenue(sample_orders)
+    expected = pd.DataFrame({"month": ["2026-01"], "revenue": [30347]})
+    pdt.assert_frame_equal(result, expected)</code></pre>
+
+					<p><code>assert_frame_equal</code> compares values, dtypes, index and column names, and prints a clear diff when they differ. Keep transformations in plain functions that take and return DataFrames, so they are easy to test with pytest. My guide on <a href="/blog/python-testing-code-quality/">Python testing and code quality</a> covers the rest.</p>
+
+					<h3>When Pandas is not the right tool</h3>
+
+					<p>Pandas works in memory on one machine. As a rough guide, it needs several times the file size in RAM while working. Its limits:</p>
+
+					<ul class="list-cross">
+						<li>Datasets larger than available memory.</li>
+						<li>Many common operations use only one CPU core.</li>
+						<li>Heavy row-by-row logic that cannot be vectorised.</li>
+						<li>Transactional, multi-user data. That belongs in a database.</li>
+					</ul>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Tool</th><th scope="col">What it is</th><th scope="col">Consider it when</th></tr></thead>
+							<tbody>
+								<tr><td><strong>Polars</strong></td><td>A DataFrame library written in Rust, multi-threaded, with a lazy query optimiser</td><td>Single-machine data that is slow or tight in Pandas; new pipelines</td></tr>
+								<tr><td><strong>DuckDB</strong></td><td>An in-process analytical SQL database that queries Pandas frames, CSV and Parquet directly</td><td>You prefer SQL, or need joins and aggregations on larger-than-memory files</td></tr>
+								<tr><td><strong>Dask</strong></td><td>Parallel, chunked DataFrames with a Pandas-like API</td><td>Scaling existing Pandas code across cores or a small cluster</td></tr>
+								<tr><td><strong>PySpark</strong></td><td>The Python API for Apache Spark, a distributed engine</td><td>Terabyte-scale data on a cluster, often in a data platform such as Databricks</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Pandas remains the best choice for most datasets that fit in memory, thanks to its API coverage and ecosystem. Learn Pandas first; the concepts transfer directly to the others.</p>
+
+					<h2 id="troubleshooting">Chapter 19: Common Errors and Troubleshooting</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Error</th><th scope="col">Typical cause</th><th scope="col">Fix</th></tr></thead>
+							<tbody>
+								<tr><td><code>KeyError: 'Salary'</code></td><td>Column name typo, wrong case or hidden whitespace</td><td>Print <code>df.columns.tolist()</code>; normalise with <code>df.columns.str.strip().str.lower()</code></td></tr>
+								<tr><td><code>KeyError: 10</code> from <code>.loc[10]</code></td><td>Label does not exist, often after filtering</td><td>Use <code>.iloc</code> for positions or <code>reset_index(drop=True)</code></td></tr>
+								<tr><td><code>IndexError: single positional indexer is out-of-bounds</code></td><td><code>.iloc</code> position beyond the last row</td><td>Check <code>len(df)</code>; handle empty results</td></tr>
+								<tr><td><code>ValueError: Length of values (3) does not match length of index (6)</code></td><td>Assigning a list of the wrong length as a column</td><td>Assign a Series (aligned by index) or a list of the right length</td></tr>
+								<tr><td><code>ValueError: The truth value of a Series is ambiguous</code></td><td><code>and</code>/<code>or</code> or <code>if</code> on a Series; missing parentheses</td><td>Use <code>&amp;</code>, <code>|</code>, <code>~</code> with parentheses; <code>.any()</code>/<code>.all()</code> in <code>if</code></td></tr>
+								<tr><td><code>ValueError: invalid literal for int() with base 10: 'abc'</code></td><td><code>astype(int)</code> on dirty text</td><td><code>pd.to_numeric(s, errors="coerce")</code>, then inspect the NaNs</td></tr>
+								<tr><td><code>ChainedAssignmentError</code> (pandas 3) / <code>SettingWithCopyWarning</code> (pandas 2)</td><td><code>df[cond]["col"] = value</code></td><td><code>df.loc[cond, "col"] = value</code></td></tr>
+								<tr><td><code>ParserError: Expected 2 fields in line 3, saw 3</code></td><td>Wrong delimiter, or unquoted commas inside values</td><td>Set <code>sep</code>; fix the export's quoting; <code>on_bad_lines="skip"</code> as a last resort</td></tr>
+								<tr><td><code>FileNotFoundError</code></td><td>Relative path resolved from a different working directory</td><td>Build paths with <code>Path(__file__).parent</code></td></tr>
+								<tr><td><code>UnicodeDecodeError</code></td><td>File is not UTF-8</td><td><code>encoding="latin-1"</code> or <code>"cp1252"</code>; <code>"utf-8-sig"</code> for Excel CSVs with a BOM</td></tr>
+								<tr><td><code>ValueError: You are trying to merge on int64 and str columns</code></td><td>Key types differ between frames</td><td>Convert both keys to the same type before merging</td></tr>
+								<tr><td><code>MergeError: Merge keys are not unique</code></td><td><code>validate=</code> caught duplicate keys</td><td>Deduplicate or aggregate the side that should be unique</td></tr>
+								<tr><td><code>ValueError: Index contains duplicate entries, cannot reshape</code></td><td><code>pivot</code> with duplicate index/column pairs</td><td>Use <code>pivot_table</code> with an <code>aggfunc</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h3>Silent problems (no error, wrong answer)</h3>
+
+					<p>These are worse than exceptions, because nothing tells you something went wrong.</p>
+
+					<ul>
+						<li><strong>Numbers stored as text.</strong> <code>pd.Series(["10", "20", "30"]).sum()</code> returns <code>'102030'</code>, string concatenation. Check <code>dtypes</code> after every read.</li>
+						<li><strong>Row explosion after a merge.</strong> Duplicate keys on both sides multiply rows. Compare <code>len()</code> before and after, and use <code>validate=</code>.</li>
+						<li><strong>Missing values skipped in maths.</strong> <code>pd.Series([1, None, 3]).mean()</code> is <code>2.0</code>, not 1.33, and the sum of an all-missing column is <code>0</code>. Decide deliberately how missing values should count.</li>
+						<li><strong>Comparing with NaN.</strong> <code>== np.nan</code> is always <code>False</code>. Use <code>isna()</code>.</li>
+						<li><strong>Ambiguous dates</strong> parsed in the wrong order (Chapter 13).</li>
+						<li><strong>Integer columns turning into floats</strong> when one value is missing; IDs then print as <code>101.0</code>. Use <code>Int64</code>.</li>
+					</ul>
+
+					<h3>Performance problems</h3>
+
+					<p>If a script is slow, check in this order: a Python loop or <code>apply(axis=1)</code> over rows; growing a DataFrame inside a loop; reading the same file repeatedly; text columns that should be <code>category</code>; and loading columns or rows that a filter later throws away.</p>
+
+					<h2 id="interview">Chapter 20: Pandas Interview Preparation</h2>
+
+					<h3>Basic questions</h3>
+
+					<h4>1. What is Pandas and what are its main data structures?</h4>
+					<p>An open-source Python library for structured data. Its main structures are the <strong>Series</strong> (one-dimensional, labelled) and the <strong>DataFrame</strong> (two-dimensional, labelled rows and columns, each column a Series).</p>
+
+					<h4>2. How do you read a CSV and inspect it?</h4>
+					<p><code>df = pd.read_csv("file.csv")</code>, then <code>df.shape</code>, <code>df.info()</code>, <code>df.head()</code> and <code>df.describe()</code>.</p>
+
+					<h4>3. How do you select rows where a column meets a condition?</h4>
+					<p>Boolean indexing: <code>df[df["age"] &gt; 30]</code>; for several conditions, <code>df[(cond1) &amp; (cond2)]</code>; or <code>df.query("age &gt; 30")</code>.</p>
+
+					<h4>4. How do you find and handle missing values?</h4>
+					<p><code>df.isna().sum()</code> to find them; <code>fillna</code> to replace (per-column values, <code>ffill</code>, interpolation) or <code>dropna(subset=...)</code> to remove. The right choice depends on what the column means.</p>
+
+					<h4>5. What is the index?</h4>
+					<p>The row labels. It identifies rows, drives <code>.loc</code> lookups and aligns data in arithmetic, joins and assignments.</p>
+
+					<h3>Intermediate questions</h3>
+
+					<h4>6. Explain split-apply-combine.</h4>
+					<p>GroupBy splits rows into groups by key, applies a function to each group (aggregate, transform or filter) and combines the results into one object.</p>
+
+					<h4>7. What is the difference between agg and transform?</h4>
+					<p><code>agg</code> returns one row per group. <code>transform</code> returns a result the same length as the input, aligned to the original rows, so you can add a group statistic as a new column.</p>
+
+					<h4>8. How do you remove duplicates while keeping the latest record?</h4>
+					<p><code>df.sort_values("updated_at").drop_duplicates(subset="customer_id", keep="last")</code>.</p>
+
+					<h4>9. How do you convert a column to datetime and get monthly totals?</h4>
+					<p><code>df["date"] = pd.to_datetime(df["date"], format=...)</code>, then <code>df.resample("ME", on="date")["amount"].sum()</code>.</p>
+
+					<h4>10. How do you reshape wide data to long?</h4>
+					<p><code>df.melt(id_vars=[...], var_name=..., value_name=...)</code>. The reverse is <code>pivot</code> or <code>pivot_table</code>.</p>
+
+					<h3>Advanced questions</h3>
+
+					<h4>11. What is Copy-on-Write and how did pandas 3 change things?</h4>
+					<p>Every derived DataFrame or Series behaves as an independent copy; data is physically copied only when one side is modified. It is the only mode in pandas 3. <code>SettingWithCopyWarning</code> is gone, and chained assignment (<code>df[a][b] = x</code>) never updates the original. Use a single <code>.loc</code>.</p>
+
+					<h4>12. How would you process a 20 GB CSV on a laptop with 16 GB RAM?</h4>
+					<p>Read only needed columns with explicit dtypes, process with <code>chunksize</code> and combine partial aggregates, or convert once to Parquet and read selected columns. If the logic needs the whole dataset (joins, medians), use DuckDB or Polars' lazy mode, or Dask.</p>
+
+					<h4>13. Why is apply(axis=1) slow, and what do you use instead?</h4>
+					<p>It calls a Python function once per row and builds a Series for each row. Replace it with vectorised column operations, <code>np.where</code>/<code>np.select</code> for conditions, <code>pd.cut</code> for bins, and <code>map</code> with a dictionary for lookups.</p>
+
+					<h4>14. How do you reduce a DataFrame's memory?</h4>
+					<p>Measure with <code>memory_usage(deep=True)</code>, then downcast numbers, convert low-cardinality text to <code>category</code>, use the <code>str</code> or Arrow-backed types instead of <code>object</code>, and drop unused columns.</p>
+
+					<h4>15. How do you replicate a SQL window function?</h4>
+					<p><code>groupby().transform()</code> for <code>SUM() OVER (PARTITION BY ...)</code>, <code>groupby().cumcount()</code> for <code>ROW_NUMBER()</code>, <code>groupby().rank()</code> for <code>RANK()</code>, <code>groupby().shift()</code> for <code>LAG()</code>, and <code>groupby().rolling()</code> for moving windows.</p>
+
+					<h3>Scenario-based questions</h3>
+
+					<h4>16. After merging orders with customers, your revenue total went up. Why?</h4>
+					<p>The customer table has duplicate keys, so some orders matched several customer rows and were counted more than once. Check <code>customers["customer_id"].duplicated().sum()</code>, deduplicate, and add <code>validate="many_to_one"</code> to the merge.</p>
+
+					<h4>17. A column of amounts sums to a huge string. What happened?</h4>
+					<p>It was read as text, probably because of a currency symbol, thousands separator or a stray value. Clean the text and convert with <code>pd.to_numeric(..., errors="coerce")</code>, then investigate the rows that became NaN.</p>
+
+					<h4>18. A daily report shows no row for days with zero sales. How do you fix it?</h4>
+					<p>Use <code>resample("D")</code>, which includes empty periods, or reindex against <code>pd.date_range(start, end, freq="D")</code> with <code>fill_value=0</code>.</p>
+
+					<h3>Practical coding questions</h3>
+
+					<h4>19. Top 2 earners per department</h4>
+<pre><code class="language-python">(employees.sort_values("salary", ascending=False)
+          .groupby("department")
+          .head(2))</code></pre>
+
+					<h4>20. Percentage of each order within its region's revenue</h4>
+<pre><code class="language-python">orders["pct_of_region"] = (
+    orders["revenue"] / orders.groupby("region")["revenue"].transform("sum") * 100
+).round(1)</code></pre>
+
+					<h4>21. Customers who ordered in January but not in March</h4>
+<pre><code class="language-python">month = orders["order_date"].dt.month
+jan = set(orders.loc[month == 1, "customer_id"])
+mar = set(orders.loc[month == 3, "customer_id"])
+sorted(jan - mar)          # [] here: customers 1 and 2 both ordered again in March</code></pre>
+
+					<h4>22. Second-highest salary</h4>
+<pre><code class="language-python">employees["salary"].drop_duplicates().nlargest(2).iloc[-1]    # 102000</code></pre>
+
+					<h3>Frequently asked differences</h3>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Pair</th><th scope="col">Difference</th></tr></thead>
+							<tbody>
+								<tr><td>Series vs DataFrame</td><td>One labelled column vs a table of columns sharing an index</td></tr>
+								<tr><td><code>loc</code> vs <code>iloc</code></td><td>Labels (slice end included) vs integer positions (slice end excluded)</td></tr>
+								<tr><td><code>merge</code> vs <code>join</code> vs <code>concat</code></td><td>Join on columns (default inner) vs join on the index (default left) vs stack along an axis with no key matching</td></tr>
+								<tr><td><code>map</code> vs <code>apply</code></td><td><code>Series.map</code> maps each value with a dict, Series or function; <code>apply</code> runs a function on values, or on rows/columns of a DataFrame</td></tr>
+								<tr><td><code>isna</code> vs <code>isnull</code></td><td>No difference; <code>isnull</code> is an alias</td></tr>
+								<tr><td><code>dropna</code> vs <code>fillna</code></td><td>Remove rows/columns with missing values vs replace missing values</td></tr>
+								<tr><td><code>pivot</code> vs <code>pivot_table</code></td><td>Reshape only, fails on duplicates vs reshape and aggregate duplicates, with optional totals</td></tr>
+								<tr><td><code>count</code> vs <code>size</code></td><td>Non-missing values vs all rows, including missing</td></tr>
+								<tr><td><code>sort_values</code> vs <code>sort_index</code></td><td>Sort by column values vs sort by index labels</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="faq">Frequently Asked Questions</h2>
+
+					<h3>Is Pandas hard to learn?</h3>
+
+					<p>The basics take a few days if you know Python: reading files, selecting, filtering, grouping. Fluency comes from using it on real, messy data. Start with the roadmap concepts, then move to groupby, merge and dates.</p>
+
+					<h3>Do I need NumPy before learning Pandas?</h3>
+
+					<p>No. Knowing that operations work on whole arrays at once (vectorisation) helps, and you will pick up the few NumPy functions you need, such as <code>np.where</code> and <code>np.nan</code>, along the way.</p>
+
+					<h3>Should I learn Pandas or Polars in 2026?</h3>
+
+					<p>Learn Pandas first. Most tutorials, libraries and existing codebases use it, and job descriptions ask for it. Polars is worth adding when performance becomes a problem; the concepts carry over directly.</p>
+
+					<h3>How much data can Pandas handle?</h3>
+
+					<p>As much as fits comfortably in memory, usually a few million to tens of millions of rows on a laptop. Efficient dtypes, column selection and chunking stretch that further.</p>
+
+					<h3>Is Pandas used in backend development?</h3>
+
+					<p>Yes: bulk imports and exports, data migrations, reports, reconciliation jobs and admin analytics. Run heavy Pandas work in background workers such as Celery rather than inside web requests.</p>
+
+					<h3>What changed in pandas 3.0?</h3>
+
+					<p>Copy-on-Write is always on, text columns default to the new <code>str</code> dtype, and deprecated APIs were removed, including <code>DataFrame.applymap</code>, <code>fillna(method=...)</code> and the <code>"M"</code>, <code>"Q"</code> and <code>"Y"</code> frequency aliases. The official migration guide lists every change.</p>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>Pandas turns tabular data work into short, repeatable code. The core is small: <strong>Series and DataFrames</strong>, <strong>reading and inspecting</strong> data, selecting with <strong><code>loc</code> and <code>iloc</code></strong>, <strong>cleaning</strong> missing and messy values, <strong>groupby</strong> for summaries and <strong>merge</strong> for combining sources. Dates, reshaping, window functions and memory tuning build on that foundation.</p>
+
+					<p>Three habits matter more than any single method: <strong>vectorise</strong> instead of looping, <strong>check dtypes and row counts</strong> after every read and merge, and on pandas 3 update data with <strong>one <code>.loc</code> call</strong>. Pick a real CSV from your own work, run the five-minute exploration checklist from Chapter 5, and build one of the projects above on it.</p>
+
+					<h3>Related reading</h3>
+
+					<ul>
+						<li><a href="/blog/bulk-csv-import-export-pipelines/">Building Efficient Bulk CSV Import/Export and Data Migration Pipelines</a></li>
+						<li><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></li>
+						<li><a href="/blog/python-testing-code-quality/">Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices</a></li>
+						<li><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></li>
+					</ul>
+
+					<h2 id="resources">Further Learning Resources</h2>
+
+					<ul>
+						<li><a href="https://www.linkedin.com/posts/riyasac_pandas-roadmap-ugcPost-7528353684985065474-a7cD/" target="_blank" rel="noopener">Pandas Roadmap (PDF carousel)</a>: my 12-slide visual summary of the 10 essential concepts, a good companion to this article</li>
+						<li><a href="https://pandas.pydata.org/docs/" target="_blank" rel="noopener">pandas documentation</a>: the user guide and API reference</li>
+						<li><a href="https://pandas.pydata.org/docs/user_guide/10min.html" target="_blank" rel="noopener">10 minutes to pandas</a>: the official quick tour</li>
+						<li><a href="https://pandas.pydata.org/docs/user_guide/copy_on_write.html" target="_blank" rel="noopener">Copy-on-Write (CoW)</a>: the official explanation of the pandas 3 behaviour</li>
+						<li><a href="https://pandas.pydata.org/docs/user_guide/migration-3-strings.html" target="_blank" rel="noopener">Migration guide for the new string data type</a></li>
+						<li><a href="https://pandas.pydata.org/docs/getting_started/comparison/comparison_with_sql.html" target="_blank" rel="noopener">Comparison with SQL</a>: SQL queries and their Pandas equivalents</li>
+						<li><a href="https://wesmckinney.com/book/" target="_blank" rel="noopener">Python for Data Analysis</a> by Wes McKinney, the creator of Pandas, free to read online</li>
+					</ul>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Optional: keep if the post also lives on Medium
+				<p class="post-origin"><i class="bi bi-medium" aria-hidden="true"></i> Originally published on Medium.
+				<a href="MEDIUM_URL" target="_blank" rel="noopener">Read and comment on Medium <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></p>
+				-->
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="python-pandas-tutorial">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/sso-keycloak-django-oidc/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-16">16 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/sso-keycloak-django-oidc/">SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect</a></h3>
+								<p class="post-card-desc">How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Security</li><li>Django</li><li>Authentication</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/bulk-csv-import-export-pipelines/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/bulk-csv-import-export-pipelines/">Building Efficient Bulk CSV Import/Export and Data Migration Pipelines</a></h3>
+								<p class="post-card-desc">Build fast bulk CSV import/export pipelines in Django: ZIP handling, Celery background jobs, streaming, chunked bulk upserts, validation and retries.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Celery</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-testing-code-quality/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 13 min read</p>
+								<h3><a href="/blog/python-testing-code-quality/">Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices</a></h3>
+								<p class="post-card-desc">A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Testing</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/redis-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/redis-tutorial-for-beginners/">Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples</a></h3>
+								<p class="post-card-desc">Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Redis</li><li>Caching</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/golang-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/golang-tutorial-for-beginners/">Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin</a></h3>
+								<p class="post-card-desc">Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Go</li><li>APIs</li><li>Concurrency</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/database-optimization-guide/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 12 min read</p>
+								<h3><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></h3>
+								<p class="post-card-desc">PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>PostgreSQL</li><li>Django</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

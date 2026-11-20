@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'python-pandas-tutorial',
+		title: 'Python Pandas Tutorial: A Complete Guide from Basics to Advanced',
+		description: 'Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.',
+		date: '2026-11-20',
+		readingTime: 56,
+		level: 'Beginner to Advanced',
+		tags: ['Python', 'Pandas', 'Data Analysis'],
+		url: '/blog/python-pandas-tutorial/',
+		cover: '/assets/img/blog/python-pandas-tutorial/cover.webp',
+		coverAlt: 'Python Pandas Tutorial cover: a pandas groupby with named aggregation printing orders and revenue for North, South and West regions, with results of apply(axis=1) at 2.64 s, vectorized at 0.74 ms and the category dtype at 1.0 MB'
+	},
+	{
 		slug: 'sso-keycloak-django-oidc',
 		title: 'SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect',
 		description: 'How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.',
