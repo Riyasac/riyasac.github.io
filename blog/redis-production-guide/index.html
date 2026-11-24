@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Redis in Production: Caching, Locks, Memory and Django Best Practices | Riyas A C</title>
+	<meta name="description" content="A short Redis production guide: caching strategies, cache stampede fixes, eviction, persistence, Streams, Lua, distributed locks and Django setup.">
+	<meta name="keywords" content="redis production, redis caching strategies, cache stampede, redis distributed lock, redis lua, redis eviction policy, redis django, django-redis, redis interview questions">
+	<meta name="author" content="Riyas A C">
+	<meta name="theme-color" content="#f6f5f0" id="themeColor">
+	<!-- If the post was first published elsewhere (e.g. Medium), point canonical at that original URL -->
+	<link rel="canonical" href="https://riyasac.github.io/blog/redis-production-guide/">
+	<script>
+		// Apply the saved or system theme before first paint to avoid a flash
+		(function () {
+			var root = document.documentElement, theme = null;
+			try { theme = localStorage.getItem('theme'); } catch (e) {}
+			if (theme !== 'light' && theme !== 'dark') {
+				theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			}
+			root.setAttribute('data-theme', theme);
+			root.classList.add('js');
+		})();
+	</script>
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="article">
+	<meta property="og:url" content="https://riyasac.github.io/blog/redis-production-guide/">
+	<meta property="og:site_name" content="Riyas A C">
+	<meta property="og:title" content="Redis in Production: Caching, Locks, Memory and Django Best Practices">
+	<meta property="og:description" content="A short Redis production guide: caching strategies, cache stampede fixes, eviction, persistence, Streams, Lua, distributed locks and Django setup.">
+	<meta property="og:image" content="https://riyasac.github.io/assets/img/blog/redis-production-guide/cover.jpg">
+	<meta property="og:image:type" content="image/jpeg">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="535">
+	<meta property="og:image:alt" content="Redis in Production cover: redis-cli showing an atomic SET NX PX lock, a Lua rate limiter returning true three times then false, and an ACL user rejected with NOPERM on FLUSHALL">
+	<meta property="article:published_time" content="2026-11-24T09:00:00+05:30">
+	<meta property="article:modified_time" content="2026-11-24T09:00:00+05:30">
+	<meta property="article:author" content="Riyas A C">
+	<meta property="article:tag" content="Redis">
+	<meta property="article:tag" content="Django">
+	<meta property="article:tag" content="Performance">
+
+	<!-- Twitter / X -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Redis in Production: Caching, Locks, Memory and Django Best Practices">
+	<meta name="twitter:description" content="A short Redis production guide: caching strategies, cache stampede fixes, eviction, persistence, Streams, Lua, distributed locks and Django setup.">
+	<meta name="twitter:image" content="https://riyasac.github.io/assets/img/blog/redis-production-guide/cover.jpg">
+	<meta name="twitter:image:alt" content="Redis in Production cover: redis-cli showing an atomic SET NX PX lock, a Lua rate limiter returning true three times then false, and an ACL user rejected with NOPERM on FLUSHALL">
+
+	<!-- Icons -->
+	<link rel="icon" href="/assets/img/favicon/favicon.ico" sizes="48x48">
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="manifest" href="/site.webmanifest">
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css">
+
+	<!-- Structured data -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"@id": "https://riyasac.github.io/blog/redis-production-guide/#article",
+		"url": "https://riyasac.github.io/blog/redis-production-guide/",
+		"headline": "Redis in Production: Caching, Locks, Memory and Django Best Practices",
+		"description": "A short Redis production guide: caching strategies, cache stampede fixes, eviction, persistence, Streams, Lua, distributed locks and Django setup.",
+		"image": {
+			"@type": "ImageObject",
+			"url": "https://riyasac.github.io/assets/img/blog/redis-production-guide/cover.jpg",
+			"width": 1024,
+			"height": 535
+		},
+		"datePublished": "2026-11-24T09:00:00+05:30",
+		"dateModified": "2026-11-24T09:00:00+05:30",
+		"inLanguage": "en",
+		"author": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"publisher": {
+			"@type": "Person",
+			"@id": "https://riyasac.github.io/#person",
+			"name": "Riyas A C",
+			"url": "https://riyasac.github.io/"
+		},
+		"isPartOf": { "@id": "https://riyasac.github.io/blog/#blog" },
+		"keywords": ["Redis", "Django", "Performance"],
+		"mainEntityOfPage": "https://riyasac.github.io/blog/redis-production-guide/"
+	}
+	</script>
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://riyasac.github.io/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Blog",
+				"item": "https://riyasac.github.io/blog/"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "Redis in Production: Caching, Locks, Memory and Django Best Practices",
+				"item": "https://riyasac.github.io/blog/redis-production-guide/"
+			}
+		]
+	}
+	</script>
+</head>
+
+<body>
+	<a class="skip-link" href="#main">Skip to content</a>
+
+	<!-- Navigation -->
+	<header class="site-header" id="siteHeader">
+		<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+		<nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+			<div class="container">
+				<a class="brand" href="/" aria-label="Riyas A C, home">
+					<svg class="brand-mark" viewBox="-159.783 -239.665 180 68.024" aria-hidden="true">
+						<g transform="matrix(0.998934, 0, 0, 0.998934, -0.170268, -0.255392)">
+							<path d="M -159.783 -239.648 L -149.819 -222.584 L -126.395 -222.584 C -115.238 -220.868 -117.985 -211.718 -121.2 -210.801 L -112.397 -196.253 C -96.089 -202.781 -86.666 -235.266 -117.412 -239.648"/>
+							<path d="M -100.986 -171.594 L -122.805 -171.594 L -134.324 -193.108 L -155.773 -193.128 L -144.996 -210.753 L -123.984 -210.801"/>
+							<path d="M -107.682 -188.709 L -97.997 -171.594 L -39.341 -171.594 L -54.98 -189.471 L -85.173 -189.471 L -70.852 -210.418 C -66.803 -216.988 -63.576 -214.555 -60.723 -210.753 L -37.53 -181.855 C -33.65 -175.772 -21.182 -171.545 -19.241 -171.594 L 20.409 -171.594 L 7.659 -189.471 L -14.085 -189.471 C -18.036 -190.404 -23.627 -193.108 -27.81 -198.12 L -53.397 -233.426 C -58.28 -241.777 -72.428 -241.711 -77.001 -233.426"/>
+							<path d="M 20.409 -239.665 L 7.659 -222.584 L -18.424 -222.584 C -23.567 -222.409 -31.524 -212.857 -31.524 -208.813 L -43.481 -224.936 C -41.821 -230.434 -32.113 -239.881 -27.947 -239.648"/>
+						</g>
+					</svg>
+				</a>
+
+				<button class="theme-toggle order-lg-last" type="button" id="themeToggle" aria-label="Switch to dark theme">
+					<i class="bi bi-moon-stars" aria-hidden="true"></i>
+					<i class="bi bi-sun" aria-hidden="true"></i>
+				</button>
+
+				<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<i class="bi bi-list" aria-hidden="true"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav ms-auto align-items-lg-center">
+						<li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#experience">Experience</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#projects">Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#skills">Skills</a></li>
+						<li class="nav-item"><a class="nav-link active" href="/blog/" aria-current="true">Blog</a></li>
+						<li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+						<li class="nav-item nav-resume">
+							<a class="btn btn-sm btn-outline-ink" href="/assets/docs/Riyas_AC.pdf" download="Riyas_AC.pdf">
+								<i class="bi bi-download" aria-hidden="true"></i> Resume
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<main id="main">
+		<article class="post" id="top">
+			<header class="post-hero">
+				<div class="container post-container">
+					<nav class="breadcrumbs" aria-label="Breadcrumb">
+						<ol>
+							<li><a href="/">Home</a></li>
+							<li><a href="/blog/">Blog</a></li>
+							<li aria-current="page">Redis in Production</li>
+						</ol>
+					</nav>
+					<h1 class="post-title">Redis in Production: Caching, Locks, Memory and Django Best Practices</h1>
+					<p class="post-lead">What to know after the basics: caching patterns, cache failures, memory, locks and running Redis safely with Django.</p>
+					<ul class="post-meta">
+						<li><i class="bi bi-calendar3" aria-hidden="true"></i> <time datetime="2026-11-24">Nov 24, 2026</time></li>
+						<li><i class="bi bi-clock" aria-hidden="true"></i> 8 min read</li>
+						<li><i class="bi bi-bar-chart" aria-hidden="true"></i> Intermediate</li>
+						<li><i class="bi bi-code-slash" aria-hidden="true"></i> Redis, Python, Django</li>
+					</ul>
+					<ul class="tag-list post-tags" aria-label="Tags">
+						<li>Redis</li>
+						<li>Django</li>
+						<li>Performance</li>
+					</ul>
+				</div>
+				<figure class="container post-container post-cover">
+					<img src="/assets/img/blog/redis-production-guide/cover.webp" width="1024" height="535" alt="Redis in Production cover: redis-cli showing an atomic SET NX PX lock, a Lua rate limiter returning true three times then false, and an ACL user rejected with NOPERM on FLUSHALL" fetchpriority="high">
+				</figure>
+			</header>
+
+			<div class="container post-container post-layout">
+				<aside class="post-toc" aria-label="On this page">
+					<p class="post-toc-title">On this page</p>
+					<ol id="toc"></ol>
+				</aside>
+
+				<div class="post-body" id="postBody">
+
+					<h2 id="introduction">Introduction</h2>
+
+					<p>Getting Redis running is easy. Running it well in production is where most teams get hurt: stale caches, a database flooded after a key expires, two workers holding the same lock, or a full server rejecting writes.</p>
+
+					<p>This is a short guide to the parts that matter after the basics. If you are new to Redis, start with the <a href="/blog/redis-tutorial-for-beginners/">Redis Tutorial for Beginners</a> for data types and commands, then come back here.</p>
+
+					<aside class="callout">
+						<p class="callout-title">How this was tested</p>
+						<p>Every Python snippet and command here ran against Redis 8.10.0, redis-py 8.2.0, django-redis and Django 6.1.3 on Python 3.14.</p>
+					</aside>
+
+					<h2 id="data-structures">Pick the Right Data Structure</h2>
+
+					<p>Choose the structure by the operation you need, not by habit. Storing everything as JSON strings works, but you lose the server-side operations that make Redis useful.</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">You need</th><th scope="col">Use</th><th scope="col">Key commands</th></tr></thead>
+							<tbody>
+								<tr><td>Cached value, counter, token</td><td>String</td><td><code>SET ... EX</code>, <code>GET</code>, <code>INCR</code></td></tr>
+								<tr><td>Object with fields</td><td>Hash</td><td><code>HSET</code>, <code>HGET</code>, <code>HGETALL</code></td></tr>
+								<tr><td>Unique members, tags, roles</td><td>Set</td><td><code>SADD</code>, <code>SISMEMBER</code></td></tr>
+								<tr><td>Ranking, leaderboard</td><td>Sorted set</td><td><code>ZADD</code>, <code>ZREVRANGE</code></td></tr>
+								<tr><td>Durable event queue</td><td>Stream</td><td><code>XADD</code>, <code>XREADGROUP</code>, <code>XACK</code></td></tr>
+								<tr><td>Approximate unique count</td><td>HyperLogLog</td><td><code>PFADD</code>, <code>PFCOUNT</code></td></tr>
+								<tr><td>Nearby locations</td><td>Geospatial</td><td><code>GEOADD</code>, <code>GEOSEARCH</code></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="caching-strategies">Caching Strategies</h2>
+
+					<ul>
+						<li><strong>Cache-aside (lazy loading).</strong> The app checks Redis first. On a miss it reads the database and writes the result to Redis. This is the most common pattern.</li>
+						<li><strong>Read-through.</strong> Same idea, but a cache library loads the data for you on a miss.</li>
+						<li><strong>Write-through.</strong> Every write updates the database and the cache in the same flow. Reads stay fresh; writes get slower.</li>
+						<li><strong>Write-behind.</strong> Writes go to the cache first and reach the database later. Fast, but you lose data if Redis fails before the write is saved.</li>
+					</ul>
+
+					<p>Here is cache-aside done properly. It handles two problems covered in the next section: TTL jitter and caching "not found".</p>
+
+<pre><code class="language-python">import json
+import random
+
+import redis
+
+r = redis.Redis(host="localhost", port=6379, decode_responses=True)
+MISSING = "__none__"
+
+
+def get_product(product_id):
+    key = f"product:{product_id}"
+    cached = r.get(key)
+
+    if cached == MISSING:
+        return None                      # known "not found"
+    if cached is not None:
+        return json.loads(cached)        # cache hit
+
+    product = load_product_from_db(product_id)
+    if product is None:
+        r.set(key, MISSING, ex=60)       # negative cache, short TTL
+        return None
+
+    ttl = 300 + random.randint(0, 60)    # jitter: 300 to 360 seconds
+    r.set(key, json.dumps(product), ex=ttl)
+    return product</code></pre>
+
+					<p>Always return the same type on a hit and on a miss. A common bug returns a dict from the cache but a model object from the database.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Important</p>
+						<p>Caching is easy. Invalidation is the hard part. When a product changes, delete or update its key in the same code path that saves it.</p>
+					</aside>
+
+					<h2 id="cache-problems">Three Cache Problems to Plan For</h2>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Problem</th><th scope="col">What happens</th><th scope="col">Fix</th></tr></thead>
+							<tbody>
+								<tr><td>Cache stampede</td><td>A popular key expires and hundreds of requests hit the database at once</td><td>Lock so one request rebuilds, refresh in the background, TTL jitter</td></tr>
+								<tr><td>Cache penetration</td><td>Requests for IDs that do not exist skip the cache every time</td><td>Cache "not found" briefly, validate input, Bloom filter</td></tr>
+								<tr><td>Cache avalanche</td><td>Many keys expire at the same moment</td><td>Random TTLs so expiry spreads out</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<h2 id="memory">Memory, Eviction and Why Redis Is Fast</h2>
+
+					<p>Redis keeps data in RAM and runs commands one at a time on a main thread. No locks are needed around normal commands, which is why each command is atomic. Modern Redis uses extra threads for network I/O and background work, but command execution stays sequential.</p>
+
+					<p>That design has a cost: one slow command blocks everyone. Avoid <code>KEYS *</code>, huge <code>HGETALL</code> calls and deleting giant keys with <code>DEL</code>. Use <code>SCAN</code> to iterate keys and <code>UNLINK</code> to delete large keys; it frees memory in the background.</p>
+
+					<p>Set a memory limit and an eviction policy. The default policy is <code>noeviction</code>, which rejects writes when memory is full.</p>
+
+<pre class="diagram">maxmemory 2gb
+maxmemory-policy allkeys-lru</pre>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col">Policy</th><th scope="col">Behavior</th><th scope="col">Good for</th></tr></thead>
+							<tbody>
+								<tr><td><code>noeviction</code></td><td>Rejects writes when full</td><td>Redis as a primary store or queue</td></tr>
+								<tr><td><code>allkeys-lru</code></td><td>Evicts least recently used keys</td><td>Pure cache</td></tr>
+								<tr><td><code>allkeys-lfu</code></td><td>Evicts least frequently used keys</td><td>Cache with stable hot keys</td></tr>
+								<tr><td><code>volatile-lru</code></td><td>LRU among keys with a TTL</td><td>Mixed cache and permanent keys</td></tr>
+								<tr><td><code>volatile-ttl</code></td><td>Evicts keys closest to expiry</td><td>Short-lived data</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Watch <code>INFO MEMORY</code>. If <code>mem_fragmentation_ratio</code> is well above 1.5, Redis holds much more memory than its data needs.</p>
+
+					<h2 id="persistence-and-ha">Persistence and High Availability</h2>
+
+					<p><strong>Persistence</strong> saves data to disk so it survives a restart. <strong>Replication</strong> keeps copies on other servers. They solve different problems, and production usually needs both.</p>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">RDB</th><th scope="col">AOF</th></tr></thead>
+							<tbody>
+								<tr><td>How</td><td>Point-in-time snapshots</td><td>Log of every write</td></tr>
+								<tr><td>Data loss window</td><td>Everything since the last snapshot</td><td>About one second with <code>appendfsync everysec</code></td></tr>
+								<tr><td>File size</td><td>Small</td><td>Larger</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th scope="col"></th><th scope="col">Replication</th><th scope="col">Sentinel</th><th scope="col">Cluster</th></tr></thead>
+							<tbody>
+								<tr><td>Purpose</td><td>Copies of data</td><td>Automatic failover</td><td>Sharding plus failover</td></tr>
+								<tr><td>Automatic failover</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+								<tr><td>Splits data across nodes</td><td>No</td><td>No</td><td>Yes, by hash slot</td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<p>Rule of thumb: replication for copies, Sentinel when one primary is enough but you need failover, Cluster when data or traffic outgrows one primary.</p>
+
+					<h2 id="messaging">Pub/Sub vs Streams</h2>
+
+					<p><strong>Pub/Sub</strong> sends a message to whoever is subscribed right now. If a subscriber is offline, it misses the message. Use it for live updates where losing one is fine.</p>
+
+					<p><strong>Streams</strong> store messages. Consumer groups split work between workers, and each worker acknowledges what it finished. Unacknowledged messages can be retried.</p>
+
+<pre><code class="language-python">r.xgroup_create("orders", "workers", id="0", mkstream=True)
+msg_id = r.xadd("orders", {"order_id": 101, "status": "paid"})
+
+messages = r.xreadgroup("workers", "worker1", {"orders": "&gt;"}, count=1)
+# ... process the order ...
+r.xack("orders", "workers", msg_id)</code></pre>
+
+					<h2 id="atomic-operations">Transactions, Lua and Pipelining</h2>
+
+					<ul>
+						<li><strong>Transactions</strong> (<code>MULTI</code>/<code>EXEC</code>) run queued commands together with no other client in between. There is no rollback: if one command fails, the others still run. <code>WATCH</code> adds optimistic locking.</li>
+						<li><strong>Lua scripts</strong> run several commands atomically on the server, with logic in between. Use them for read-then-write steps.</li>
+						<li><strong>Pipelining</strong> sends many commands in one network round trip. It is faster, but not atomic.</li>
+					</ul>
+
+					<p>A classic example is a rate limiter. Calling <code>INCR</code> and then <code>EXPIRE</code> from Python leaves a gap: if the app crashes between them, the key never expires and the user is blocked forever. A Lua script closes that gap.</p>
+
+<pre><code class="language-python">RATE_LIMIT = r.register_script("""
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+    redis.call('EXPIRE', KEYS[1], ARGV[1])
+end
+return count
+""")
+
+
+def allow_request(user_id, limit=100, window=60):
+    count = RATE_LIMIT(keys=[f"rate:{user_id}"], args=[window])
+    return count &lt;= limit</code></pre>
+
+					<p>With <code>limit=3</code>, five calls returned <code>[True, True, True, False, False]</code> and the key had a 60 second TTL. This is a fixed window, so a user can send up to twice the limit across a window boundary. Use a sliding window if that matters.</p>
+
+					<h2 id="distributed-locks">Distributed Locks</h2>
+
+					<p>A lock lets only one worker run a job at a time. Set the key only if it does not exist (<code>NX</code>), with an expiry (<code>PX</code>) and a unique token:</p>
+
+<pre><code class="language-python">import uuid
+
+RELEASE = r.register_script("""
+if redis.call('GET', KEYS[1]) == ARGV[1] then
+    return redis.call('DEL', KEYS[1])
+end
+return 0
+""")
+
+
+def acquire(name, ttl_ms=10_000):
+    token = str(uuid.uuid4())
+    return token if r.set(name, token, nx=True, px=ttl_ms) else None
+
+
+def release(name, token):
+    return RELEASE(keys=[name], args=[token])</code></pre>
+
+					<p>Release with a script that checks the token. A plain <code>DEL</code> can delete a lock that expired and now belongs to another worker. redis-py's <code>r.lock(name, timeout=10)</code> does all of this for you.</p>
+
+					<aside class="callout">
+						<p class="callout-title">Common mistake</p>
+						<p>Using a Redis lock as the only guard for money or stock. A long GC pause can outlive the lock. For correctness, let PostgreSQL decide with a conditional update or <code>SELECT ... FOR UPDATE</code>, and use Redis to reduce contention.</p>
+					</aside>
+
+					<h2 id="django">Redis with Django</h2>
+
+					<p>Install <code>django-redis</code> and point the cache and sessions at Redis:</p>
+
+<pre><code class="language-python"># settings.py
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "TIMEOUT": 300,
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"</code></pre>
+
+					<p>Cache a query result in one line. <code>get_or_set</code> calls the function only on a miss:</p>
+
+<pre><code class="language-python">from django.core.cache import cache
+
+
+def get_products():
+    return cache.get_or_set(
+        "products:all",
+        lambda: list(Product.objects.values("id", "name", "price")),
+        timeout=300,
+    )</code></pre>
+
+					<p>For Celery, use a separate Redis database number (or a separate instance) for the broker, so cache eviction never deletes queued tasks:</p>
+
+<pre><code class="language-python">app.conf.broker_url = "redis://localhost:6379/2"
+app.conf.result_backend = "redis://localhost:6379/3"</code></pre>
+
+					<aside class="callout">
+						<p class="callout-title">Important</p>
+						<p>Never cache a user-specific API response under a shared key. Add the user ID or permissions to the cache key, or one user will see another user's data.</p>
+					</aside>
+
+					<h2 id="production-checklist">Production Checklist</h2>
+
+					<ul class="list-check">
+						<li>Keep Redis on a private network. Never expose port 6379 to the internet.</li>
+						<li>Use ACL users with only the commands and keys they need, and enable TLS.</li>
+						<li>Set <code>maxmemory</code> and a <code>maxmemory-policy</code> that fits the workload.</li>
+						<li>Put a TTL on every temporary key, and use clear key names like <code>user:101:profile</code>.</li>
+						<li>Reuse one client so redis-py can pool connections. Do not connect per request.</li>
+						<li>Set connection and socket timeouts, and make the app fall back to the database when Redis is down.</li>
+						<li>Monitor memory, hit ratio, evicted keys, latency (<code>SLOWLOG GET 10</code>) and replication lag.</li>
+						<li>Back up, and test that restoring actually works.</li>
+					</ul>
+
+					<p>A minimal ACL user that can only read and write <code>app:*</code> keys:</p>
+
+<pre class="diagram">ACL SETUSER appuser on &gt;StrongPassword ~app:* +get +set +del +expire</pre>
+
+					<p>Tested: this user could <code>SET app:x</code>, got <code>NOPERM</code> for <code>FLUSHALL</code>, and got <code>NOPERM</code> for keys outside <code>app:*</code>.</p>
+
+					<h2 id="interview-questions">Interview Questions</h2>
+
+					<p><strong>Is Redis single-threaded?</strong> Commands run one at a time on the main thread. Network I/O and some background tasks use extra threads.</p>
+
+					<p><strong>RDB or AOF?</strong> RDB for compact backups, AOF for a smaller data loss window. Many setups use both.</p>
+
+					<p><strong>Pub/Sub or Streams?</strong> Pub/Sub for live, lossy messages. Streams when messages must be kept, retried and acknowledged.</p>
+
+					<p><strong>How do you stop a cache stampede?</strong> Let one request rebuild the key behind a lock, refresh hot keys early, and add jitter to TTLs.</p>
+
+					<p><strong>Redis goes down. What happens to your Django app?</strong> It should keep working, slower. Use short timeouts, fall back to PostgreSQL, and rate limit so the database is not overwhelmed.</p>
+
+					<p><strong>Two users buy the last item at once. How do you prevent overselling?</strong> Let PostgreSQL decide with a transaction and a conditional update. Redis can help with coordination, but it is not the source of truth for stock.</p>
+
+					<p><strong>Redis memory keeps growing. Where do you look?</strong> Keys without TTLs, big keys (<code>redis-cli --bigkeys</code>), eviction stats, fragmentation, and code that creates unbounded key names.</p>
+
+					<h2 id="conclusion">Conclusion</h2>
+
+					<p>Redis is more than a cache, but caching is where most production bugs live. Pick the right structure, always set TTLs, plan for stampedes, make multi-step operations atomic, and design the app to survive Redis being down. Keep business data in PostgreSQL. Speed never justifies losing consistency.</p>
+				</div>
+			</div>
+
+			<footer class="container post-container post-footer">
+				<div class="author-card">
+					<img src="/assets/img/riyas-portrait.webp" width="546" height="803" alt="" class="author-photo" loading="lazy" decoding="async">
+					<div>
+						<p class="author-label">Written by</p>
+						<p class="author-name">Riyas A C</p>
+						<p class="author-role">Senior Backend Developer</p>
+						<p class="author-bio">Backend developer with experience building scalable web applications using Python, Django, Django REST Framework, Docker, and modern backend technologies. I enjoy writing clean code, sharing knowledge, and simplifying complex technical concepts for the developer community.</p>
+						<ul class="author-links">
+							<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener"><i class="bi bi-medium" aria-hidden="true"></i> Medium</a></li>
+							<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+							<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i> GitHub</a></li>
+						</ul>
+					</div>
+				</div>
+
+
+				<section class="more-posts" aria-labelledby="morePostsTitle" data-more-posts data-current="redis-production-guide">
+					<h2 class="more-posts-title" id="morePostsTitle">More posts</h2>
+					<div class="post-grid" data-post-list>
+						<!-- posts:start -->
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-pandas-tutorial/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-11-20">20 Nov 2026</time> · 56 min read</p>
+								<h3><a href="/blog/python-pandas-tutorial/">Python Pandas Tutorial: A Complete Guide from Basics to Advanced</a></h3>
+								<p class="post-card-desc">Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Pandas</li><li>Data Analysis</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/sso-keycloak-django-oidc/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-16">16 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/sso-keycloak-django-oidc/">SSO Explained: Step-by-Step Implementation with Keycloak, Django and OpenID Connect</a></h3>
+								<p class="post-card-desc">How Single Sign-On works, SAML vs OAuth 2.0 vs OpenID Connect, and a tested Keycloak and Django SSO setup with two apps, PKCE, logout and security tips.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Security</li><li>Django</li><li>Authentication</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/bulk-csv-import-export-pipelines/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/bulk-csv-import-export-pipelines/">Building Efficient Bulk CSV Import/Export and Data Migration Pipelines</a></h3>
+								<p class="post-card-desc">Build fast bulk CSV import/export pipelines in Django: ZIP handling, Celery background jobs, streaming, chunked bulk upserts, validation and retries.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Celery</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-testing-code-quality/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 13 min read</p>
+								<h3><a href="/blog/python-testing-code-quality/">Python Testing and Code Quality: Pytest, Unit Testing, Ruff and Best Practices</a></h3>
+								<p class="post-card-desc">A practical guide to Python testing and code quality: pytest, fixtures, mocking, coverage, Ruff, Black, mypy, pre-commit hooks and GitHub Actions CI.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Testing</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/redis-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/redis-tutorial-for-beginners/">Redis Tutorial for Beginners: Data Types, Commands, Caching and Python Examples</a></h3>
+								<p class="post-card-desc">Learn Redis with real examples: data types, essential Redis commands, caching with Python and Django, persistence, eviction, use cases and security tips.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Redis</li><li>Caching</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/golang-tutorial-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 15 min read</p>
+								<h3><a href="/blog/golang-tutorial-for-beginners/">Golang Tutorial for Beginners: Go Features, Goroutines and a REST API with Gin</a></h3>
+								<p class="post-card-desc">Learn the Go programming language: key features, fundamentals with working code, goroutines, testing and a Go REST API with Gin. Tested on Go 1.27.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Go</li><li>APIs</li><li>Concurrency</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/database-optimization-guide/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 12 min read</p>
+								<h3><a href="/blog/database-optimization-guide/">Database Optimization Guide: PostgreSQL, MySQL, SQLite and Django ORM</a></h3>
+								<p class="post-card-desc">PostgreSQL vs MySQL vs SQLite, Django ORM CRUD, database design, indexing and query optimization, with N+1 fixes and benchmarks measured on 1M rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>PostgreSQL</li><li>Django</li><li>Performance</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/aws-basics-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 10 min read</p>
+								<h3><a href="/blog/aws-basics-for-beginners/">AWS Basics for Beginners: Essential Services Explained with Examples</a></h3>
+								<p class="post-card-desc">28 essential AWS services explained with simple examples, four beginner architectures, the AWS CLI, key cloud concepts and an AWS learning roadmap.</p>
+								<ul class="tag-list" aria-label="Tags"><li>AWS</li><li>Cloud</li><li>DevOps</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/docker-image-optimization/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 8 min read</p>
+								<h3><a href="/blog/docker-image-optimization/">Docker Image Optimization: Build Smaller, Faster and Safer Images</a></h3>
+								<p class="post-card-desc">Take a Python app from 1.15 GB to 124 MB with slim base images, .dockerignore, cache mounts and a non-root user. Measured results and a Docker cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Docker</li><li>DevOps</li><li>Python</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/fastapi-for-beginners/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 7 min read</p>
+								<h3><a href="/blog/fastapi-for-beginners/">FastAPI for Beginners: Build Your First Python API</a></h3>
+								<p class="post-card-desc">Install FastAPI, build and run your first Python API, add request validation, and build a CRUD to-do API. Includes a comparison with Django REST Framework.</p>
+								<ul class="tag-list" aria-label="Tags"><li>FastAPI</li><li>Python</li><li>APIs</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/git-for-backend-developers/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/git-for-backend-developers/">Git for Backend Developers: Commits, Branching, Rebasing and Recovering from Mistakes</a></h3>
+								<p class="post-card-desc">Commits, branching, merge vs rebase, undoing mistakes, hotfixes and releases, git bisect and secret-blocking hooks, plus a Git cheat sheet.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Git</li><li>Workflow</li><li>Best Practices</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/python-concurrency-threads-asyncio-processes/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-15">15 Oct 2026</time> · 14 min read</p>
+								<h3><a href="/blog/python-concurrency-threads-asyncio-processes/">Python Concurrency for Backend Developers: Threads, asyncio and Processes</a></h3>
+								<p class="post-card-desc">When to use threads, asyncio or processes in a Python backend, with measured benchmarks on regular and free-threaded Python 3.14 and Django guidance.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Concurrency</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/lazy-imports-in-python/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-09">9 Oct 2026</time> · 17 min read</p>
+								<h3><a href="/blog/lazy-imports-in-python/">Lazy Imports in Python: Benefits, Examples and Best Practices</a></h3>
+								<p class="post-card-desc">Load modules only when your code needs them: practical patterns, a measured startup benchmark, Django guidance and the lazy import syntax in Python 3.15.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Python</li><li>Performance</li><li>Django</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-optimization-at-scale/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 21 min read</p>
+								<h3><a href="/blog/django-optimization-at-scale/">Scaling Django Applications: Optimization Techniques for Millions of Records</a></h3>
+								<p class="post-card-desc">How to find slow queries in Django, fix them with the ORM, and keep a project fast when tables grow past millions of rows.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Performance</li><li>PostgreSQL</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/api-fundamentals/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-10-07">7 Oct 2026</time> · 16 min read</p>
+								<h3><a href="/blog/api-fundamentals/">API Fundamentals: Architectures, Authentication, REST Design and Security</a></h3>
+								<p class="post-card-desc">How APIs communicate, how they know who is calling, how to design clean REST endpoints, and how to keep them secure.</p>
+								<ul class="tag-list" aria-label="Tags"><li>APIs</li><li>REST</li><li>Security</li></ul>
+							</div>
+						</article>
+						<article class="post-card reveal">
+							<div class="post-card-cover"><img src="/assets/img/blog/django-middleware-explained/cover.webp" alt="" loading="lazy" width="1024" height="535"></div>
+							<div class="post-card-body">
+								<p class="post-card-meta"><time datetime="2026-07-28">28 Jul 2026</time> · 8 min read</p>
+								<h3><a href="/blog/django-middleware-explained/">Django Middleware Explained: The Complete Guide with Real-World Examples</a></h3>
+								<p class="post-card-desc">Learn how Django processes every request and response, and why middleware is one of the most powerful features in Django.</p>
+								<ul class="tag-list" aria-label="Tags"><li>Django</li><li>Python</li><li>Middleware</li></ul>
+							</div>
+						</article>
+						<!-- posts:end -->
+					</div>
+				</section>
+
+				<a class="btn btn-outline-ink" href="/blog/"><i class="bi bi-arrow-left" aria-hidden="true"></i> All posts</a>
+			</footer>
+		</article>
+	</main>
+
+	<!-- Footer -->
+	<footer class="site-footer">
+		<div class="container">
+			<div class="footer-inner">
+				<div>
+					<p class="footer-name">Riyas A C</p>
+					<p class="footer-title">Senior Backend Developer · Python · Django · REST APIs · PostgreSQL</p>
+				</div>
+				<ul class="footer-social" aria-label="Profiles">
+					<li><a href="https://www.linkedin.com/in/riyasac" target="_blank" rel="noopener" aria-label="LinkedIn profile"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>
+					<li><a href="https://github.com/Riyasac" target="_blank" rel="noopener" aria-label="GitHub profile"><i class="bi bi-github" aria-hidden="true"></i></a></li>
+					<li><a href="https://medium.com/@riyasac6" target="_blank" rel="noopener" aria-label="Medium blog"><i class="bi bi-medium" aria-hidden="true"></i></a></li>
+					<li><a href="mailto:riyasac25@gmail.com" aria-label="Email"><i class="bi bi-envelope" aria-hidden="true"></i></a></li>
+				</ul>
+			</div>
+			<p class="footer-copy">&copy; <span id="year">2026</span> Riyas A C</p>
+		</div>
+	</footer>
+
+	<a class="back-to-top" href="#top" id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up" aria-hidden="true"></i></a>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js" defer></script>
+	<script src="/assets/js/posts.js" defer></script>
+	<script src="/assets/js/scripts.js" defer></script>
+</body>
+
+</html>

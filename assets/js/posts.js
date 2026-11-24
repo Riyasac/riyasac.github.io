@@ -7,6 +7,18 @@
    A `medium` URL marks a post whose canonical lives on Medium; it stays out of the sitemap. */
 window.BLOG_POSTS = [
 	{
+		slug: 'redis-production-guide',
+		title: 'Redis in Production: Caching, Locks, Memory and Django Best Practices',
+		description: 'A short Redis production guide: caching strategies, cache stampede fixes, eviction, persistence, Streams, Lua, distributed locks and Django setup.',
+		date: '2026-11-24',
+		readingTime: 8,
+		level: 'Intermediate',
+		tags: ['Redis', 'Django', 'Performance'],
+		url: '/blog/redis-production-guide/',
+		cover: '/assets/img/blog/redis-production-guide/cover.webp',
+		coverAlt: 'Redis in Production cover: redis-cli showing an atomic SET NX PX lock, a Lua rate limiter returning true three times then false, and an ACL user rejected with NOPERM on FLUSHALL'
+	},
+	{
 		slug: 'python-pandas-tutorial',
 		title: 'Python Pandas Tutorial: A Complete Guide from Basics to Advanced',
 		description: 'Learn Python Pandas from Series and DataFrames to groupby, merge, time series, Copy-on-Write and performance, with tested pandas 3 examples and 10 projects.',
